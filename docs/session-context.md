@@ -47,6 +47,14 @@ Validasi terakhir: `pnpm lint`, `pnpm test`, dan `pnpm build` lulus. Smoke test 
 
 UX form terbaru memformat nominal rupiah saat diketik, menyediakan catatan keputusan cepat untuk admin, dan memungkinkan sampai delapan nomor/akun dalam satu laporan. Exact identifier yang sudah dikenal dapat menautkan laporan ke profil lama; identifier tambahan baru menjadi bagian profil publik setelah laporan disetujui.
 
+Perubahan terakhir selesai pada commit `e543894`:
+
+- nominal rupiah berformat ribuan dan nilai nol hilang ketika field mulai diisi;
+- template catatan cepat approve/reject tetap dapat diedit admin;
+- maksimal delapan identifier per laporan;
+- exact strong identifier dapat menautkan laporan ke profil lama;
+- identifier tambahan baru ditautkan ke profil publik setelah laporan diterbitkan.
+
 Development lokal:
 
 - Web: `http://localhost:3000`
@@ -64,6 +72,23 @@ pnpm db:migrate
 pnpm db:seed
 pnpm dev
 ```
+
+## Prioritas sesi berikutnya
+
+Pelajari dan jadikan [Steam User Indonesia Report (SUIR)](https://steamuser.com/suir) sebagai referensi produk Indonesia. SUIR menyediakan pencarian nama, nomor rekening/e-wallet, pendataan penipu, serta validasi oleh admin/moderator komunitas. Halaman pelaporannya juga meminta kronologi, bukti chat/transaksi, dan data pelaku.
+
+Arahan produk terbaru dari owner: evaluasi lalu implementasikan tampilan identifier terlapor tanpa sensor, terutama nomor rekening, e-wallet, dan nomor telepon, agar pengguna dapat membandingkan data secara langsung seperti pada database laporan penipu komunitas.
+
+Batasan yang harus dijaga saat implementasi:
+
+- hanya identifier dari laporan berstatus `PUBLISHED` yang boleh tampil penuh;
+- data dari laporan `SUBMITTED`, `UNDER_REVIEW`, `REJECTED`, atau bukti privat tidak boleh bocor;
+- raw evidence, identitas pelapor, email akun, token, dan data autentikasi tetap privat;
+- tampilkan konteks bahwa data berasal dari laporan yang sudah diperiksa admin, bukan putusan hukum;
+- perbarui `docs/master-spec.md`, `product-rules.md`, `risk-methodology.md`, arsitektur, masking domain, API publik, SEO, dan test agar kebijakan baru konsisten;
+- lakukan review risiko privasi, salah tuduh, koreksi data, dan proses dispute sebelum rilis produksi.
+
+Catatan konflik: master spec saat ini menyatakan sensitive identifier umumnya dimasking di publik. Arahan terbaru di atas dimaksudkan sebagai perubahan produk untuk identifier terlapor yang sudah diterbitkan, tetapi implementasinya harus memperbarui source of truth secara eksplisit dan tidak boleh sekadar mematikan masking global.
 
 ## Catatan source of truth
 
