@@ -76,3 +76,35 @@ footer p,footer small { color:var(--muted); font-size:12px; }
 @media(max-width:850px){.page{padding-top:55px}.result-card{grid-template-columns:1fr}.profile-head,.profile-grid,.case-layout{grid-template-columns:1fr}.case-heading{grid-template-columns:1fr}.profile-head{gap:25px}.method-list article{grid-template-columns:50px 1fr}.method-list p{grid-column:2}.review-columns{grid-template-columns:1fr}}
 @media(max-width:600px){.page-search{grid-template-columns:1fr}.page-search button{min-height:52px}.form-grid{grid-template-columns:1fr}.inline-disclaimer{grid-template-columns:1fr}.review-card{padding:20px}.review-top{display:grid}.review-actions>div{display:grid}.method-list article{grid-template-columns:1fr}.method-list p{grid-column:auto}.page-title{font-size:56px}}
 .auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:55px}.auth-card{background:var(--white);border:1px solid var(--border);padding:30px;display:grid;gap:18px}.auth-card h2{font:900 30px "Arial Narrow",Impact,sans-serif;margin:0}.auth-card label{display:grid;gap:8px;font-size:11px;font-weight:800;letter-spacing:.05em}.auth-card input{border:1px solid var(--border);padding:14px;background:white}.success-message{background:#dcece5;border-left:4px solid var(--positive);padding:18px}.auth-grid+.success-message,.auth-grid~.form-error{margin-top:20px}@media(max-width:700px){.auth-grid{grid-template-columns:1fr}}
+
+/* Phase 5: interpretable positive reputation signals */
+.result-card{grid-template-columns:minmax(250px,1fr) 1fr 180px auto}
+.result-metrics{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.result-meta.positive strong{color:var(--positive)}
+.reputation-strip{display:grid;grid-template-columns:1fr 1fr auto;gap:1px;align-items:stretch;background:var(--border);border:1px solid var(--border);margin-bottom:24px}
+.reputation-strip>div{background:var(--ink);color:white;padding:24px;display:grid;gap:5px}
+.reputation-strip strong{font:900 38px "Arial Narrow",Impact,sans-serif;color:var(--positive)}
+.reputation-strip span{font-size:9px;letter-spacing:.11em}
+.reputation-strip .tactical-button{min-width:230px}
+.panel-empty{color:var(--muted);font-size:13px;line-height:1.6}
+.confirmation-panel{margin-top:24px}
+.panel-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;border-bottom:1px solid var(--border);padding-bottom:20px}
+.panel-heading .panel-index{margin-bottom:10px}
+.panel-heading h2{margin:0}
+.panel-heading>span{background:var(--positive);color:white;padding:9px 12px;font-size:9px;font-weight:900;letter-spacing:.1em}
+.confirmation-list article{padding:22px 0;border-bottom:1px solid var(--border)}
+.confirmation-list article:last-child{border-bottom:0}
+.confirmation-list article>div{display:flex;justify-content:space-between;gap:20px}
+.confirmation-list article span,.confirmation-list article small{font:700 10px monospace;color:var(--muted)}
+.confirmation-list article strong{font-family:"Arial Narrow",Impact,sans-serif}
+.confirmation-list article p{line-height:1.6}
+.confirmation-subject{display:flex;justify-content:space-between;align-items:center;border-left:4px solid var(--positive);background:#e6eee9;padding:18px}
+.confirmation-subject span{font-size:9px;letter-spacing:.12em;color:var(--muted)}
+.queue-section{margin-top:50px}
+.queue-heading{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:20px}
+.queue-heading h2{font-size:34px}
+.queue-heading span{font:900 22px monospace;color:var(--red)}
+.queue-empty{background:var(--white);border:1px solid var(--border);padding:25px;color:var(--muted);font-size:11px;letter-spacing:.08em}
+.confirmation-review{border-left:4px solid var(--positive)}
+@media(max-width:850px){.result-card,.reputation-strip{grid-template-columns:1fr}}
+@media(max-width:600px){.result-metrics{grid-template-columns:1fr 1fr}.confirmation-subject,.panel-heading,.confirmation-list article>div{align-items:flex-start;display:grid}.reputation-strip .tactical-button{min-width:0}}

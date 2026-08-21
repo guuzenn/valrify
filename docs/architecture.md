@@ -24,6 +24,12 @@ Shared packages
 
 UI tidak mengakses database secara langsung. Semua operasi domain melewati API sehingga web dapat dipindahkan hosting tanpa mengubah aturan bisnis.
 
+## Reputasi positif
+
+Phase 5 menambahkan `transaction_confirmations` sebagai sinyal positif yang terpisah dari laporan risiko. Pengguna terverifikasi mengirim konfirmasi untuk entity yang sudah ada, lalu moderator/admin menyetujui atau menolak. Bukti bersifat opsional dan tetap privat melalui adapter `EvidenceStorage`. Kombinasi user, entity, dan tanggal transaksi unik untuk membatasi duplikasi dasar.
+
+Konfirmasi yang masih `PENDING` atau sudah `REJECTED` tidak pernah tampil publik. Hanya status `APPROVED` yang dihitung dan ditampilkan pada search serta profil entity. Moderator tidak dapat meninjau kirimannya sendiri.
+
 ## Data inti
 
 Relasi utama dipisahkan antara `entities`, `identifiers`, dan `reports`. Identifier menyimpan nilai tampilan, nilai normalisasi untuk pencarian tepat, serta nilai termasking untuk publik. Tabel penghubung memungkinkan identifier yang sama muncul di entity dan laporan berbeda tanpa menyimpan array JSON.
@@ -42,4 +48,4 @@ Bukti mentah tidak pernah disajikan oleh endpoint publik. `EvidenceStorage` saat
 
 ## Risiko dan pencarian
 
-Normalisasi, masking, status transition, RBAC matrix, dan risk label berada di package domain agar konsisten antara web, API, seed, dan test. Pencarian Phase 1 memprioritaskan exact normalized match; fuzzy identity merge dan graph analysis ditunda.
+Normalisasi, masking, status transition, RBAC matrix, moderation transition konfirmasi, dan risk label berada di package domain agar konsisten antara web, API, seed, dan test. Pencarian memprioritaskan exact normalized match; fuzzy identity merge dan graph analysis ditunda.

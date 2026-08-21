@@ -4,6 +4,8 @@ export const roles = ["USER","VERIFIED_MIDDLEMAN","MODERATOR","ADMIN"] as const;
 export type Role = (typeof roles)[number];
 export const reportStatuses = ["SUBMITTED","UNDER_REVIEW","NEEDS_INFO","VERIFIED","REJECTED","WITHDRAWN","PUBLISHED"] as const;
 export type ReportStatus = (typeof reportStatuses)[number];
+export const confirmationStatuses = ["PENDING","APPROVED","REJECTED"] as const;
+export type ConfirmationStatus = (typeof confirmationStatuses)[number];
 
 export function normalizeIdentifier(type: IdentifierType, value: string): string {
   const trimmed=value.trim();
@@ -19,5 +21,6 @@ const transitions:Record<ReportStatus,ReportStatus[]>={SUBMITTED:["UNDER_REVIEW"
 export const canTransition=(from:ReportStatus,to:ReportStatus)=>transitions[from].includes(to);
 export const canModerate=(role:Role)=>role==="MODERATOR"||role==="ADMIN";
 export const canManageRoles=(role:Role)=>role==="ADMIN";
+export const canReviewConfirmation=(from:ConfirmationStatus,to:ConfirmationStatus)=>from==="PENDING"&&(to==="APPROVED"||to==="REJECTED");
 export const formatRupiah=(value:number)=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(value);
 export const labelIdentifierType=(type:string)=>({PHONE:"WhatsApp",BANK_ACCOUNT:"Rekening",EWALLET:"E-wallet",DISCORD:"Discord",FACEBOOK_NAME:"Nama Facebook",FACEBOOK_URL:"Profil Facebook",RIOT_ID:"Riot ID",PERSON_NAME:"Nama",OTHER:"Username lain"} as Record<string,string>)[type]??type;

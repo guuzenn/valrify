@@ -8,6 +8,10 @@ Monorepo ini berfokus pada alur inti:
 
 `submit laporan → review admin → publish → search identifier → lihat profil/kasus`
 
+dan vertical slice reputasi positif:
+
+`konfirmasi transaksi → review admin → approve/reject → tampil di profil entity`
+
 - `apps/web` — Next.js App Router dan design system VLRFY
 - `apps/api` — NestJS REST API, autentikasi, RBAC, search, laporan, dan moderasi
 - `packages/domain` — normalisasi identifier, masking, risk rules, RBAC, status transition
@@ -54,6 +58,6 @@ pnpm db:seed             isi data demo
 
 ## Batas milestone
 
-Fitur lanjut seperti dispute lengkap, profile claiming, verified middleman workflow, graph intelligence, fuzzy merge, Google OAuth produksi, Redis, dan object storage hosted sengaja belum dibangun. Deployment Sites lama hanya menjadi referensi visual; monorepo lokal ini adalah source of truth pengembangan berikutnya.
+Fitur lanjut seperti dispute lengkap, profile claiming, verified middleman workflow, graph intelligence, fuzzy merge, Google OAuth produksi, Redis, dan object storage hosted sengaja belum dibangun. Konfirmasi transaksi berhasil sudah tersedia dengan moderasi wajib dan bukti privat opsional. Deployment Sites lama hanya menjadi referensi visual; monorepo lokal ini adalah source of truth pengembangan berikutnya.
 
 Dokumentasi lanjut tersedia di [docs/architecture.md](docs/architecture.md), [docs/product-rules.md](docs/product-rules.md), [docs/risk-methodology.md](docs/risk-methodology.md), dan [docs/moderation.md](docs/moderation.md).

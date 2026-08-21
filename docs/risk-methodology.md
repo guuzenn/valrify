@@ -5,3 +5,5 @@
 - 2+ report published: `RISIKO TINGGI` — beberapa laporan terverifikasi ditemukan.
 
 Tidak ada skor numerik atau klasifikasi AI. Setiap label menyertakan input hitungan dan alasan yang dapat diaudit. Dispute/outcome baru menjadi input setelah workflow itu dibangun.
+
+Jumlah transaksi berhasil ditampilkan sebagai metrik positif yang terpisah. Pada tahap ini metrik tersebut tidak mengurangi jumlah laporan dan tidak mengubah label risiko.

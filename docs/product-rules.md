@@ -8,3 +8,6 @@
 - Raw evidence tidak dipublikasikan otomatis.
 - Fuzzy name tidak pernah memicu merge otomatis.
 - Label risiko rule-based dan selalu memiliki penjelasan.
+- Konfirmasi transaksi berhasil wajib login, email terverifikasi, dan moderasi sebelum publik.
+- Satu user hanya dapat mengirim satu konfirmasi per entity dan tanggal transaksi.
+- Konfirmasi positif tidak menghapus laporan atau menurunkan label risiko secara otomatis.

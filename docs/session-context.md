@@ -19,11 +19,17 @@
 
 ## Ditunda
 
-Google OAuth produksi, reset password, transaksi berhasil, dispute penuh, claim profile, verified middleman workflow, notification/email delivery, Redis, S3/R2, graph intelligence, fuzzy duplicate merge, analytics, dan deployment/domain produksi.
+Google OAuth produksi, reset password, dispute penuh, claim profile, verified middleman workflow, notification/email delivery, Redis, S3/R2, graph intelligence, fuzzy duplicate merge, analytics, dan deployment/domain produksi.
 
 ## Status handoff
 
-Phase 1 dan vertical slice minimum telah selesai pada commit `9b2b1c6`.
+Phase 1 dan vertical slice minimum telah selesai pada commit `9b2b1c6`. Master spec verbatim telah ditambahkan pada commit `555b19c`.
+
+Vertical slice awal Phase 5 untuk konfirmasi transaksi berhasil juga telah dibangun:
+
+`login → kirim konfirmasi → review admin → approve/reject → tampil di search/profil`
+
+Implementasi mencakup bukti privat opsional, pembatasan duplikasi user/entity/tanggal, moderation action, larangan self-review moderator, dan pemisahan metrik positif dari risk label.
 
 Struktur aktif:
 
@@ -37,7 +43,7 @@ Flow yang sudah diuji:
 
 `submit → review queue → publish → exact search → entity profile → public case`
 
-Validasi terakhir: `pnpm lint`, `pnpm test`, dan `pnpm build` lulus. Health API dan halaman search menghasilkan HTTP 200. Evidence menghasilkan 401 untuk publik dan 200 untuk admin.
+Validasi terakhir: `pnpm lint`, `pnpm test`, dan `pnpm build` lulus. Smoke test API konfirmasi menghasilkan alur `PENDING → APPROVED → public`, kemudian data uji dibersihkan. Endpoint admin menghasilkan 401 untuk publik. Pemeriksaan visual browser masih perlu dilakukan saat browser lokal tersedia.
 
 Development lokal:
 
@@ -58,4 +64,4 @@ pnpm dev
 
 ## Catatan source of truth
 
-Master Build Prompt VLRFY 65 bagian yang diberikan di percakapan adalah source of truth produk, tetapi belum disalin verbatim ke repository karena ukurannya sangat panjang. Session baru harus menerima prompt tersebut lagi atau membaca salinan verbatim yang ditambahkan pengguna. Dokumen ini, `product-rules.md`, `risk-methodology.md`, `moderation.md`, dan `architecture.md` adalah handoff implementasi—bukan pengganti lengkap master spec.
+Master Build Prompt VLRFY telah disalin verbatim ke `docs/master-spec.md` dan merupakan source of truth produk. Dokumen ini, `product-rules.md`, `risk-methodology.md`, `moderation.md`, dan `architecture.md` adalah handoff implementasi—bukan pengganti master spec.
