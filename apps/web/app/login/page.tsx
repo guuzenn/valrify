@@ -60,7 +60,7 @@ export default function LoginPage() {
           method: "POST",
           body: JSON.stringify({ token: result.developmentVerificationToken }),
         });
-        setMessage("Akun development terverifikasi. Silakan masuk.");
+        setMessage("Akun sudah aktif. Silakan masuk.");
       } else {
         setMessage(result.message);
       }
@@ -84,14 +84,14 @@ export default function LoginPage() {
 
   return <><Header compact/><main className="page shell">
     <p className="eyebrow">// AKUN VLRFY</p>
-    <h1 className="page-title">MASUK. VERIFIKASI. BERKONTRIBUSI.</h1>
-    {user===undefined?<div className="actor-bar auth-loading">MEMERIKSA SESI...</div>:user?<section className="session-card">
-      <p className="panel-index">// SESI AKTIF</p>
+    <h1 className="page-title">MASUK ATAU BUAT AKUN.</h1>
+    {user===undefined?<div className="actor-bar auth-loading">MEMERIKSA AKUN...</div>:user?<section className="session-card">
+      <p className="panel-index">// KAMU SUDAH MASUK</p>
       <div className="session-identity"><div><span>MASUK SEBAGAI</span><h2>{user.displayName}</h2><p>{user.email}</p></div><strong>{user.role}</strong></div>
-      <p>Selesaikan sesi ini sebelum masuk menggunakan akun lain.</p>
+      <p>Kalau mau memakai akun lain, keluar dari akun ini dulu.</p>
       <div className="session-actions">
         <button className="button-secondary" type="button" onClick={logout}>KELUAR</button>
-        <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/submit"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA MODERATION":"KIRIM LAPORAN"} ↗</Link>
+        <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/submit"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA HALAMAN ADMIN":"KIRIM LAPORAN"} ↗</Link>
       </div>
     </section>:<div className="auth-grid">
       <form className="auth-card" onSubmit={login}><p className="panel-index">01 / MASUK</p><h2>AKUN TERDAFTAR</h2><label>Email<input type="email" name="email" required/></label><label>Password<input type="password" name="password" required/></label><button className="tactical-button">MASUK ↗</button></form>

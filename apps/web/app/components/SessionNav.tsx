@@ -18,5 +18,6 @@ export function SessionNav() {
     window.addEventListener(authSessionChangedEvent, refreshSession);
     return () => window.removeEventListener(authSessionChangedEvent, refreshSession);
   }, []);
-  return <Link href="/login" className={user?"nav-session active":"nav-session"}>{user?(user.role==="ADMIN"||user.role==="MODERATOR"?"ADMIN":"AKUN"):"MASUK"}</Link>;
+  const isAdmin=user?.role==="ADMIN"||user?.role==="MODERATOR";
+  return <>{isAdmin&&<Link href="/admin/reports">ADMIN</Link>}<Link href="/login" className={user?"nav-session active":"nav-session"}>{user?"AKUN":"MASUK"}</Link></>;
 }

@@ -18,12 +18,12 @@ export default async function ConfirmTransactionPage({
     <>
       <Header compact />
       <main className="page shell narrow">
-        <p className="eyebrow">// REPUTASI KOMUNITAS</p>
-        <h1 className="page-title">TRANSAKSI BERHASIL.</h1>
+        <p className="eyebrow">// TESTI TRANSAKSI</p>
+        <h1 className="page-title">TRANSAKSINYA LANCAR?</h1>
         <p className="page-intro">
-          Konfirmasikan transaksi yang benar-benar selesai dengan {entity.displayName}.
-          Setiap kiriman diperiksa sebelum ditampilkan agar reputasi tidak mudah
-          dimanipulasi.
+          Kalau kamu pernah jual-beli dengan {entity.displayName} dan semuanya
+          selesai sesuai kesepakatan, ceritakan pengalamanmu di sini. Setiap testi
+          dicek moderator sebelum tampil di profil.
         </p>
         <ConfirmationForm
           entityId={entity.id}

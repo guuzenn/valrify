@@ -42,7 +42,7 @@ export function ConfirmationForm({
         throw new Error(
           Array.isArray(result.message)
             ? result.message.join(", ")
-            : result.message ?? "Konfirmasi gagal dikirim.",
+            : result.message ?? "Testi gagal dikirim.",
         );
       }
       setState({ loading: false, submitted: true });
@@ -50,22 +50,22 @@ export function ConfirmationForm({
       setState({
         loading: false,
         error:
-          error instanceof Error ? error.message : "Konfirmasi gagal dikirim.",
+          error instanceof Error ? error.message : "Testi gagal dikirim.",
       });
     }
   }
 
   if (user === undefined) {
-    return <div className="actor-bar">MEMERIKSA SESI...</div>;
+    return <div className="actor-bar">MEMERIKSA AKUN...</div>;
   }
   if (!user) {
     return (
       <div className="empty-state">
-        <span>AUTH</span>
-        <h2>MASUK UNTUK MENGONFIRMASI.</h2>
+        <span>AKUN</span>
+        <h2>MASUK UNTUK KASIH TESTI.</h2>
         <p>
-          Konfirmasi transaksi harus terhubung ke akun terverifikasi untuk
-          mencegah manipulasi reputasi.
+          Testi harus terhubung ke akunmu supaya tidak mudah dipalsukan atau
+          dikirim berkali-kali.
         </p>
         <Link href="/login" className="tactical-button">
           MASUK / DAFTAR
@@ -76,11 +76,10 @@ export function ConfirmationForm({
   if (state.submitted) {
     return (
       <div className="success-state">
-        <p className="eyebrow">// KONFIRMASI DITERIMA</p>
-        <h2>MENUNGGU REVIEW.</h2>
+        <p className="eyebrow">// TESTI TERKIRIM</p>
+        <h2>SEDANG DICEK.</h2>
         <p>
-          Konfirmasi belum memengaruhi profil publik sampai moderator
-          menyetujuinya.
+          Testi akan muncul di profil setelah dicek dan disetujui moderator.
         </p>
         <Link className="tactical-button" href={`/entity/${entitySlug}`}>
           KEMBALI KE PROFIL
@@ -98,9 +97,9 @@ export function ConfirmationForm({
       <form className="report-form" onSubmit={submit}>
         <input type="hidden" name="entityId" value={entityId} />
         <fieldset>
-          <legend>01 / TRANSAKSI</legend>
+          <legend>01 / CERITAKAN TRANSAKSI</legend>
           <div className="confirmation-subject">
-            <span>PROFIL YANG DIKONFIRMASI</span>
+            <span>KAMU BERTRANSAKSI DENGAN</span>
             <strong>{entityName}</strong>
           </div>
           <div className="form-grid">
@@ -122,14 +121,14 @@ export function ConfirmationForm({
             </label>
           </div>
           <label>
-            Catatan transaksi
+            Pengalaman kamu
             <textarea
               name="note"
               rows={5}
               minLength={10}
               maxLength={500}
               required
-              placeholder="Jelaskan singkat transaksi yang berhasil. Jangan masukkan data pribadi sensitif."
+              placeholder="Contoh: Beli akun lewat rekber, proses lancar dan akun sudah saya terima sesuai kesepakatan. Jangan tulis data pribadi."
             />
           </label>
         </fieldset>
@@ -155,7 +154,7 @@ export function ConfirmationForm({
           </p>
         )}
         <button className="tactical-button" disabled={state.loading}>
-          {state.loading ? "MENGIRIM..." : "KIRIM UNTUK DITINJAU ↗"}
+          {state.loading ? "MENGIRIM..." : "KIRIM TESTI ↗"}
         </button>
       </form>
     </>
