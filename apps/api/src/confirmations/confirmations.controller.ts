@@ -12,6 +12,7 @@ import { confirmationSchema } from "@vlrfy/validation";
 import { CurrentActor } from "../auth/current-actor";
 import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { parseSchema } from "../validation/parse-schema";
 import { ConfirmationsService } from "./confirmations.service";
 
 const allowedProofTypes = new Set([
@@ -49,7 +50,7 @@ export class ConfirmationsController {
     }
     return this.confirmations.create(
       actor.id,
-      confirmationSchema.parse(body),
+      parseSchema(confirmationSchema, body),
       files,
     );
   }

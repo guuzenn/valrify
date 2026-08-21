@@ -14,6 +14,7 @@ import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { Roles } from "../auth/roles";
 import { RolesGuard } from "../auth/roles.guard";
+import { parseSchema } from "../validation/parse-schema";
 import { AdminService } from "./admin.service";
 
 @Controller("admin")
@@ -33,7 +34,7 @@ export class AdminController {
     @CurrentActor() actor: AuthActor,
     @Body() body: unknown,
   ) {
-    return this.admin.review(Number(id), actor.id, reviewSchema.parse(body));
+    return this.admin.review(Number(id), actor.id, parseSchema(reviewSchema, body));
   }
 
   @Get("transaction-confirmations")
@@ -50,7 +51,7 @@ export class AdminController {
     return this.admin.reviewConfirmation(
       Number(id),
       actor.id,
-      confirmationReviewSchema.parse(body),
+      parseSchema(confirmationReviewSchema, body),
     );
   }
 

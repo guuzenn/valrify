@@ -13,6 +13,10 @@ export function ConfirmationReviewActions({
   const [message, setMessage] = useState("");
 
   async function act(decision: "APPROVE" | "REJECT", form: HTMLFormElement) {
+    if (!form.reportValidity()) {
+      setMessage("Rationale internal minimal 10 karakter.");
+      return;
+    }
     setMessage("Memproses...");
     const data = new FormData(form);
     try {
