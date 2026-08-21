@@ -2,6 +2,7 @@
 
 - Report private saat `SUBMITTED`, `UNDER_REVIEW`, `NEEDS_INFO`, atau `REJECTED`.
 - Hanya moderator/admin dapat melakukan moderasi.
+- Moderator/admin tidak dapat memeriksa kirimannya sendiri.
 - Reporter publik anonim; identitas account hanya untuk moderator.
 - Phone, bank account, dan e-wallet dimasking di public UI.
 - Tidak ada hasil tidak berarti aman.

@@ -130,6 +130,11 @@ export class AdminService {
       where: eq(reports.id, reportId),
     });
     if (!report) throw new NotFoundException("Laporan tidak ditemukan.");
+    if (report.reporterId === actorId) {
+      throw new BadRequestException(
+        "Admin tidak dapat memeriksa laporan yang dikirim sendiri. Gunakan akun tester untuk mengirim.",
+      );
+    }
     if (!["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(report.status)) {
       throw new BadRequestException("Status laporan tidak dapat diubah.");
     }
