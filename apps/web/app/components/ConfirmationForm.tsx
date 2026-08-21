@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { browserApi, browserApiUrl } from "../../lib/browser-api";
+import { CurrencyInput } from "./CurrencyInput";
 
 type User = { displayName: string; role: string };
 
@@ -109,15 +110,7 @@ export function ConfirmationForm({
             </label>
             <label>
               Nilai transaksi (Rp)
-              <input
-                type="number"
-                name="amount"
-                min="0"
-                max="1000000000"
-                step="1000"
-                defaultValue="0"
-                required
-              />
+              <CurrencyInput name="amount" required />
             </label>
           </div>
           <label>

@@ -45,6 +45,8 @@ Flow yang sudah diuji:
 
 Validasi terakhir: `pnpm lint`, `pnpm test`, dan `pnpm build` lulus. Smoke test API konfirmasi menghasilkan alur `PENDING → APPROVED → public`, kemudian data uji dibersihkan. Endpoint admin menghasilkan 401 untuk publik. Pemeriksaan visual browser masih perlu dilakukan saat browser lokal tersedia.
 
+UX form terbaru memformat nominal rupiah saat diketik, menyediakan catatan keputusan cepat untuk admin, dan memungkinkan sampai delapan nomor/akun dalam satu laporan. Exact identifier yang sudah dikenal dapat menautkan laporan ke profil lama; identifier tambahan baru menjadi bagian profil publik setelah laporan disetujui.
+
 Development lokal:
 
 - Web: `http://localhost:3000`

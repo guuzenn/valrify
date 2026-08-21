@@ -49,3 +49,5 @@ Bukti mentah tidak pernah disajikan oleh endpoint publik. `EvidenceStorage` saat
 ## Risiko dan pencarian
 
 Normalisasi, masking, status transition, RBAC matrix, moderation transition konfirmasi, dan risk label berada di package domain agar konsisten antara web, API, seed, dan test. Pencarian memprioritaskan exact normalized match; fuzzy identity merge dan graph analysis ditunda.
+
+Satu laporan dapat membawa sampai delapan identifier. Identifier kuat yang sudah tertaut—telepon, rekening, e-wallet, Discord, Facebook URL, atau Riot ID—dapat mengarahkan laporan baru ke entity yang sama. Identifier baru tetap berada pada report selama moderasi dan baru ditautkan ke profil publik ketika laporan diterbitkan. Auto-link tidak dilakukan jika identifier yang dikirim mengarah ke lebih dari satu entity.

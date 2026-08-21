@@ -16,6 +16,7 @@ import type {
 import { DatabaseService } from "../database/database.service";
 import {
   entities,
+  entityIdentifiers,
   identifiers,
   moderationActions,
   reportEvidence,
@@ -166,6 +167,22 @@ export class AdminService {
             updatedAt: new Date(),
           })
           .where(eq(reports.id, reportId));
+        if (report.entityId) {
+          const reportIdentifierRows = await tx
+            .select({ identifierId: reportIdentifiers.identifierId })
+            .from(reportIdentifiers)
+            .where(eq(reportIdentifiers.reportId, reportId));
+          for (const [index, row] of reportIdentifierRows.entries()) {
+            await tx
+              .insert(entityIdentifiers)
+              .values({
+                entityId: report.entityId,
+                identifierId: row.identifierId,
+                isPrimary: index === 0,
+              })
+              .onConflictDoNothing();
+          }
+        }
         await tx.insert(moderationActions).values({
           reportId,
           actorId,
