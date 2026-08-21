@@ -88,7 +88,7 @@ Batasan yang harus dijaga saat implementasi:
 - perbarui `docs/master-spec.md`, `product-rules.md`, `risk-methodology.md`, arsitektur, masking domain, API publik, SEO, dan test agar kebijakan baru konsisten;
 - lakukan review risiko privasi, salah tuduh, koreksi data, dan proses dispute sebelum rilis produksi.
 
-Catatan konflik: master spec saat ini menyatakan sensitive identifier umumnya dimasking di publik. Arahan terbaru di atas dimaksudkan sebagai perubahan produk untuk identifier terlapor yang sudah diterbitkan, tetapi implementasinya harus memperbarui source of truth secara eksplisit dan tidak boleh sekadar mematikan masking global.
+Master spec sudah diperbarui melalui bagian **67. Product Amendment — Published Scam Identifiers**. Kebijakan baru mengizinkan identifier terlapor tampil penuh hanya setelah laporan diterbitkan admin; masking tetap menjadi default untuk seluruh data yang belum memenuhi syarat publikasi. Implementasi kode belum dilakukan dan tidak boleh dibuat sebagai sakelar global yang mematikan masking.
 
 ## Catatan source of truth
 

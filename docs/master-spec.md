@@ -2329,3 +2329,61 @@ And a moderator can:
 The experience should feel like a real community product, not a portfolio demo.
 
 **Build VLRFY with that standard.**
+
+---
+
+# 67. Product Amendment — Published Scam Identifiers
+
+Effective 21 August 2026, this amendment is part of the VLRFY master specification and supersedes earlier masking guidance where the two conflict.
+
+VLRFY should take product inspiration from the community reporting flow of [Steam User Indonesia Report (SUIR)](https://steamuser.com/suir): users can search transaction identifiers, submit a complete fraud report, and rely on admin/moderator validation before publication. SUIR is a UX and workflow reference only. Do not scrape, copy, or import its data.
+
+## Public identifier policy
+
+For a report that has passed moderation and reached `PUBLISHED` status, identifiers directly tied to the reported counterparty may be displayed in full so users can compare the exact data before transferring money or trading.
+
+This policy applies especially to:
+
+- bank account numbers
+- e-wallet numbers
+- WhatsApp or phone numbers
+- Discord usernames
+- Riot IDs
+- Facebook names and profile URLs
+- other transaction usernames submitted as part of the verified report
+
+Full public display is allowed only when:
+
+1. the identifier is attached to a specific report;
+2. the report has supporting evidence available to moderators;
+3. an admin or moderator has explicitly approved publication;
+4. the identifier belongs to the reported transaction counterparty rather than the reporter;
+5. the public page clearly describes the data as community-reported and admin-reviewed, not a legal finding of guilt.
+
+## Data that must remain private
+
+Never expose identifiers or evidence from reports in `SUBMITTED`, `UNDER_REVIEW`, `NEEDS_INFO`, `REJECTED`, `WITHDRAWN`, or any other non-public state.
+
+The following remain private regardless of report status:
+
+- raw evidence files
+- unredacted chat screenshots or documents
+- reporter identity and contact details
+- account emails
+- passwords, tokens, cookies, OTPs, and authentication data
+- KTP, passports, payment cards, CVV, and unrelated personal documents
+- identifiers belonging to victims or unrelated third parties
+
+## Safety and correction requirements
+
+- Full identifiers must not be inserted into SEO descriptions or other unnecessary metadata.
+- Public pages must retain neutral wording and the existing legal disclaimer.
+- Every publication must remain traceable through the moderation audit trail.
+- Dispute, correction, delisting, and identifier-removal workflows must be supported before production scale.
+- Admins must be able to remove an incorrectly linked identifier without deleting unrelated valid reports.
+- Exact matching may link reports to an existing profile, but fuzzy identity merging still requires human review.
+- Masking remains the safe default anywhere the publication requirements above are not satisfied.
+
+## Implementation direction
+
+The next implementation pass should update the domain masking policy, public API projections, entity and case pages, search results, moderation controls, documentation, and automated tests together. Do not implement this as a global “disable masking” switch.
