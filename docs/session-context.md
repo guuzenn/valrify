@@ -1,23 +1,22 @@
-# VLRFY — Session Context
+# Konteks Implementasi
 
-## Source of truth
+## Keputusan 21 Agustus 2026
 
-`VLRFY v1 — Master Build Prompt` dari user pada 21 Agustus 2026 adalah sumber kebenaran produk. Bahasa publik adalah Bahasa Indonesia dan seluruh copy harus netral, berbasis bukti, serta tidak menyebut seseorang sebagai kriminal atau "scammer".
+- Master spec VLRFY adalah product source of truth.
+- Implementasi dibatasi pada Phase 1 dan vertical slice minimum.
+- Desain publik yang sudah disetujui dipertahankan.
+- Source lama berbasis single Next/Vinext/D1 dipindahkan ke monorepo Next + Nest + PostgreSQL.
+- Deployment Sites lama dibiarkan sebagai referensi visual, bukan backend/source pengembangan baru.
+- Domain dan hosting produksi ditunda sampai flow lokal stabil.
 
-## Batas implementasi sesi ini
+## Definition of done milestone ini
 
-Hanya Phase 1 dan minimum end-to-end vertical slice: fondasi aplikasi/database/design system/auth/RBAC; entity + normalized identifier; search; report submission dengan evidence privat; admin review; dan halaman entity/case publik.
+1. Pengguna register, memverifikasi email, dan login.
+2. Pengguna mengirim laporan beserta metadata bukti privat.
+3. Admin membuka review queue dan publish/reject laporan.
+4. Identifier pada laporan published langsung dapat dicari.
+5. Hasil dapat membuka profil entity dan detail kasus publik.
 
-## Sengaja ditunda
+## Ditunda
 
-Google/email-password app-owned auth, email verification, Discord OAuth, profile claim, dispute, successful transaction UI, verified-middleman dashboard, notification UI, duplicate suggestions, entity merge, graph analysis, donation, analytics, dan risk-rule editor. Tabel transaksi disiapkan tetapi alur reputasi positif belum dibuka.
-
-## Keputusan runtime
-
-Implementasi memakai satu full-stack React/Vinext app dengan Cloudflare D1 dan R2 agar slice dapat dijalankan serta di-host sebagai satu unit. Batas domain, tabel relasional, dan fungsi normalisasi dipisah agar migrasi ke Next.js + NestJS + PostgreSQL tetap mudah saat skala membutuhkannya.
-
-Deployment memakai identity header/SIWC dari runtime dan RBAC server-side. `VLRFY_ADMIN_EMAILS` adalah bootstrap allowlist. Google dan email/password menjadi pekerjaan pasca-slice karena runtime Sites tidak menyediakan app-owned public OAuth dari starter.
-
-## Definition of done
-
-`submit → review → publish → search → view entity/case`. Report tidak tampil publik sebelum `PUBLISHED`; raw evidence hanya untuk moderator/admin.
+Google OAuth produksi, reset password, transaksi berhasil, dispute penuh, claim profile, verified middleman workflow, notification/email delivery, Redis, S3/R2, graph intelligence, fuzzy duplicate merge, analytics, dan deployment/domain produksi.

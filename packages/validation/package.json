@@ -1,0 +1,11 @@
+{
+  "name": "@vlrfy/validation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": { "build": "tsc -p tsconfig.json" },
+  "dependencies": { "@vlrfy/domain": "workspace:*", "zod": "^4.1.12" },
+  "devDependencies": { "typescript": "^5.9.3" }
+}

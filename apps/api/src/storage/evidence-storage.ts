@@ -1,0 +1,1 @@
+export type StoredEvidence={key:string;fileName:string;mimeType:string;size:number};export abstract class EvidenceStorage{abstract put(file:Express.Multer.File,reportId:number):Promise<StoredEvidence>;abstract get(key:string):Promise<Buffer>;}

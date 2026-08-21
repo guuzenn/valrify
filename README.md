@@ -1,62 +1,59 @@
 # VLRFY
 
-Platform reputasi dan pemeriksaan risiko untuk transaksi akun Valorant Indonesia. VLRFY membantu komunitas mengecek identifier, membaca laporan yang telah dimoderasi, dan mengirim laporan berbasis bukti tanpa menjadi blacklist atau database doxxing.
+Platform reputasi dan pemeriksaan risiko untuk transaksi akun Valorant Indonesia. Bahasa publik sengaja netral: VLRFY menampilkan laporan, bukti, dan sinyal komunitas—bukan menetapkan seseorang bersalah secara hukum.
 
-## Milestone saat ini
+## Vertical slice saat ini
 
-Phase 1 + minimum vertical slice:
+Monorepo ini berfokus pada alur inti:
 
-`submit report → admin review → publish/reject → search identifier → view entity/case`
+`submit laporan → review admin → publish → search identifier → lihat profil/kasus`
 
-Scope lengkap dan penundaan fitur tercatat di [`docs/session-context.md`](docs/session-context.md).
+- `apps/web` — Next.js App Router dan design system VLRFY
+- `apps/api` — NestJS REST API, autentikasi, RBAC, search, laporan, dan moderasi
+- `packages/domain` — normalisasi identifier, masking, risk rules, RBAC, status transition
+- `packages/validation` — skema validasi bersama
+- PostgreSQL — data relasional melalui Drizzle ORM
+- local evidence adapter — bukti privat untuk development; dapat diganti S3/R2 kemudian
 
-## Stack
+## Menjalankan lokal
 
-- React + TypeScript + Vinext App Router
-- Tailwind CSS v4 untuk pipeline styling, dengan design system VLRFY custom
-- Cloudflare D1 + Drizzle schema untuk data relasional
-- Cloudflare R2 untuk raw evidence privat
-- Sites runtime identity/SIWC dan RBAC server-side
+Prasyarat: Node.js, pnpm, dan Docker Desktop.
 
-## Setup
-
-Persyaratan: Node.js 22.13+.
-
-```bash
-npm install
-npm run dev
+```powershell
+Copy-Item .env.example .env
+pnpm install
+pnpm db:up
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
 ```
 
-Dev server akan mencetak URL lokal. Data demo fiktif dibuat otomatis saat database pertama digunakan. Coba pencarian `0800 0000 0901` atau `ArkaNusa#DEMO`.
+Web berjalan di `http://localhost:3000`, API di `http://localhost:3001/api`, dan health check di `http://localhost:3001/api/health`.
 
-## Environment
+Data demo development:
 
-Salin `.env.example` menjadi `.env.local`. Untuk akses moderator/admin, isi `VLRFY_ADMIN_EMAILS` dengan email identity yang digunakan saat sign-in. Secret deployment dikelola melalui Sites, bukan disimpan di repository.
+- Admin: `admin@vlrfy.local`
+- Password: `DemoPass!2026`
+- Pencarian: `ArkaNusa Demo`, `0800 0000 0901`, `arkanusa.demo`, atau `ArkaDemo#VLRFY`
 
-## Database
+Seed sepenuhnya fiktif dan tidak boleh dianggap sebagai data kasus nyata.
 
-Schema source ada di `db/schema.ts`. Generate migration setelah perubahan schema:
+## Perintah utama
 
-```bash
-npm run db:generate
+```text
+pnpm dev                 web + API
+pnpm build               build semua workspace
+pnpm lint                TypeScript check
+pnpm test                unit test domain/API
+pnpm db:up / db:down     PostgreSQL Docker
+pnpm db:generate         buat SQL migration
+pnpm db:migrate          terapkan migration
+pnpm db:seed             isi data demo
 ```
 
-Runtime juga menjalankan idempotent `CREATE TABLE IF NOT EXISTS` agar preview pertama dapat digunakan. D1 adalah source of truth data; R2 hanya menyimpan file evidence.
+## Batas milestone
 
-## Quality checks
+Fitur lanjut seperti dispute lengkap, profile claiming, verified middleman workflow, graph intelligence, fuzzy merge, Google OAuth produksi, Redis, dan object storage hosted sengaja belum dibangun. Deployment Sites lama hanya menjadi referensi visual; monorepo lokal ini adalah source of truth pengembangan berikutnya.
 
-```bash
-npm run lint
-npm test
-```
-
-Unit tests mencakup normalisasi, masking, risk rules, RBAC, status transition, dan exact matching. Public route hanya membaca report berstatus `PUBLISHED`; evidence endpoint selalu memeriksa role moderator/admin.
-
-## Dokumen
-
-- [`docs/architecture.md`](docs/architecture.md)
-- [`docs/product-rules.md`](docs/product-rules.md)
-- [`docs/risk-methodology.md`](docs/risk-methodology.md)
-- [`docs/moderation.md`](docs/moderation.md)
-
-VLRFY by reyv.
+Dokumentasi lanjut tersedia di [docs/architecture.md](docs/architecture.md), [docs/product-rules.md](docs/product-rules.md), [docs/risk-methodology.md](docs/risk-methodology.md), dan [docs/moderation.md](docs/moderation.md).

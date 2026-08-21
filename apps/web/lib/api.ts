@@ -1,0 +1,8 @@
+const API_URL=process.env.API_URL??process.env.NEXT_PUBLIC_API_URL??"http://localhost:3001/api";
+async function api<T>(path:string,init?:RequestInit):Promise<T|null>{try{const response=await fetch(`${API_URL}${path}`,{...init,cache:"no-store"});if(response.status===404)return null;if(!response.ok)throw new Error(`API ${response.status}`);return await response.json() as T;}catch(error){console.error("VLRFY API request failed",error);return null;}}
+export type SearchResult={identifierId:number;type:string;maskedValue:string;entityId:number;slug:string;displayName:string;reportCount:number};
+export type EntityResult={id:number;slug:string;displayName:string;description:string;createdAt:string;reportCount:number;identifiers:Array<{type:string;maskedValue:string}>;reports:Array<{publicId:string;title:string;publicSummary:string;allegedLoss:number;publishedAt:string}>};
+export type CaseResult={id:number;publicId:string;title:string;publicSummary:string;transactionDate:string|null;allegedLoss:number;transactionType:string;publishedAt:string;slug:string;entityName:string;identifiers:Array<{type:string;maskedValue:string}>};
+export const searchPublic=(query:string)=>api<SearchResult[]>(`/search?q=${encodeURIComponent(query)}`).then((value)=>value??[]);
+export const getEntity=(slug:string)=>api<EntityResult>(`/entities/${encodeURIComponent(slug)}`);
+export const getPublicCase=(publicId:string)=>api<CaseResult>(`/reports/public/${encodeURIComponent(publicId)}`);

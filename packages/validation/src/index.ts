@@ -1,0 +1,6 @@
+import { z } from "zod";import { identifierTypes } from "@vlrfy/domain";
+export const registerSchema=z.object({email:z.email(),password:z.string().min(10).max(128),displayName:z.string().trim().min(2).max(80)});
+export const loginSchema=z.object({email:z.email(),password:z.string().min(1).max(128)});
+export const reportSchema=z.object({entityName:z.string().trim().min(2).max(80),title:z.string().trim().min(8).max(120),chronology:z.string().trim().min(80).max(5000),identifierType:z.enum(identifierTypes),identifierValue:z.string().trim().min(2).max(160),provider:z.string().trim().max(40).optional(),transactionDate:z.string().optional(),allegedLoss:z.coerce.number().int().min(0).max(1_000_000_000),transactionType:z.enum(["ACCOUNT_PURCHASE","ACCOUNT_SALE","ACCOUNT_TRADE","MIDDLEMAN"])});
+export const reviewSchema=z.object({decision:z.enum(["PUBLISH","REJECT"]),summary:z.string().trim().max(2000),rationale:z.string().trim().min(10).max(2000)}).superRefine((value,ctx)=>{if(value.decision==="PUBLISH"&&value.summary.length<30)ctx.addIssue({code:"custom",path:["summary"],message:"Ringkasan publik minimal 30 karakter."});});
+export type RegisterInput=z.infer<typeof registerSchema>;export type LoginInput=z.infer<typeof loginSchema>;export type ReportInput=z.infer<typeof reportSchema>;export type ReviewInput=z.infer<typeof reviewSchema>;

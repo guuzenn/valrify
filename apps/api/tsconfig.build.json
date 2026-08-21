@@ -1,0 +1,1 @@
+{ "extends": "./tsconfig.json", "compilerOptions": { "sourceMap": true, "rootDir": "src" }, "include": ["src/**/*.ts"], "exclude": ["src/database/seed.ts", "test"] }

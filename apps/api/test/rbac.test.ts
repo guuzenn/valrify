@@ -1,0 +1,1 @@
+import assert from "node:assert/strict";import test from "node:test";import {canModerate,canTransition} from "@vlrfy/domain";test("moderation roles and publish lifecycle",()=>{assert.equal(canModerate("USER"),false);assert.equal(canModerate("ADMIN"),true);assert.equal(canTransition("SUBMITTED","PUBLISHED"),false);assert.equal(canTransition("VERIFIED","PUBLISHED"),true)});

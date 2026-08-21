@@ -1,0 +1,5 @@
+import assert from "node:assert/strict";import test from "node:test";import {canManageRoles,canModerate,canTransition,getRisk,maskIdentifier,normalizeIdentifier,searchVariants} from "../src/index.js";
+test("normalizes Indonesian phone formats",()=>{assert.equal(normalizeIdentifier("PHONE","0812 3456 7890"),"6281234567890");assert.equal(normalizeIdentifier("PHONE","+62 812-3456-7890"),"6281234567890")});
+test("normalizes account and URL",()=>{assert.equal(normalizeIdentifier("BANK_ACCOUNT","1234-5678 9012"),"123456789012");assert.equal(normalizeIdentifier("FACEBOOK_URL","https://www.facebook.com/Reyv/"),"facebook.com/reyv")});
+test("masks sensitive values",()=>{assert.equal(maskIdentifier("PHONE","081234567890"),"0812••••7890");assert.equal(maskIdentifier("BANK_ACCOUNT","123456789012","BCA"),"BCA · 1234••••9012")});
+test("risk, RBAC, transition and matching remain deterministic",()=>{assert.equal(getRisk(1).level,"CAUTION");assert.equal(canModerate("MODERATOR"),true);assert.equal(canManageRoles("MODERATOR"),false);assert.equal(canTransition("SUBMITTED","PUBLISHED"),false);assert.ok(searchVariants("081234567890").includes("6281234567890"))});

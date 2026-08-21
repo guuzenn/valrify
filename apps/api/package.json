@@ -1,0 +1,42 @@
+{
+  "name": "@vlrfy/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test --test-isolation=none test/*.test.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/database/seed.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.2.1",
+    "@nestjs/core": "11.2.1",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/platform-express": "^11.2.1",
+    "@vlrfy/domain": "workspace:*",
+    "@vlrfy/validation": "workspace:*",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "drizzle-orm": "^0.45.2",
+    "multer": "^2.0.2",
+    "pg": "^8.16.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.14",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.19.0",
+    "@types/pg": "^8.15.6",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
