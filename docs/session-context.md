@@ -50,6 +50,7 @@ Development lokal:
 - Web: `http://localhost:3000`
 - API: `http://localhost:3001/api`
 - Admin demo: `admin@vlrfy.local`
+- User tester: `tester@vlrfy.local`
 - Password demo: `DemoPass!2026`
 - Search demo: `ArkaNusa Demo`, `0800 0000 0901`, `arkanusa.demo`, atau `ArkaDemo#VLRFY`
 

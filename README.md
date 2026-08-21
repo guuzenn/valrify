@@ -38,7 +38,9 @@ Web berjalan di `http://localhost:3000`, API di `http://localhost:3001/api`, dan
 Data demo development:
 
 - Admin: `admin@vlrfy.local`
+- User tester: `tester@vlrfy.local`
 - Password: `DemoPass!2026`
+- Gunakan user tester untuk mengirim laporan/testi, lalu admin untuk memeriksanya. Admin tidak dapat menyetujui testi yang dikirim oleh akun admin itu sendiri.
 - Pencarian: `ArkaNusa Demo`, `0800 0000 0901`, `arkanusa.demo`, atau `ArkaDemo#VLRFY`
 
 Seed sepenuhnya fiktif dan tidak boleh dianggap sebagai data kasus nyata.

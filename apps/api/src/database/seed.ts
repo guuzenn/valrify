@@ -50,6 +50,26 @@ async function seed() {
     .onConflictDoNothing();
 
   await db
+    .insert(users)
+    .values({
+      id: "demo-tester",
+      email: "tester@vlrfy.local",
+      displayName: "User Tester",
+      passwordHash,
+      role: "USER",
+      emailVerifiedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: users.email,
+      set: {
+        displayName: "User Tester",
+        passwordHash,
+        role: "USER",
+        emailVerifiedAt: new Date(),
+      },
+    });
+
+  await db
     .insert(entities)
     .values({
       slug: "arkanusa-demo",
