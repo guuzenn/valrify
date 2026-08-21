@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { formatRupiah, labelIdentifierType } from "@vlrfy/domain";
+import { formatRupiah, labelIdentifierType } from "@valrify/domain";
 import { browserApi, browserApiUrl } from "../../../lib/browser-api";
 import { ConfirmationReviewActions } from "../../components/ConfirmationReviewActions";
 import { Footer, Header } from "../../components/SiteChrome";

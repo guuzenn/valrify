@@ -1,1 +1,1 @@
-import { Controller,Get } from "@nestjs/common";@Controller("health")export class HealthController{@Get()check(){return{status:"ok",service:"vlrfy-api"}}}
+import { Controller,Get } from "@nestjs/common";@Controller("health")export class HealthController{@Get()check(){return{status:"ok",service:"valrify-api"}}}

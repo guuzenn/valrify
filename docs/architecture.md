@@ -1,4 +1,4 @@
-# Arsitektur VLRFY Phase 1
+# Arsitektur Valrify Phase 1
 
 ## Sasaran
 
@@ -18,8 +18,8 @@ Browser
        └─ EvidenceStorage adapter
 
 Shared packages
-  ├─ @vlrfy/domain
-  └─ @vlrfy/validation
+  ├─ @valrify/domain
+  └─ @valrify/validation
 ```
 
 UI tidak mengakses database secara langsung. Semua operasi domain melewati API sehingga web dapat dipindahkan hosting tanpa mengubah aturan bisnis.

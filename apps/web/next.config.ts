@@ -4,7 +4,7 @@ const apiUrl = process.env.API_URL ?? "http://localhost:3001/api";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  transpilePackages: ["@vlrfy/domain"],
+  transpilePackages: ["@valrify/domain"],
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${apiUrl}/:path*` }];
   },

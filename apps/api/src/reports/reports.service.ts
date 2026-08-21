@@ -5,8 +5,8 @@ import {
   maskIdentifier,
   normalizeIdentifier,
   type IdentifierType,
-} from "@vlrfy/domain";
-import type { ReportInput } from "@vlrfy/validation";
+} from "@valrify/domain";
+import type { ReportInput } from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
 import {
   entities,

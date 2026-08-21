@@ -1,12 +1,12 @@
-# VLRFY v1 — Master Build Prompt
+# Valrify v1 — Master Build Prompt
 
-You are building **VLRFY**, a community-powered trust, reputation, and scam-risk platform for **Valorant account trading in Indonesia**.
+You are building **Valrify**, a community-powered trust, reputation, and scam-risk platform for **Valorant account trading in Indonesia**.
 
-VLRFY is not a “scammer blacklist” and must not behave like a doxxing database. The product should help users **verify identities, inspect community reports, review evidence-backed risk signals, and evaluate seller reputation before transacting**.
+Valrify is not a “scammer blacklist” and must not behave like a doxxing database. The product should help users **verify identities, inspect community reports, review evidence-backed risk signals, and evaluate seller reputation before transacting**.
 
 The core positioning is:
 
-**VLRFY — platform reputasi dan pemeriksaan risiko untuk transaksi akun Valorant Indonesia.**
+**Valrify — platform reputasi dan pemeriksaan risiko untuk transaksi akun Valorant Indonesia.**
 
 Primary tagline:
 
@@ -18,15 +18,15 @@ Secondary positioning:
 
 Brand credit should appear subtly in appropriate areas such as the footer or About page:
 
-**VLRFY by reyv**
+**Valrify by reyv**
 
-Do not make the creator credit visually compete with the VLRFY brand.
+Do not make the creator credit visually compete with the Valrify brand.
 
 ---
 
 ## 1. Product Principles
 
-VLRFY must prioritize:
+Valrify must prioritize:
 
 1. Community usefulness.
 2. Evidence-backed reporting.
@@ -39,7 +39,7 @@ VLRFY must prioritize:
 9. Expandable architecture.
 10. A polished real-world product experience.
 
-VLRFY should not label a person as a criminal or definitively call someone a scammer.
+Valrify should not label a person as a criminal or definitively call someone a scammer.
 
 Avoid system fields or UI such as:
 
@@ -67,13 +67,13 @@ Public-facing wording should use neutral terminology such as:
 
 Include a disclaimer where appropriate:
 
-**Penilaian di VLRFY didasarkan pada laporan, bukti, dan sinyal komunitas yang tersedia. VLRFY bukan lembaga penegak hukum dan tidak menetapkan seseorang bersalah secara hukum.**
+**Penilaian di Valrify didasarkan pada laporan, bukti, dan sinyal komunitas yang tersedia. Valrify bukan lembaga penegak hukum dan tidak menetapkan seseorang bersalah secara hukum.**
 
 ---
 
 # 2. Initial Scope
 
-VLRFY v1 is specifically for:
+Valrify v1 is specifically for:
 
 **Valorant account trading in Indonesia.**
 
@@ -422,7 +422,7 @@ If the reporter is a VERIFIED_MIDDLEMAN and chooses to submit under their profes
 
 # 10. Identifier Privacy
 
-VLRFY must be useful for exact checking while avoiding unnecessary exposure of private identifiers.
+Valrify must be useful for exact checking while avoiding unnecessary exposure of private identifiers.
 
 ### Search
 
@@ -523,7 +523,7 @@ Allow a person to:
 
 **Klaim profil ini**
 
-Claiming means proving that a VLRFY profile represents them.
+Claiming means proving that a Valrify profile represents them.
 
 It does NOT allow them to delete reports.
 
@@ -560,7 +560,7 @@ They cannot:
 
 # 13. Reputation System
 
-VLRFY is not only negative-report focused.
+Valrify is not only negative-report focused.
 
 Allow community members to confirm:
 
@@ -686,7 +686,7 @@ Transparency is important.
 
 # 16. Linked Identity System
 
-This is one of VLRFY's flagship features.
+This is one of Valrify's flagship features.
 
 Identifiers should be modeled independently and connected to:
 
@@ -1208,7 +1208,7 @@ They must still feel like the same design system.
 
 Design mobile-first enough for Indonesian users.
 
-Many users will access VLRFY from phones while actively trading through:
+Many users will access Valrify from phones while actively trading through:
 
 - WhatsApp
 - Facebook
@@ -1293,7 +1293,7 @@ Prefer a monorepo.
 Example:
 
 ```text
-vlrfy/
+valrify/
 
 apps/
   web/
@@ -1563,7 +1563,7 @@ Public badge:
 
 **Verified Middleman**
 
-Do not imply that VLRFY guarantees transactions performed by them.
+Do not imply that Valrify guarantees transactions performed by them.
 
 Include an appropriate disclaimer.
 
@@ -1571,11 +1571,11 @@ Include an appropriate disclaimer.
 
 # 40. Donation
 
-VLRFY v1 is not subscription-based.
+Valrify v1 is not subscription-based.
 
 Support a simple:
 
-**Dukung VLRFY**
+**Dukung Valrify**
 
 page.
 
@@ -1760,7 +1760,7 @@ Do not attempt to build every advanced feature simultaneously before the base fl
 The most important flow must work end-to-end:
 
 ```text
-User opens VLRFY
+User opens Valrify
 
 ↓
 
@@ -1911,7 +1911,7 @@ Hero + Search
 
 Platform statistics
 
-How VLRFY works
+How Valrify works
 
 Recent verified cases
 
@@ -1939,7 +1939,7 @@ Keep homepage concise enough that search remains the focus.
 Suggested desktop nav:
 
 ```text
-VLRFY
+Valrify
 
 CEK
 LAPORAN
@@ -1964,18 +1964,18 @@ Mobile navigation should be simple.
 
 Logo should primarily be text-based:
 
-**VLRFY**
+**Valrify**
 
 Possible visual treatments:
 
 ```text
-VLRFY
+Valrify
 ```
 
 or:
 
 ```text
-VLRFY//
+Valrify//
 ```
 
 Do not use Valorant's official logo.
@@ -1983,7 +1983,7 @@ Do not use Valorant's official logo.
 Potential brand signature:
 
 ```text
-VLRFY
+Valrify
 BY REYV
 ```
 
@@ -2150,7 +2150,7 @@ docs/moderation.md
 
 README should include:
 
-- what VLRFY is
+- what Valrify is
 - stack
 - setup
 - environment variables
@@ -2210,7 +2210,7 @@ For the first implementation milestone, deliver a functional vertical slice cont
 ### Public
 
 - homepage
-- VLRFY navigation
+- Valrify navigation
 - hero search
 - search results
 - entity profile
@@ -2246,7 +2246,7 @@ For the first implementation milestone, deliver a functional vertical slice cont
 
 ### Design
 
-A polished VLRFY visual system matching this specification.
+A polished Valrify visual system matching this specification.
 
 The first vertical slice should demonstrate:
 
@@ -2282,7 +2282,7 @@ Do not:
 
 # 65. Long-Term Vision
 
-Architect VLRFY so it could eventually become:
+Architect Valrify so it could eventually become:
 
 **trust infrastructure for digital trading in Indonesia.**
 
@@ -2304,7 +2304,7 @@ But do NOT let this future scope distract from making the initial Valorant Indon
 
 # 66. Definition of Success
 
-VLRFY v1 is successful when a real Valorant trader in Indonesia can:
+Valrify v1 is successful when a real Valorant trader in Indonesia can:
 
 1. Open the website from their phone.
 2. Paste a phone number or payment identifier.
@@ -2328,15 +2328,15 @@ And a moderator can:
 
 The experience should feel like a real community product, not a portfolio demo.
 
-**Build VLRFY with that standard.**
+**Build Valrify with that standard.**
 
 ---
 
 # 67. Product Amendment — Published Scam Identifiers
 
-Effective 21 August 2026, this amendment is part of the VLRFY master specification and supersedes earlier masking guidance where the two conflict.
+Effective 21 August 2026, this amendment is part of the Valrify master specification and supersedes earlier masking guidance where the two conflict.
 
-VLRFY should take product inspiration from the community reporting flow of [Steam User Indonesia Report (SUIR)](https://steamuser.com/suir): users can search transaction identifiers, submit a complete fraud report, and rely on admin/moderator validation before publication. SUIR is a UX and workflow reference only. Do not scrape, copy, or import its data.
+Valrify should take product inspiration from the community reporting flow of [Steam User Indonesia Report (SUIR)](https://steamuser.com/suir): users can search transaction identifiers, submit a complete fraud report, and rely on admin/moderator validation before publication. SUIR is a UX and workflow reference only. Do not scrape, copy, or import its data.
 
 ## Public identifier policy
 

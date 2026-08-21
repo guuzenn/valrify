@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { Response } from "express";
-import { confirmationReviewSchema, reviewSchema } from "@vlrfy/validation";
+import { confirmationReviewSchema, reviewSchema } from "@valrify/validation";
 import { CurrentActor } from "../auth/current-actor";
 import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";

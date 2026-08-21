@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
-import type { ConfirmationInput } from "@vlrfy/validation";
+import type { ConfirmationInput } from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
 import {
   entities,

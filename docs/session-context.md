@@ -2,7 +2,7 @@
 
 ## Keputusan 21 Agustus 2026
 
-- Master spec VLRFY adalah product source of truth.
+- Master spec Valrify adalah product source of truth.
 - Implementasi dibatasi pada Phase 1 dan vertical slice minimum.
 - Desain publik yang sudah disetujui dipertahankan.
 - Source lama berbasis single Next/Vinext/D1 dipindahkan ke monorepo Next + Nest + PostgreSQL.
@@ -33,7 +33,7 @@ Implementasi mencakup bukti privat opsional, pembatasan duplikasi user/entity/ta
 
 Struktur aktif:
 
-- `apps/web`: Next.js App Router dan desain publik VLRFY yang sudah disetujui.
+- `apps/web`: Next.js App Router dan desain publik Valrify yang sudah disetujui.
 - `apps/api`: NestJS REST API untuk auth, search, report submission, evidence privat, dan moderation.
 - `packages/domain`: normalisasi, masking, risk rules, RBAC, dan report transitions.
 - `packages/validation`: skema Zod bersama.
@@ -59,10 +59,10 @@ Development lokal:
 
 - Web: `http://localhost:3000`
 - API: `http://localhost:3001/api`
-- Admin demo: `admin@vlrfy.local`
-- User tester: `tester@vlrfy.local`
+- Admin demo: `admin@valrify.local`
+- User tester: `tester@valrify.local`
 - Password demo: `DemoPass!2026`
-- Search demo: `ArkaNusa Demo`, `0800 0000 0901`, `arkanusa.demo`, atau `ArkaDemo#VLRFY`
+- Search demo: `ArkaNusa Demo`, `0800 0000 0901`, `arkanusa.demo`, atau `ArkaDemo#VALRIFY`
 
 Untuk melanjutkan setelah mesin/session baru:
 
@@ -92,4 +92,4 @@ Master spec sudah diperbarui melalui bagian **67. Product Amendment — Publishe
 
 ## Catatan source of truth
 
-Master Build Prompt VLRFY telah disalin verbatim ke `docs/master-spec.md` dan merupakan source of truth produk. Dokumen ini, `product-rules.md`, `risk-methodology.md`, `moderation.md`, dan `architecture.md` adalah handoff implementasi—bukan pengganti master spec.
+Master Build Prompt Valrify telah disalin verbatim ke `docs/master-spec.md` dan merupakan source of truth produk. Dokumen ini, `product-rules.md`, `risk-methodology.md`, `moderation.md`, dan `architecture.md` adalah handoff implementasi—bukan pengganti master spec.

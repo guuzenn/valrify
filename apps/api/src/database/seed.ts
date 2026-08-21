@@ -2,7 +2,7 @@ import { hash } from "bcryptjs";
 import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { maskIdentifier, normalizeIdentifier } from "@vlrfy/domain";
+import { maskIdentifier, normalizeIdentifier } from "@valrify/domain";
 import {
   entities,
   entityIdentifiers,
@@ -19,12 +19,12 @@ async function seed() {
   const pool = new Pool({
     connectionString:
       process.env.DATABASE_URL ??
-      "postgresql://vlrfy:vlrfy_dev@localhost:5434/vlrfy",
+      "postgresql://valrify:valrify_dev@localhost:5434/valrify",
   });
   const db = drizzle(pool);
-  const adminEmail = process.env.VLRFY_ADMIN_EMAIL ?? "admin@vlrfy.local";
+  const adminEmail = process.env.VALRIFY_ADMIN_EMAIL ?? "admin@valrify.local";
   const passwordHash = await hash(
-    process.env.VLRFY_DEMO_PASSWORD ?? "DemoPass!2026",
+    process.env.VALRIFY_DEMO_PASSWORD ?? "DemoPass!2026",
     12,
   );
 
@@ -34,14 +34,14 @@ async function seed() {
       {
         id: "demo-admin",
         email: adminEmail,
-        displayName: "Admin VLRFY",
+        displayName: "Admin Valrify",
         passwordHash,
         role: "ADMIN",
         emailVerifiedAt: new Date(),
       },
       {
         id: "demo-reporter",
-        email: "reporter.demo@vlrfy.invalid",
+        email: "reporter.demo@valrify.invalid",
         displayName: "Anggota Demo",
         role: "USER",
         emailVerifiedAt: new Date(),
@@ -53,7 +53,7 @@ async function seed() {
     .insert(users)
     .values({
       id: "demo-tester",
-      email: "tester@vlrfy.local",
+      email: "tester@valrify.local",
       displayName: "User Tester",
       passwordHash,
       role: "USER",
@@ -75,7 +75,7 @@ async function seed() {
       slug: "arkanusa-demo",
       displayName: "ArkaNusa Demo",
       description:
-        "Profil fiktif untuk demonstrasi data pengembangan VLRFY.",
+        "Profil fiktif untuk demonstrasi data pengembangan Valrify.",
     })
     .onConflictDoNothing();
   const entity = (
@@ -87,7 +87,7 @@ async function seed() {
     { type: "PERSON_NAME" as const, rawValue: "ArkaNusa Demo" },
     { type: "PHONE" as const, rawValue: "0800 0000 0901" },
     { type: "DISCORD" as const, rawValue: "arkanusa.demo" },
-    { type: "RIOT_ID" as const, rawValue: "ArkaDemo#VLRFY" },
+    { type: "RIOT_ID" as const, rawValue: "ArkaDemo#VALRIFY" },
   ];
   const identifierRows: Array<typeof identifiers.$inferSelect> = [];
   for (const item of demoIdentifiers) {
@@ -185,7 +185,7 @@ async function seed() {
   }
 
   await pool.end();
-  console.log("VLRFY fictional seed ready");
+  console.log("Valrify fictional seed ready");
 }
 
 seed().catch((error) => {

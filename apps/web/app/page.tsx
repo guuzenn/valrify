@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main>
       <header className="site-header shell">
-        <Link className="wordmark" href="/" aria-label="VLRFY beranda">VLRFY<span>{"//"}</span></Link>
+        <Link className="wordmark" href="/" aria-label="Valrify beranda">VALRIFY<span>{"//"}</span></Link>
         <nav aria-label="Navigasi utama">
           <a href="#cara-kerja">CARA KERJA</a>
           <Link href="/methodology">CARA BACA</Link>
@@ -33,7 +33,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="trust-strip" aria-label="Prinsip VLRFY">
+      <section className="trust-strip" aria-label="Prinsip Valrify">
         <div className="shell trust-grid">
           <p><strong>DICEK DULU</strong><span>Admin memeriksa laporan sebelum ditayangkan.</span></p>
           <p><strong>TIDAK ASAL TUDUH</strong><span>Ada laporan bukan berarti orangnya pasti menipu.</span></p>
@@ -52,13 +52,13 @@ export default function Home() {
 
       <section className="disclaimer shell">
         <p className="panel-index">CATATAN PENTING</p>
-        <p>VLRFY cuma menampilkan laporan dan testi yang sudah dicek admin. Ini bukan putusan hukum dan bukan jaminan transaksi pasti aman.</p>
+        <p>Valrify cuma menampilkan laporan dan testi yang sudah dicek admin. Ini bukan putusan hukum dan bukan jaminan transaksi pasti aman.</p>
       </section>
 
       <footer className="shell">
-        <div className="wordmark">VLRFY<span>{"//"}</span></div>
+        <div className="wordmark">VALRIFY<span>{"//"}</span></div>
         <p>Cek riwayat penjual atau pembeli akun Valorant sebelum transaksi.</p>
-        <small>VLRFY by reyv · © 2026</small>
+        <small>Valrify by reyv · © 2026</small>
       </footer>
     </main>
   );

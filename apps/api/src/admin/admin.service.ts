@@ -8,11 +8,11 @@ import {
   canReviewConfirmation,
   type ConfirmationStatus,
   type ReportStatus,
-} from "@vlrfy/domain";
+} from "@valrify/domain";
 import type {
   ConfirmationReviewInput,
   ReviewInput,
-} from "@vlrfy/validation";
+} from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
 import {
   entities,

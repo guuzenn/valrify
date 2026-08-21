@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
-import { searchVariants } from "@vlrfy/domain";
+import { searchVariants } from "@valrify/domain";
 import { DatabaseService } from "../database/database.service";
 import {
   entities,

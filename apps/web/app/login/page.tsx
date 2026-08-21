@@ -83,7 +83,7 @@ export default function LoginPage() {
   }
 
   return <><Header compact/><main className="page shell">
-    <p className="eyebrow">// AKUN VLRFY</p>
+    <p className="eyebrow">// AKUN VALRIFY</p>
     <h1 className="page-title">MASUK ATAU BUAT AKUN.</h1>
     {user===undefined?<div className="actor-bar auth-loading">MEMERIKSA AKUN...</div>:user?<section className="session-card">
       <p className="panel-index">// KAMU SUDAH MASUK</p>

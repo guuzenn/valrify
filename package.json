@@ -1,19 +1,19 @@
 {
-  "name": "vlrfy",
+  "name": "valrify",
   "version": "0.2.0",
   "private": true,
   "packageManager": "pnpm@11.13.1",
   "engines": { "node": ">=22.13.0" },
   "scripts": {
-    "dev": "pnpm --parallel --filter @vlrfy/api --filter @vlrfy/web dev",
+    "dev": "pnpm --parallel --filter @valrify/api --filter @valrify/web dev",
     "build": "pnpm --workspace-concurrency=1 -r --sort build",
     "lint": "pnpm --workspace-concurrency=1 -r --if-present lint",
     "test": "pnpm --workspace-concurrency=1 -r --if-present test",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "db:generate": "pnpm --filter @vlrfy/api db:generate",
-    "db:migrate": "pnpm --filter @vlrfy/api db:migrate",
-    "db:seed": "pnpm --filter @vlrfy/api db:seed"
+    "db:generate": "pnpm --filter @valrify/api db:generate",
+    "db:migrate": "pnpm --filter @valrify/api db:migrate",
+    "db:seed": "pnpm --filter @valrify/api db:seed"
   },
   "devDependencies": { "tsx": "^4.20.6", "typescript": "^5.9.3" }
 }

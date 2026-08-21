@@ -2,18 +2,18 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: vlrfy
-      POSTGRES_USER: vlrfy
-      POSTGRES_PASSWORD: vlrfy_dev
+      POSTGRES_DB: valrify
+      POSTGRES_USER: valrify
+      POSTGRES_PASSWORD: valrify_dev
     ports:
       - "5434:5432"
     volumes:
-      - vlrfy_postgres_data:/var/lib/postgresql/data
+      - valrify_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vlrfy -d vlrfy"]
+      test: ["CMD-SHELL", "pg_isready -U valrify -d valrify"]
       interval: 5s
       timeout: 5s
       retries: 10
 
 volumes:
-  vlrfy_postgres_data:
+  valrify_postgres_data:

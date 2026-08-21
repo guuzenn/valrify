@@ -76,7 +76,7 @@ export function SubmitReportForm() {
         <legend>01 / SIAPA YANG DILAPORKAN?</legend>
         <label>Nama akun / seller<input name="entityName" required minLength={2} maxLength={80}/></label>
         <div className="identifier-builder">
-          <div className="identifier-builder-heading"><div><strong>DATA YANG KAMU PUNYA</strong><p>Tambahkan semua nomor, rekening, atau akun yang dipakai orang ini. Kalau ada yang sudah dikenal VLRFY, laporan akan masuk ke profil yang sama.</p></div><span>{identifierRows.length}/8</span></div>
+          <div className="identifier-builder-heading"><div><strong>DATA YANG KAMU PUNYA</strong><p>Tambahkan semua nomor, rekening, atau akun yang dipakai orang ini. Kalau ada yang sudah dikenal Valrify, laporan akan masuk ke profil yang sama.</p></div><span>{identifierRows.length}/8</span></div>
           {identifierRows.map((row, index) => <div className="identifier-entry" key={row.id}>
             <div className="form-grid">
               <label>Jenis data<select value={row.type} onChange={(event) => updateIdentifier(row.id, { type: event.target.value })}>{types.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>

@@ -1,6 +1,6 @@
-# VLRFY
+# Valrify
 
-Platform reputasi dan pemeriksaan risiko untuk transaksi akun Valorant Indonesia. Bahasa publik sengaja netral: VLRFY menampilkan laporan, bukti, dan sinyal komunitas—bukan menetapkan seseorang bersalah secara hukum.
+Platform reputasi dan pemeriksaan risiko untuk transaksi akun Valorant Indonesia. Bahasa publik sengaja netral: Valrify menampilkan laporan, bukti, dan sinyal komunitas—bukan menetapkan seseorang bersalah secara hukum.
 
 ## Vertical slice saat ini
 
@@ -12,7 +12,7 @@ dan vertical slice reputasi positif:
 
 `konfirmasi transaksi → review admin → approve/reject → tampil di profil entity`
 
-- `apps/web` — Next.js App Router dan design system VLRFY
+- `apps/web` — Next.js App Router dan design system Valrify
 - `apps/api` — NestJS REST API, autentikasi, RBAC, search, laporan, dan moderasi
 - `packages/domain` — normalisasi identifier, masking, risk rules, RBAC, status transition
 - `packages/validation` — skema validasi bersama
@@ -37,11 +37,11 @@ Web berjalan di `http://localhost:3000`, API di `http://localhost:3001/api`, dan
 
 Data demo development:
 
-- Admin: `admin@vlrfy.local`
-- User tester: `tester@vlrfy.local`
+- Admin: `admin@valrify.local`
+- User tester: `tester@valrify.local`
 - Password: `DemoPass!2026`
 - Gunakan user tester untuk mengirim laporan/testi, lalu admin untuk memeriksanya. Admin tidak dapat memeriksa kiriman dari akun admin itu sendiri.
-- Pencarian: `ArkaNusa Demo`, `0800 0000 0901`, `arkanusa.demo`, atau `ArkaDemo#VLRFY`
+- Pencarian: `ArkaNusa Demo`, `0800 0000 0901`, `arkanusa.demo`, atau `ArkaDemo#VALRIFY`
 
 Seed sepenuhnya fiktif dan tidak boleh dianggap sebagai data kasus nyata.
 

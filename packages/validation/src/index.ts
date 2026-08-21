@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { identifierTypes } from "@vlrfy/domain";
+import { identifierTypes } from "@valrify/domain";
 
 export const registerSchema = z.object({
   email: z.email(),

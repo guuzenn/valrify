@@ -1,5 +1,5 @@
 {
-  "name": "@vlrfy/api",
+  "name": "@valrify/api",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,8 +17,8 @@
     "@nestjs/core": "11.2.1",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.2.1",
-    "@vlrfy/domain": "workspace:*",
-    "@vlrfy/validation": "workspace:*",
+    "@valrify/domain": "workspace:*",
+    "@valrify/validation": "workspace:*",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "drizzle-orm": "^0.45.2",

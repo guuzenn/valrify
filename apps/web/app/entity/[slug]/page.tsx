@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatRupiah, labelIdentifierType } from "@vlrfy/domain";
+import { formatRupiah, labelIdentifierType } from "@valrify/domain";
 import { Disclaimer, Footer, Header } from "../../components/SiteChrome";
 import { RiskBadge } from "../../components/RiskBadge";
 import { getEntity } from "../../../lib/api";
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const entity = await getEntity(slug);
   if (!entity) return { title: "Profil tidak ditemukan" };
   const description = `Profil komunitas ${entity.displayName} dengan ${entity.reportCount} laporan terverifikasi dan ${entity.successfulTransactionCount} testi transaksi lancar.`;
-  return { title: entity.displayName, description, openGraph: { title: `${entity.displayName} — VLRFY`, description, images: [] }, twitter: { card: "summary", title: `${entity.displayName} — VLRFY`, description, images: [] } };
+  return { title: entity.displayName, description, openGraph: { title: `${entity.displayName} — Valrify`, description, images: [] }, twitter: { card: "summary", title: `${entity.displayName} — Valrify`, description, images: [] } };
 }
 
 export default async function EntityPage({ params }: { params: Promise<{ slug: string }> }) {

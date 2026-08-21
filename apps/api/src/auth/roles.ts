@@ -1,1 +1,1 @@
-import { SetMetadata } from "@nestjs/common";import type { Role } from "@vlrfy/domain";export const ROLES_KEY="roles";export const Roles=(...roles:Role[])=>SetMetadata(ROLES_KEY,roles);
+import { SetMetadata } from "@nestjs/common";import type { Role } from "@valrify/domain";export const ROLES_KEY="roles";export const Roles=(...roles:Role[])=>SetMetadata(ROLES_KEY,roles);
