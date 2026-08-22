@@ -38,7 +38,7 @@ export default function LoginPage() {
       router.push(
         result.user.role === "ADMIN" || result.user.role === "MODERATOR"
           ? "/admin/reports"
-          : "/submit",
+          : "/account",
       );
       router.refresh();
     } catch (reason) {
@@ -91,7 +91,7 @@ export default function LoginPage() {
       <p>Kalau mau memakai akun lain, keluar dari akun ini dulu.</p>
       <div className="session-actions">
         <button className="button-secondary" type="button" onClick={logout}>KELUAR</button>
-        <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/submit"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA HALAMAN ADMIN":"KIRIM LAPORAN"} ↗</Link>
+        <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/account"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA HALAMAN ADMIN":"BUKA AKUN SAYA"} ↗</Link>
       </div>
     </section>:<div className="auth-grid">
       <form className="auth-card" onSubmit={login}><p className="panel-index">01 / MASUK</p><h2>AKUN TERDAFTAR</h2><label>Email<input type="email" name="email" required/></label><label>Password<input type="password" name="password" required/></label><button className="tactical-button">MASUK ↗</button></form>

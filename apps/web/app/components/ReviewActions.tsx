@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { browserApi } from "../../lib/browser-api";
 
 const noteTemplates = [
@@ -11,11 +11,21 @@ const noteTemplates = [
   ["LAPORAN DUPLIKAT", "Laporan ini sama dengan kasus yang sudah pernah dikirim."],
 ] as const;
 
-export function ReviewActions({ reportId, onDone }: { reportId: number; onDone: () => void }) {
+type EvidenceOption = { id: number; fileName: string; mimeType: string; isPublicApproved: boolean };
+
+export function ReviewActions({ reportId, evidence, evidenceUrl, onDone }: { reportId: number; evidence: EvidenceOption[]; evidenceUrl: string | null; onDone: () => void }) {
   const [message, setMessage] = useState("");
   const [rationale, setRationale] = useState("");
+  const [pendingDecision, setPendingDecision] = useState<"PUBLISH" | "REJECT" | null>(null);
+  const [working, setWorking] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [publicEvidenceIds, setPublicEvidenceIds] = useState<number[]>(
+    evidence.filter((item) => item.isPublicApproved).map((item) => item.id),
+  );
 
-  async function act(decision: "PUBLISH" | "REJECT", form: HTMLFormElement) {
+  function prepare(decision: "PUBLISH" | "REJECT") {
+    const form = formRef.current;
+    if (!form) return;
     if (!form.reportValidity()) {
       setMessage("Isi catatan keputusan sesuai batas minimum.");
       return;
@@ -26,6 +36,16 @@ export function ReviewActions({ reportId, onDone }: { reportId: number; onDone: 
       setMessage("Ringkasan yang akan tampil minimal 30 karakter.");
       return;
     }
+    setMessage("");
+    setPendingDecision(decision);
+  }
+
+  async function act(decision: "PUBLISH" | "REJECT") {
+    const form = formRef.current;
+    if (!form) return;
+    const data = new FormData(form);
+    const summary = String(data.get("summary") ?? "").trim();
+    setWorking(true);
     setMessage("Memproses...");
     try {
       await browserApi(`/admin/reports/${reportId}/review`, {
@@ -34,20 +54,26 @@ export function ReviewActions({ reportId, onDone }: { reportId: number; onDone: 
           decision,
           summary,
           rationale: data.get("rationale"),
+          publicEvidenceIds,
         }),
       });
       setMessage(decision === "PUBLISH" ? "Laporan diterbitkan." : "Laporan ditolak.");
       onDone();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Tindakan gagal.");
+      setPendingDecision(null);
+    } finally {
+      setWorking(false);
     }
   }
 
-  return <form className="review-actions" onSubmit={(event) => event.preventDefault()}>
+  return <form ref={formRef} className="review-actions" onSubmit={(event) => event.preventDefault()}>
     <label>Ringkasan yang akan tampil (wajib kalau diterbitkan)<textarea name="summary" rows={4} minLength={30}/></label>
+    <div className="evidence-approval"><strong>BUKTI YANG BOLEH DILIHAT PUBLIK</strong><p>Centang hanya gambar yang sudah diperiksa dan tidak membocorkan data korban atau pihak lain.</p>{evidenceUrl && <a href={evidenceUrl} target="_blank" rel="noreferrer">Link posting bukti tersedia ↗</a>}{evidence.filter((item) => item.mimeType.startsWith("image/")).map((item) => <label key={item.id}><input type="checkbox" checked={publicEvidenceIds.includes(item.id)} onChange={(event) => setPublicEvidenceIds((current) => event.target.checked ? [...current, item.id] : current.filter((id) => id !== item.id))}/><span>{item.fileName}</span></label>)}{!evidenceUrl && evidence.every((item) => !item.mimeType.startsWith("image/")) && <small>Tidak ada gambar atau link yang dapat dijadikan bukti publik.</small>}</div>
     <div className="note-templates"><span>ISI CATATAN CEPAT</span><div>{noteTemplates.map(([label, value]) => <button key={label} type="button" onClick={() => setRationale(value)}>{label}</button>)}</div></div>
     <label>Catatan keputusan admin<textarea name="rationale" rows={3} required minLength={10} value={rationale} onChange={(event) => setRationale(event.target.value)}/></label>
-    <div><button onClick={(event) => act("REJECT", event.currentTarget.form!)} className="button-secondary" type="button">TOLAK</button><button onClick={(event) => act("PUBLISH", event.currentTarget.form!)} className="tactical-button" type="button">TERBITKAN LAPORAN</button></div>
+    {pendingDecision && <div className={`admin-decision-confirm ${pendingDecision === "REJECT" ? "reject" : "publish"}`}><div><strong>{pendingDecision === "PUBLISH" ? "TERBITKAN LAPORAN INI?" : "TOLAK LAPORAN INI?"}</strong><p>{pendingDecision === "PUBLISH" ? "Ringkasan dan bukti yang dipilih akan terlihat publik." : "Laporan keluar dari antrean dan alasan tetap tersimpan di audit log."}</p></div><div><button type="button" disabled={working} onClick={() => setPendingDecision(null)}>BATAL</button><button type="button" disabled={working} onClick={() => act(pendingDecision)}>{working ? "MEMPROSES..." : "YA, LANJUTKAN"}</button></div></div>}
+    <div><button onClick={() => prepare("REJECT")} disabled={working} className="button-secondary" type="button">TOLAK</button><button onClick={() => prepare("PUBLISH")} disabled={working} className="tactical-button" type="button">TERBITKAN LAPORAN</button></div>
     {message && <p className="field-note" role="status">{message}</p>}
   </form>;
 }

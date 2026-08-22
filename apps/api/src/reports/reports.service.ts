@@ -42,8 +42,8 @@ export class ReportsService {
   ) {
     return this.database.db.transaction(async (tx) => {
       const submittedValues = [
-        ...input.identifiers,
-        { type: "PERSON_NAME" as const, value: input.entityName, provider: undefined },
+        ...input.identifiers.map((identifier) => ({ ...identifier, isSubmitted: true })),
+        { type: "PERSON_NAME" as const, value: input.entityName, provider: undefined, isSubmitted: false },
       ];
       const uniqueValues = submittedValues.filter((item, index, values) => {
         const normalized = normalizeIdentifier(item.type, item.value);
@@ -58,7 +58,7 @@ export class ReportsService {
         type: IdentifierType;
         isSubmitted: boolean;
       }> = [];
-      for (const [index, item] of uniqueValues.entries()) {
+      for (const item of uniqueValues) {
         const normalizedValue = normalizeIdentifier(item.type, item.value);
         let identifier = await tx.query.identifiers.findFirst({
           where: and(
@@ -82,7 +82,7 @@ export class ReportsService {
         identifierRows.push({
           id: identifier.id,
           type: item.type,
-          isSubmitted: index < input.identifiers.length,
+          isSubmitted: item.isSubmitted,
         });
       }
 
@@ -124,6 +124,7 @@ export class ReportsService {
           entityId: entity.id,
           title: input.title,
           chronology: input.chronology,
+          evidenceUrl: input.evidenceUrl,
           transactionDate: input.transactionDate ? new Date(input.transactionDate) : null,
           allegedLoss: input.allegedLoss,
           transactionType: input.transactionType,

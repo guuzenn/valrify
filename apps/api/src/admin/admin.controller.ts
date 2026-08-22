@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { Response } from "express";
-import { confirmationReviewSchema, reviewSchema } from "@valrify/validation";
+import { communityPostReviewSchema, confirmationReviewSchema, reviewSchema } from "@valrify/validation";
 import { CurrentActor } from "../auth/current-actor";
 import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -22,6 +22,11 @@ import { AdminService } from "./admin.service";
 @Roles("MODERATOR", "ADMIN")
 export class AdminController {
   constructor(private readonly admin: AdminService) {}
+
+  @Get("overview")
+  overview() {
+    return this.admin.overview();
+  }
 
   @Get("reports")
   queue() {
@@ -40,6 +45,34 @@ export class AdminController {
   @Get("transaction-confirmations")
   confirmationQueue() {
     return this.admin.confirmationQueue();
+  }
+
+  @Get("community-post-reports")
+  communityPostQueue() {
+    return this.admin.communityPostQueue();
+  }
+
+  @Get("community-comment-reports")
+  communityCommentQueue() {
+    return this.admin.communityCommentQueue();
+  }
+
+  @Post("community-posts/:id/review")
+  reviewCommunityPost(
+    @Param("id") id: string,
+    @CurrentActor() actor: AuthActor,
+    @Body() body: unknown,
+  ) {
+    return this.admin.reviewCommunityPost(Number(id), actor.id, parseSchema(communityPostReviewSchema, body));
+  }
+
+  @Post("community-comments/:id/review")
+  reviewCommunityComment(
+    @Param("id") id: string,
+    @CurrentActor() actor: AuthActor,
+    @Body() body: unknown,
+  ) {
+    return this.admin.reviewCommunityComment(Number(id), actor.id, parseSchema(communityPostReviewSchema, body));
   }
 
   @Post("transaction-confirmations/:id/review")

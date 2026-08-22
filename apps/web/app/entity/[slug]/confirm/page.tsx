@@ -16,7 +16,7 @@ export default async function ConfirmTransactionPage({
 
   return (
     <>
-      <Header compact />
+      <Header compact backHref={`/entity/${entity.slug}`} backLabel="Kembali ke profil" />
       <main className="page shell narrow">
         <p className="eyebrow">// TESTI TRANSAKSI</p>
         <h1 className="page-title">TRANSAKSINYA LANCAR?</h1>

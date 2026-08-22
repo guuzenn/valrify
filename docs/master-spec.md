@@ -2368,7 +2368,7 @@ The following remain private regardless of report status:
 
 - raw evidence files
 - unredacted chat screenshots or documents
-- reporter identity and contact details
+- ordinary `USER` reporter identity and all reporter contact details
 - account emails
 - passwords, tokens, cookies, OTPs, and authentication data
 - KTP, passports, payment cards, CVV, and unrelated personal documents
@@ -2387,3 +2387,138 @@ The following remain private regardless of report status:
 ## Implementation direction
 
 The next implementation pass should update the domain masking policy, public API projections, entity and case pages, search results, moderation controls, documentation, and automated tests together. Do not implement this as a global “disable masking” switch.
+
+---
+
+# 68. Product Roadmap Amendment — Scale and Community Layer
+
+Effective 21 August 2026, Valrify is intended to grow beyond the initial vertical slice into a larger community product. This direction must not displace the safety-critical reporting, evidence, moderation, dispute, and correction foundations.
+
+## Near-term public discovery
+
+Add a recent published cases section to the homepage. It should:
+
+- contain only reports with `PUBLISHED` status;
+- prioritize useful recency without sensationalizing alleged losses;
+- link to the public case and associated entity;
+- use neutral, admin-reviewed summaries;
+- never expose raw evidence, ordinary user reporter identity, or non-public report data; trusted-role uploader attribution follows the later attribution amendment;
+- avoid placing full sensitive identifiers in page metadata or social previews.
+
+This is a near-term enhancement because it makes the existing verified case inventory discoverable without introducing a new trust model.
+
+## Dedicated administration experience
+
+As moderation volume grows, provide a dedicated admin/moderator experience with its own route boundary, navigation, authorization, and operational information architecture. It should eventually cover:
+
+- report and transaction-confirmation queues;
+- private evidence review and public-redaction workflow;
+- entity and identifier linking;
+- duplicate suggestions and manual merge decisions;
+- disputes, corrections, delisting, and identifier removal;
+- user and role management;
+- moderation audit logs and operational statistics.
+
+The admin experience may remain in the same monorepo and deployment initially. Do not split it into a separate application or repository until operational or security needs justify that complexity.
+
+## Final-phase community layer
+
+After the trust and moderation infrastructure is mature, Valrify may add comments and semi-social community interaction around public cases and entity profiles. This is intentionally a late-phase feature.
+
+Before comments can ship, implement:
+
+- authenticated participation and verified email;
+- comment reporting and moderator queues;
+- rate limits, spam controls, and repeat-abuse enforcement;
+- edit/delete policy and immutable moderation audit records;
+- harassment, threats, doxxing, victim-blaming, and unsupported-accusation rules;
+- notification controls;
+- dispute and correction links that remain more prominent than discussion;
+- privacy filtering that prevents ordinary reporter identity and private evidence leakage.
+
+Comments are contextual community discussion only. They must not automatically create reports, change risk labels, merge identities, count as verified evidence, or turn Valrify into an unmoderated accusation feed.
+
+---
+
+# 69. Product Amendment — Scam Report Evidence Experience
+
+Effective 21 August 2026, public-facing Indonesian copy may selectively use the familiar term **scam report** alongside neutral explanations. This terminology does not change Valrify's moderation philosophy: a published report is community-submitted and admin-reviewed, not a legal finding of guilt.
+
+## Identifier input priority
+
+The report form should prioritize the data most useful for exact transaction checks:
+
+1. bank account;
+2. e-wallet;
+3. phone or WhatsApp;
+4. Riot username / Riot ID;
+5. Discord, Facebook, and other usernames.
+
+Bank and e-wallet provider inputs should be searchable and suggest common Indonesian providers such as BCA, Bank Mandiri, BRI, BNI, BSI, DANA, GoPay, and OVO while still accepting providers outside the suggestion list. Riot-facing copy should say **Username Riot / Riot ID** and remind reporters to include a stronger identifier when available because usernames can change.
+
+## Evidence sources
+
+A reporter may provide one or both of:
+
+- uploaded screenshots/documents for private moderator review;
+- an HTTP(S) link to a public evidence post, including a relevant Facebook community post.
+
+At least one evidence source is required. Evidence links remain non-public until the report reaches `PUBLISHED`.
+
+Uploaded evidence is private by default. During publication, a moderator may explicitly approve image files for public display only after checking that they do not expose victim data, identity documents, OTPs, authentication data, or unrelated third-party information. PDFs and unapproved uploads remain private.
+
+## Public evidence UI
+
+Published case pages should provide clear evidence actions:
+
+- an external link button when a public evidence post exists;
+- an in-page modal for moderator-approved images;
+- an obvious close control, backdrop close, and Escape-key close;
+- no forced navigation away from Valrify when viewing an approved image.
+
+The public evidence endpoint must verify the report is `PUBLISHED`, the evidence is explicitly approved, and the MIME type is an allowed image before returning bytes.
+
+---
+
+# 70. Product Amendment — Hybrid Search and Related Names
+
+Effective 21 August 2026, public search must support partial discovery for text identities without weakening the exact-match rules for sensitive numeric identifiers.
+
+## Search behavior
+
+- Bank accounts, e-wallet numbers, and phone/WhatsApp numbers require an exact normalized match.
+- Seller display names, real-name aliases, Facebook names, bank account holder names, Discord names, Riot usernames/IDs, and other usernames may match a case-insensitive substring of at least two characters.
+- Partial text results may only use identifiers attached to a `PUBLISHED` report.
+- Return one result card per entity even when several names or usernames match the same query.
+- Partial or fuzzy name similarity is for discovery only and must never trigger automatic entity merging.
+
+## Name model
+
+- The entity display name is the seller name or primary profile name most recognizable to buyers.
+- Real names and alternate names are stored as related aliases.
+- Facebook display names remain explicitly labeled as Facebook names because they may be unrelated or frequently changed.
+- A bank account number may include a separately labeled account holder name and bank provider.
+- Bank account holder names and other name fields are not strong identifiers. Exact strong identifiers remain the basis of automatic profile linking.
+
+## Composite report fields
+
+The report UI should present one concise choice per platform instead of exposing storage-level identifier types:
+
+- bank account: searchable bank provider, account number, and optional account holder name;
+- e-wallet: searchable wallet provider, wallet number, and optional account holder name;
+- Riot: Riot username and optional nickname/Riot ID;
+- Facebook: Facebook display name and optional profile URL.
+
+The client may serialize these composite rows into separate identifiers for normalization and matching. The total serialized identifier limit remains eight. Searchable provider suggestions and validation feedback must use the Valrify visual language; required-field feedback should be rendered in Indonesian inside the form rather than delegated to browser-default validation bubbles.
+
+## Public readability and click affordance
+
+Public case dates should use a reader-friendly Indonesian date format such as **12 Agustus 2026**. Published status copy may use the concise label **PUBLISHED**.
+
+Search results and report-list rows must not rely on subtle text links. Make the full result surface clickable, retain a visible action label and directional icon, and provide hover, keyboard-focus, and touch-friendly states. On narrow screens, reduce display-heading scale and card spacing, stack complex layouts, and wrap long identifiers or titles so pages do not overflow horizontally.
+
+## Trusted uploader attribution and mobile return navigation
+
+For `PUBLISHED` reports, public uploader attribution may show the account display name only when the uploader currently has the `ADMIN`, `MODERATOR`, or `VERIFIED_MIDDLEMAN` role. Ordinary `USER` reporters remain publicly anonymous and appear as **Anggota komunitas**. The uploader badge communicates account role only; it must not imply that the uploader role itself proves the allegation. Publication and admin-review status remain separate signals.
+
+On mobile, non-home pages should include a visible, contextual return link. Use deterministic internal destinations—case to entity profile, entity profile to search, and general pages to home—instead of relying exclusively on browser history, which may send the user outside Valrify. The homepage hero heading must use a smaller mobile-specific scale so the search action remains visible without excessive scrolling.

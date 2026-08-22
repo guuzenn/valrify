@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { browserApi } from "../../lib/browser-api";
 
 const noteTemplates = [
@@ -19,12 +19,25 @@ export function ConfirmationReviewActions({
 }) {
   const [message, setMessage] = useState("");
   const [rationale, setRationale] = useState("");
+  const [pendingDecision, setPendingDecision] = useState<"APPROVE" | "REJECT" | null>(null);
+  const [working, setWorking] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  async function act(decision: "APPROVE" | "REJECT", form: HTMLFormElement) {
+  function prepare(decision: "APPROVE" | "REJECT") {
+    const form = formRef.current;
+    if (!form) return;
     if (!form.reportValidity()) {
       setMessage("Catatan keputusan minimal 10 karakter.");
       return;
     }
+    setMessage("");
+    setPendingDecision(decision);
+  }
+
+  async function act(decision: "APPROVE" | "REJECT") {
+    const form = formRef.current;
+    if (!form) return;
+    setWorking(true);
     setMessage("Memproses...");
     const data = new FormData(form);
     try {
@@ -36,13 +49,17 @@ export function ConfirmationReviewActions({
       onDone();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Tindakan gagal.");
+      setPendingDecision(null);
+    } finally {
+      setWorking(false);
     }
   }
 
-  return <form className="review-actions" onSubmit={(event) => event.preventDefault()}>
+  return <form ref={formRef} className="review-actions" onSubmit={(event) => event.preventDefault()}>
     <div className="note-templates"><span>ISI CATATAN CEPAT</span><div>{noteTemplates.map(([label, value]) => <button key={label} type="button" onClick={() => setRationale(value)}>{label}</button>)}</div></div>
     <label>Catatan keputusan admin<textarea name="rationale" rows={3} required minLength={10} value={rationale} onChange={(event) => setRationale(event.target.value)}/></label>
-    <div><button onClick={(event) => act("REJECT", event.currentTarget.form!)} className="button-secondary" type="button">TOLAK</button><button onClick={(event) => act("APPROVE", event.currentTarget.form!)} className="tactical-button" type="button">TERBITKAN TESTI</button></div>
+    {pendingDecision && <div className={`admin-decision-confirm ${pendingDecision === "REJECT" ? "reject" : "publish"}`}><div><strong>{pendingDecision === "APPROVE" ? "TERBITKAN TESTI INI?" : "TOLAK TESTI INI?"}</strong><p>Keputusan dan catatan admin akan disimpan.</p></div><div><button type="button" disabled={working} onClick={() => setPendingDecision(null)}>BATAL</button><button type="button" disabled={working} onClick={() => act(pendingDecision)}>{working ? "MEMPROSES..." : "YA, LANJUTKAN"}</button></div></div>}
+    <div><button onClick={() => prepare("REJECT")} disabled={working} className="button-secondary" type="button">TOLAK</button><button onClick={() => prepare("APPROVE")} disabled={working} className="tactical-button" type="button">TERBITKAN TESTI</button></div>
     {message && <p className="field-note" role="status">{message}</p>}
   </form>;
 }
