@@ -160,7 +160,7 @@ export function SubmitReportForm() {
       if (emptyIdentifierIndex >= 0) throw new Error(`Lengkapi ${mainFieldLabel(identifierRows[emptyIdentifierIndex]!.type).toLowerCase()} pada data ${emptyIdentifierIndex + 1}.`);
       const missingProviderIndex = identifierRows.findIndex((row) => ["BANK_ACCOUNT", "EWALLET"].includes(row.type) && row.provider.trim().length < 2);
       if (missingProviderIndex >= 0) throw new Error(`Pilih atau ketik ${identifierRows[missingProviderIndex]!.type === "BANK_ACCOUNT" ? "nama bank" : "nama e-wallet"} pada data ${missingProviderIndex + 1}.`);
-      if (chronology.length < 80) throw new Error("Ceritakan kejadian minimal 80 karakter agar admin punya informasi yang cukup.");
+      if (chronology.length < 30) throw new Error("Ceritakan kejadian minimal 30 karakter agar admin punya konteks singkat.");
 
       const submittedIdentifiers = identifierRows.flatMap((row) => {
         const extra = extraIdentifier(row);
@@ -228,7 +228,7 @@ export function SubmitReportForm() {
       </fieldset>
       <fieldset>
         <legend>03 / CERITAKAN KEJADIANNYA</legend>
-        <label>Ceritakan dari awal sampai akhir<textarea name="chronology" required minLength={80} maxLength={5000} rows={9} placeholder="Jelaskan kapan deal, apa yang dijanjikan, apa yang kamu kirim, dan masalah yang terjadi."/></label>
+        <label>Ceritakan dari awal sampai akhir<textarea name="chronology" required minLength={30} maxLength={5000} rows={9} placeholder="Singkat saja: kapan deal, apa yang dijanjikan, dan masalah yang terjadi."/><small className="field-note">Minimal 30 karakter. Bukti foto akan membantu admin memeriksa ceritamu.</small></label>
         <label>Tanggal kejadian<input type="date" name="transactionDate"/></label>
       </fieldset>
       <fieldset>

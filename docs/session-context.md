@@ -269,3 +269,7 @@ Scam report tidak lagi meminta atau menampilkan nominal uang yang hilang. Nilai 
 ### Sprint 1 menuju beta
 
 Roadmap beta dibagi menjadi empat sprint di [beta-roadmap.md](beta-roadmap.md). Sprint pertama mengganti konteks transaksi lama dengan lima kategori masalah: penipuan pembayaran, rekber palsu, hackback, data akun tidak sesuai, dan lainnya. Form tidak lagi meminta judul; server membuat judul netral berdasarkan kategori. Kategori tampil pada antrean admin dan detail laporan publik, sedangkan nilai lama seperti `ACCOUNT_PURCHASE` tetap memiliki label yang dapat dibaca tanpa migrasi database.
+
+## Cloudflare R2 evidence storage
+
+Adapter evidence mendukung `STORAGE_DRIVER=local` untuk development dan `STORAGE_DRIVER=r2` untuk staging/production. R2 memakai S3-compatible API dengan bucket private; upload dan pembacaan tetap melewati NestJS sehingga aturan akses admin, status laporan, approval bukti publik, dan validasi MIME yang sudah ada tidak berubah. Konfigurasi R2 wajib gagal cepat saat endpoint, bucket, access key, atau secret key tidak tersedia. Credential tidak boleh masuk repository atau dokumentasi.

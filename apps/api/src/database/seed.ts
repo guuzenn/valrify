@@ -1,3 +1,4 @@
+import "../load-env";
 import { hash } from "bcryptjs";
 import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";

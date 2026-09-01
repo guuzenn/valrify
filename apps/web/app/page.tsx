@@ -43,7 +43,7 @@ export default async function Home() {
       <section className="trust-strip" aria-label="Prinsip Valrify">
         <div className="shell trust-grid">
           <p><strong>DICEK ADMIN</strong><span>Laporan baru muncul setelah admin mencocokkan cerita, data, dan buktinya.</span></p>
-          <p><strong>BUKAN VONIS</strong><span>Laporan adalah bahan pertimbangan, bukan keputusan bahwa seseorang pasti menipu.</span></p>
+          <p><strong>TETAP CEK SENDIRI</strong><span>Laporan membantu menilai risiko. Cocokkan lagi datanya sebelum kamu memutuskan untuk lanjut transaksi.</span></p>
           <p><strong>BUKTI TETAP DIJAGA</strong><span>Bukti lengkap hanya dilihat admin. Pengunjung hanya melihat bagian yang aman dibagikan.</span></p>
         </div>
       </section>

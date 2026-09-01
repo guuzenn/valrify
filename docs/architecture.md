@@ -70,7 +70,7 @@ Pada development, token verifikasi dapat dikembalikan ke UI agar alur bisa diuji
 
 ## Bukti
 
-Bukti mentah tidak pernah disajikan oleh endpoint publik. `EvidenceStorage` saat ini memakai disk lokal untuk development. Endpoint admin memeriksa role sebelum streaming bukti. Adapter ini disiapkan agar dapat diganti dengan object storage dan signed URL tanpa mengubah report service.
+Bukti mentah tidak pernah disajikan oleh endpoint publik. `EvidenceStorage` memakai disk lokal ketika `STORAGE_DRIVER=local` dan bucket private Cloudflare R2 ketika `STORAGE_DRIVER=r2`. Endpoint admin tetap memeriksa role sebelum mengambil dan melakukan streaming bukti; endpoint publik juga tetap memeriksa status `PUBLISHED`, approval publik, dan MIME gambar. Bucket R2 tidak membutuhkan akses publik atau CORS karena browser tidak berkomunikasi langsung dengan storage.
 
 Laporan dapat menyimpan `evidenceUrl` HTTP(S) menuju posting bukti eksternal. Untuk upload gambar, `report_evidence.is_public_approved` menjadi gate eksplisit moderator. Endpoint publik melakukan join ulang ke report dan hanya menyajikan file ketika report `PUBLISHED`, evidence disetujui publik, dan MIME bertipe gambar. UI detail kasus membuka gambar tersebut dalam modal; PDF dan upload yang tidak disetujui tetap hanya tersedia melalui endpoint admin.
 

@@ -68,7 +68,10 @@ footer p,footer small { color:var(--muted); font-size:12px; }
   .search-row input { padding:17px 14px; font-size:15px; }
   .search-row button { min-height:52px; }
   .trust-grid,.how { grid-template-columns:1fr; }
-  .trust-grid p { border-right:1px solid var(--border); }
+  .trust-grid { border-inline:1px solid var(--border); }
+  .trust-grid p { border-right:0; border-bottom:1px solid var(--border); }
+  .trust-grid p:first-child { border-left:0; }
+  .trust-grid p:last-child { border-bottom:0; }
   .how { padding:80px 0; gap:45px; }
   footer { grid-template-columns:1fr; gap:5px; }
 }

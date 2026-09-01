@@ -15,11 +15,12 @@ function Policy({ label, title, children, href, tone = "riot" }: { label: string
 const flow = ["Cek seller dan rekber", "Transfer ke rekber", "Seller kasih data akun", "Cek dan amankan akun", "Minta dana dicairkan"];
 const terms = [
   ["REKBER", "Rekening bersama. Pihak ketiga yang menahan dana sampai pembeli selesai mengecek dan mengamankan akun."],
+  ["CONSIGN / STORE", "Tempat seller menitipkan akun untuk dijual dan biasanya menyerahkan identitas. Label ‘ex Nama Store/Consign’ berarti akun pernah dijual lewat tempat tersebut, bukan jaminan akun aman."],
   ["FE", "First Email. Email pertama yang dipakai saat akun Riot dibuat."],
-  ["TAKE FE", "Seller ikut memberikan akses ke First Email."],
-  ["NO FE", "Seller tidak memberikan akses ke First Email."],
+  ["TAKE FE", "Seller menyerahkan akses penuh First Email kepada pembeli, termasuk akses login dan pengamanan email."],
+  ["NO FE", "Seller tidak menyerahkan akses First Email kepada pembeli."],
   ["HOLD", "Dana tetap ditahan rekber sampai waktu atau syarat yang disepakati."],
-  ["REFFUL", "Seller memberikan identitas kepada rekber sesuai aturan rekber tersebut."],
+  ["REFFUL", "Seller memberikan identitas kepada rekber dan menjamin penggantian penuh 100% sesuai harga beli jika akun di-hackback. Jika seller menghilang atau menolak bertanggung jawab, tindak lanjutnya mengikuti aturan rekber yang digunakan."],
   ["HB", "Hackback. Akun diambil kembali oleh pemilik sebelumnya setelah transaksi."],
   ["MFA", "Verifikasi tambahan saat login, misalnya lewat Riot Mobile atau aplikasi authenticator."],
 ];
@@ -72,7 +73,7 @@ export default function AccountSafetyPage() {
       <div><Policy label="KEAMANAN RESMI RIOT" title="Pasang kembali MFA milik pembeli." href="https://support-valorant.riotgames.com/hc/en-us/articles/46410758641811">Setelah MFA seller dilepas, segera pasang MFA baru. Gunakan Riot Mobile atau aplikasi authenticator yang hanya bisa dibuka oleh pembeli.</Policy><div className="release-check"><span>LANGKAH TERAKHIR</span><strong>MINTA REKBER CAIRKAN DANA.</strong><p>Sebelum pencairan, minta rekber mengecek lagi apakah nama dan rekening seller sesuai dengan identitas yang diberikan.</p></div></div>
     </GuideSection>
 
-    <GuideSection id="fe" number="05" label="FIRST EMAIL" title="KALAU FE IKUT DIKASIH." description="Bagian ini hanya perlu dilakukan kalau seller ikut memberikan First Email. Mengganti email Riot tidak mengubah riwayat FE akun tersebut." optional>
+    <GuideSection id="fe" number="05" label="FIRST EMAIL" title="KALAU TAKE FE." description="Bagian ini hanya perlu dilakukan jika seller menyerahkan akses penuh First Email kepada pembeli. Mengganti email Riot tidak mengubah riwayat FE akun tersebut." optional>
       <div className="fe-examples">
         <article><span>TIPE 01</span><h3>YOUR RIOT ACCOUNT HAS BEEN CREATED</h3><p>Sering muncul jika akun dibuat lewat Google atau Facebook. Username tidak selalu terlihat, jadi bukti ini lebih mudah dimanipulasi memakai akun baru.</p></article>
         <article><span>TIPE 02</span><h3>WELCOME TO RIOT GAMES</h3><p>Biasanya ada username. Cocokkan username, alamat pengirim, tanggal, dan isi emailnya.</p></article>

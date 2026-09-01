@@ -54,7 +54,7 @@ const reportIdentifiersSchema = z.preprocess((value) => {
 
 export const reportSchema = z.object({
   entityName: z.string().trim().min(2).max(80),
-  chronology: z.string().trim().min(80).max(5000),
+  chronology: z.string().trim().min(30, "Ceritakan kejadian minimal 30 karakter.").max(5000),
   evidenceUrl: z.preprocess(
     (value) => value === "" ? undefined : value,
     z.url().max(500).refine((value) => value.startsWith("https://") || value.startsWith("http://"), "Link bukti harus menggunakan http atau https.").optional(),

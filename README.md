@@ -17,7 +17,7 @@ dan vertical slice reputasi positif:
 - `packages/domain` — normalisasi identifier, masking, risk rules, RBAC, status transition
 - `packages/validation` — skema validasi bersama
 - PostgreSQL — data relasional melalui Drizzle ORM
-- local evidence adapter — bukti privat untuk development; dapat diganti S3/R2 kemudian
+- evidence storage adapter — disk lokal untuk development atau bucket private Cloudflare R2 untuk staging/production
 
 ## Menjalankan lokal
 
