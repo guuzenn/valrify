@@ -37,6 +37,8 @@ Web berjalan di `http://localhost:3000`, API di `http://localhost:3001/api`, dan
 
 Untuk mengirim email verifikasi dan reset password melalui Brevo, isi `BREVO_API_KEY`, `EMAIL_FROM`, dan `EMAIL_FROM_NAME` di `.env`. Jika konfigurasi email dikosongkan pada development, UI memakai token development; token tersebut tidak pernah dikembalikan pada production.
 
+API memakai rate limiting in-memory per instance. Limit globalnya 180 request/menit per IP, dengan aturan lebih ketat untuk login, register, recovery email, search, upload, serta pengiriman laporan. Response `429` membawa header `Retry-After` dan pesan yang aman untuk pengguna. Saat API berada di belakang reverse proxy, isi `TRUST_PROXY_HOPS` sesuai jumlah proxy tepercaya agar limiter membaca IP pengunjung yang benar; biarkan `0` bila API diakses langsung.
+
 Data demo development:
 
 - Admin: `admin@valrify.local`
@@ -62,6 +64,6 @@ pnpm db:seed             isi data demo
 
 ## Batas milestone
 
-Fitur lanjut seperti dispute lengkap, profile claiming, verified middleman workflow, graph intelligence, fuzzy merge, Google OAuth produksi, dan Redis sengaja belum dibangun. Cloudflare R2 private sudah tersedia untuk evidence hosted, sedangkan Brevo menangani email verifikasi dan reset password saat dikonfigurasi. Deployment Sites lama hanya menjadi referensi visual; monorepo lokal ini adalah source of truth pengembangan berikutnya.
+Fitur lanjut seperti dispute lengkap, profile claiming, verified middleman workflow, graph intelligence, fuzzy merge, Google OAuth produksi, dan Redis sengaja belum dibangun. Cloudflare R2 private sudah tersedia untuk evidence hosted, sedangkan Brevo menangani email verifikasi dan reset password saat dikonfigurasi. Rate limiting saat ini memakai memori proses; deployment multi-instance perlu storage bersama seperti Redis. Deployment Sites lama hanya menjadi referensi visual; monorepo lokal ini adalah source of truth pengembangan berikutnya.
 
 Dokumentasi lanjut tersedia di [docs/architecture.md](docs/architecture.md), [docs/product-rules.md](docs/product-rules.md), [docs/risk-methodology.md](docs/risk-methodology.md), dan [docs/moderation.md](docs/moderation.md).

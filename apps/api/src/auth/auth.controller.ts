@@ -1,6 +1,8 @@
 import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from "@nestjs/common";
 import type { Request, Response } from "express";
+import { Throttle } from "@nestjs/throttler";
 import { emailRequestSchema, loginSchema, registerSchema, resetPasswordSchema, tokenSchema } from "@valrify/validation";
+import { RATE_LIMITS } from "../rate-limit.config";
 import { parseSchema } from "../validation/parse-schema";
 import { AuthService } from "./auth.service";
 import { CurrentActor } from "./current-actor";
@@ -14,25 +16,31 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post("register")
+  @Throttle({ default: RATE_LIMITS.register })
   register(@Body() body: unknown) { return this.auth.register(parseSchema(registerSchema, body)); }
 
   @Post("verify-email")
+  @Throttle({ default: RATE_LIMITS.tokenAction })
   verify(@Body() body: unknown) { return this.auth.verifyEmail(parseSchema(tokenSchema, body).token); }
 
   @Post("resend-verification")
   @HttpCode(200)
+  @Throttle({ default: RATE_LIMITS.emailRequest })
   resendVerification(@Body() body: unknown) { return this.auth.resendVerification(parseSchema(emailRequestSchema, body)); }
 
   @Post("forgot-password")
   @HttpCode(200)
+  @Throttle({ default: RATE_LIMITS.emailRequest })
   forgotPassword(@Body() body: unknown) { return this.auth.requestPasswordReset(parseSchema(emailRequestSchema, body)); }
 
   @Post("reset-password")
   @HttpCode(200)
+  @Throttle({ default: RATE_LIMITS.tokenAction })
   resetPassword(@Body() body: unknown) { return this.auth.resetPassword(parseSchema(resetPasswordSchema, body)); }
 
   @Post("login")
   @HttpCode(200)
+  @Throttle({ default: RATE_LIMITS.login })
   async login(@Body() body: unknown, @Res({ passthrough: true }) response: Response) {
     const result = await this.auth.login(parseSchema(loginSchema, body));
     response.cookie("valrify_session", result.token, cookieOptions());

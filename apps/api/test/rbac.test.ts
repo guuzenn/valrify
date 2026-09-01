@@ -9,6 +9,7 @@ import {
   resetPasswordSchema,
 } from "@valrify/validation";
 import { buildAuthEmail } from "../src/auth/email.service";
+import { RATE_LIMITS, readTrustProxyHops } from "../src/rate-limit.config";
 import { createEvidenceStorage } from "../src/storage/evidence-storage.factory";
 import { LocalEvidenceStorage } from "../src/storage/local-evidence-storage.service";
 import {
@@ -58,6 +59,22 @@ test("transactional auth email contains a safe one-time link", () => {
   assert.match(email.textContent, /https:\/\/valrify\.example\/reset-password\?token=secret-token/);
   assert.match(email.htmlContent, /Halo &lt;User&gt;/);
   assert.doesNotMatch(email.htmlContent, /Halo <User>/);
+});
+
+test("rate limit policy protects sensitive actions without disabling normal traffic", () => {
+  assert.equal(RATE_LIMITS.login.limit, 8);
+  assert.equal(RATE_LIMITS.register.limit, 5);
+  assert.equal(RATE_LIMITS.emailRequest.limit, 3);
+  assert.equal(RATE_LIMITS.search.limit, 60);
+  assert.equal(RATE_LIMITS.upload.limit, 5);
+  assert.equal(RATE_LIMITS.communityReport.limit, 10);
+});
+
+test("proxy trust requires an explicit positive hop count", () => {
+  assert.equal(readTrustProxyHops(undefined), 0);
+  assert.equal(readTrustProxyHops("0"), 0);
+  assert.equal(readTrustProxyHops("invalid"), 0);
+  assert.equal(readTrustProxyHops("2"), 2);
 });
 
 test("reports accept multiple account identifiers", () => {

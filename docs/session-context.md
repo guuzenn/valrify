@@ -277,3 +277,5 @@ Adapter evidence mendukung `STORAGE_DRIVER=local` untuk development dan `STORAGE
 ## Transactional auth email
 
 Brevo REST API mengirim email verifikasi akun dan reset password ketika `BREVO_API_KEY` serta sender tersedia. Tautan verifikasi berlaku 24 jam dan tautan reset berlaku 1 jam. Token mentah hanya dikirim lewat email; PostgreSQL menyimpan SHA-256 token dalam `email_verification_tokens` atau `password_reset_tokens`. Request baru mengganti token lama dan penggunaan yang berhasil menghapus seluruh token sejenis milik user. Development tanpa Brevo mempertahankan shortcut token lokal, tetapi production tidak pernah mengembalikan token tersebut melalui API.
+
+Rate limiting NestJS aktif global (180 request/menit/IP) dan di-override lebih ketat pada login, register, recovery email, search, upload/submit laporan, konfirmasi transaksi, serta pelaporan konten Community. Response limit adalah HTTP 429 dengan `Retry-After`. Counter masih in-memory; multi-instance production perlu Redis atau shared store lain. Isi `TRUST_PROXY_HOPS` hanya saat jumlah reverse proxy tepercaya sudah diketahui.

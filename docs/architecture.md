@@ -68,6 +68,12 @@ Email/password menggunakan hash bcrypt dan verifikasi email. Brevo REST API meng
 
 Pada development tanpa konfigurasi Brevo, token verifikasi dan reset dapat dikembalikan ke UI agar alur bisa diuji tanpa penyedia email. Perilaku ini tidak boleh aktif pada production.
 
+## Rate limiting
+
+`ThrottlerGuard` aktif global dengan batas dasar 180 request per menit per IP. Endpoint berbiaya tinggi atau rawan abuse memakai batas khusus: login 8 per 5 menit, register 5 per jam, permintaan email 3 per 15 menit, verifikasi/reset token 10 per 15 menit, masing-masing endpoint search 60 per menit, upload laporan atau bukti transaksi 5 per jam, dan laporan konten Community 10 per jam. Guard berjalan sebelum interceptor upload sehingga request yang sudah melewati batas ditolak sebelum file diproses.
+
+Penyimpanan counter masih in-memory dan sesuai untuk satu instance API. Production multi-instance memerlukan storage limiter bersama seperti Redis. `TRUST_PROXY_HOPS` harus sama dengan jumlah reverse proxy tepercaya di depan API; nilai `0` tidak memercayai forwarded IP header dan menjadi default yang aman.
+
 ## Bukti
 
 Bukti mentah tidak pernah disajikan oleh endpoint publik. `EvidenceStorage` memakai disk lokal ketika `STORAGE_DRIVER=local` dan bucket private Cloudflare R2 ketika `STORAGE_DRIVER=r2`. Endpoint admin tetap memeriksa role sebelum mengambil dan melakukan streaming bukti; endpoint publik juga tetap memeriksa status `PUBLISHED`, approval publik, dan MIME gambar. Bucket R2 tidak membutuhkan akses publik atau CORS karena browser tidak berkomunikasi langsung dengan storage.

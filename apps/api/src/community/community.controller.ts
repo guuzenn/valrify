@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { communityCommentSchema, communityPostReportSchema, communityPostSchema } from "@valrify/validation";
 import { CurrentActor } from "../auth/current-actor";
 import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { RATE_LIMITS } from "../rate-limit.config";
 import { parseSchema } from "../validation/parse-schema";
 import { CommunityService } from "./community.service";
 
@@ -22,6 +24,7 @@ export class CommunityController {
   }
 
   @Post("posts/:id/report")
+  @Throttle({ default: RATE_LIMITS.communityReport })
   report(@CurrentActor() actor: AuthActor, @Param("id", ParseIntPipe) id: number, @Body() body: unknown) {
     return this.community.report(actor, id, parseSchema(communityPostReportSchema, body));
   }
@@ -57,6 +60,7 @@ export class CommunityController {
   }
 
   @Post("comments/:id/report")
+  @Throttle({ default: RATE_LIMITS.communityReport })
   reportComment(@CurrentActor() actor: AuthActor, @Param("id", ParseIntPipe) id: number, @Body() body: unknown) {
     return this.community.reportComment(actor, id, parseSchema(communityPostReportSchema, body));
   }

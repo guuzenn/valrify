@@ -8,10 +8,12 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
+import { Throttle } from "@nestjs/throttler";
 import { confirmationSchema } from "@valrify/validation";
 import { CurrentActor } from "../auth/current-actor";
 import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { RATE_LIMITS } from "../rate-limit.config";
 import { parseSchema } from "../validation/parse-schema";
 import { ConfirmationsService } from "./confirmations.service";
 
@@ -27,6 +29,7 @@ export class ConfirmationsController {
   constructor(private readonly confirmations: ConfirmationsService) {}
 
   @Post()
+  @Throttle({ default: RATE_LIMITS.upload })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FilesInterceptor("proof", 3, {

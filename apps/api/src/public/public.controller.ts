@@ -7,7 +7,9 @@ import {
   Query,
   Res,
 } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import type { Response } from "express";
+import { RATE_LIMITS } from "../rate-limit.config";
 import { PublicService } from "./public.service";
 
 @Controller()
@@ -15,6 +17,7 @@ export class PublicController {
   constructor(private readonly service: PublicService) {}
 
   @Get("search")
+  @Throttle({ default: RATE_LIMITS.search })
   search(@Query("q") query = "") {
     return this.service.search(query);
   }
@@ -34,6 +37,7 @@ export class PublicController {
   }
 
   @Get("community/search")
+  @Throttle({ default: RATE_LIMITS.search })
   communitySearch(@Query("q") query = "") {
     return this.service.communitySearch(query);
   }
