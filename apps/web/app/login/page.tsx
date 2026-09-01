@@ -98,8 +98,8 @@ export default function LoginPage() {
         <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/account"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA HALAMAN ADMIN":"BUKA AKUN SAYA"} ↗</Link>
       </div>
     </section>:<div className="auth-grid">
-      <form className="auth-card" onSubmit={login}><p className="panel-index">01 / MASUK</p><h2>AKUN TERDAFTAR</h2><label>Email<input type="email" name="email" required/></label><label>Password<input type="password" name="password" required/></label><button className="tactical-button">MASUK ↗</button></form>
-      <form className="auth-card" onSubmit={register}><p className="panel-index">02 / DAFTAR</p><h2>AKUN BARU</h2><label>Nama tampilan<input name="displayName" required minLength={2}/></label><label>Email<input type="email" name="email" required/></label><label>Password<input type="password" name="password" required minLength={10}/></label><button className="button-secondary">BUAT AKUN</button></form>
+      <form className="auth-card" onSubmit={login}><p className="panel-index">01 / MASUK</p><h2>AKUN TERDAFTAR</h2><label>Email<input type="email" name="email" required/></label><label>Password<input type="password" name="password" required/></label><Link className="auth-text-link" href="/forgot-password">Lupa password?</Link><button className="tactical-button">MASUK ↗</button></form>
+      <form className="auth-card" onSubmit={register}><p className="panel-index">02 / DAFTAR</p><h2>AKUN BARU</h2><label>Nama tampilan<input name="displayName" required minLength={2}/></label><label>Email<input type="email" name="email" required/></label><label>Password<input type="password" name="password" required minLength={10}/></label><Link className="auth-text-link" href="/verify-email">Belum menerima email verifikasi?</Link><button className="button-secondary">BUAT AKUN</button></form>
     </div>}
     {message&&<p className="success-message" role="status">{message}</p>}
     {error&&<p className="form-error" role="alert">{error}</p>}

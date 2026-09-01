@@ -35,6 +35,8 @@ pnpm dev
 
 Web berjalan di `http://localhost:3000`, API di `http://localhost:3001/api`, dan health check di `http://localhost:3001/api/health`.
 
+Untuk mengirim email verifikasi dan reset password melalui Brevo, isi `BREVO_API_KEY`, `EMAIL_FROM`, dan `EMAIL_FROM_NAME` di `.env`. Jika konfigurasi email dikosongkan pada development, UI memakai token development; token tersebut tidak pernah dikembalikan pada production.
+
 Data demo development:
 
 - Admin: `admin@valrify.local`
@@ -60,6 +62,6 @@ pnpm db:seed             isi data demo
 
 ## Batas milestone
 
-Fitur lanjut seperti dispute lengkap, profile claiming, verified middleman workflow, graph intelligence, fuzzy merge, Google OAuth produksi, Redis, dan object storage hosted sengaja belum dibangun. Konfirmasi transaksi berhasil sudah tersedia dengan moderasi wajib dan bukti privat opsional. Deployment Sites lama hanya menjadi referensi visual; monorepo lokal ini adalah source of truth pengembangan berikutnya.
+Fitur lanjut seperti dispute lengkap, profile claiming, verified middleman workflow, graph intelligence, fuzzy merge, Google OAuth produksi, dan Redis sengaja belum dibangun. Cloudflare R2 private sudah tersedia untuk evidence hosted, sedangkan Brevo menangani email verifikasi dan reset password saat dikonfigurasi. Deployment Sites lama hanya menjadi referensi visual; monorepo lokal ini adalah source of truth pengembangan berikutnya.
 
 Dokumentasi lanjut tersedia di [docs/architecture.md](docs/architecture.md), [docs/product-rules.md](docs/product-rules.md), [docs/risk-methodology.md](docs/risk-methodology.md), dan [docs/moderation.md](docs/moderation.md).

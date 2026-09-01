@@ -3,9 +3,12 @@ import test from "node:test";
 import { canModerate, canTransition } from "@valrify/domain";
 import {
   confirmationSchema,
+  emailRequestSchema,
   publicProfileSchema,
   reportSchema,
+  resetPasswordSchema,
 } from "@valrify/validation";
+import { buildAuthEmail } from "../src/auth/email.service";
 import { createEvidenceStorage } from "../src/storage/evidence-storage.factory";
 import { LocalEvidenceStorage } from "../src/storage/local-evidence-storage.service";
 import {
@@ -41,6 +44,20 @@ test("successful transaction input is constrained", () => {
     }).success,
     false,
   );
+});
+
+test("auth recovery inputs reject malformed values", () => {
+  assert.equal(emailRequestSchema.safeParse({ email: "user@example.com" }).success, true);
+  assert.equal(emailRequestSchema.safeParse({ email: "bukan-email" }).success, false);
+  assert.equal(resetPasswordSchema.safeParse({ token: "a".repeat(64), password: "Password!2026" }).success, true);
+  assert.equal(resetPasswordSchema.safeParse({ token: "short", password: "pendek" }).success, false);
+});
+
+test("transactional auth email contains a safe one-time link", () => {
+  const email = buildAuthEmail({ to: "user@example.com", displayName: "<User>", token: "secret-token", kind: "password-reset" }, "https://valrify.example");
+  assert.match(email.textContent, /https:\/\/valrify\.example\/reset-password\?token=secret-token/);
+  assert.match(email.htmlContent, /Halo &lt;User&gt;/);
+  assert.doesNotMatch(email.htmlContent, /Halo <User>/);
 });
 
 test("reports accept multiple account identifiers", () => {

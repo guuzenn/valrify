@@ -19,7 +19,7 @@
 
 ## Ditunda
 
-Google OAuth produksi, reset password, dispute penuh, claim profile, verified middleman workflow, push/email notification delivery, Redis, S3/R2, graph intelligence, fuzzy duplicate merge, analytics, dan deployment/domain produksi.
+Google OAuth produksi, dispute penuh, claim profile, verified middleman workflow, push notification delivery, Redis, graph intelligence, fuzzy duplicate merge, analytics, dan deployment/domain produksi.
 
 ## Status handoff
 
@@ -273,3 +273,7 @@ Roadmap beta dibagi menjadi empat sprint di [beta-roadmap.md](beta-roadmap.md). 
 ## Cloudflare R2 evidence storage
 
 Adapter evidence mendukung `STORAGE_DRIVER=local` untuk development dan `STORAGE_DRIVER=r2` untuk staging/production. R2 memakai S3-compatible API dengan bucket private; upload dan pembacaan tetap melewati NestJS sehingga aturan akses admin, status laporan, approval bukti publik, dan validasi MIME yang sudah ada tidak berubah. Konfigurasi R2 wajib gagal cepat saat endpoint, bucket, access key, atau secret key tidak tersedia. Credential tidak boleh masuk repository atau dokumentasi.
+
+## Transactional auth email
+
+Brevo REST API mengirim email verifikasi akun dan reset password ketika `BREVO_API_KEY` serta sender tersedia. Tautan verifikasi berlaku 24 jam dan tautan reset berlaku 1 jam. Token mentah hanya dikirim lewat email; PostgreSQL menyimpan SHA-256 token dalam `email_verification_tokens` atau `password_reset_tokens`. Request baru mengganti token lama dan penggunaan yang berhasil menghapus seluruh token sejenis milik user. Development tanpa Brevo mempertahankan shortcut token lokal, tetapi production tidak pernah mengembalikan token tersebut melalui API.

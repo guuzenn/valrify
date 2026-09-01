@@ -64,9 +64,9 @@ Username disimpan lowercase dan unik. `users.username_changed_at` menjadi sumber
 
 ## Autentikasi dan otorisasi
 
-Email/password menggunakan hash bcrypt dan verifikasi email. Setelah verifikasi, API menerbitkan JWT melalui cookie HTTP-only. Guard API memeriksa user aktif dan role `USER`, `VERIFIED_MIDDLEMAN`, `MODERATOR`, atau `ADMIN`.
+Email/password menggunakan hash bcrypt dan verifikasi email. Brevo REST API mengirim tautan verifikasi 24 jam dan tautan reset password 1 jam. Database hanya menyimpan hash token sekali pakai; token lama dihapus ketika user meminta tautan baru dan seluruh token terkait dihapus setelah berhasil digunakan. Endpoint permintaan reset dan kirim ulang verifikasi memakai respons generik agar tidak membocorkan apakah sebuah email terdaftar. Setelah verifikasi, API menerbitkan JWT melalui cookie HTTP-only. Guard API memeriksa user aktif dan role `USER`, `VERIFIED_MIDDLEMAN`, `MODERATOR`, atau `ADMIN`.
 
-Pada development, token verifikasi dapat dikembalikan ke UI agar alur bisa diuji tanpa penyedia email. Perilaku ini tidak boleh aktif pada production.
+Pada development tanpa konfigurasi Brevo, token verifikasi dan reset dapat dikembalikan ke UI agar alur bisa diuji tanpa penyedia email. Perilaku ini tidak boleh aktif pada production.
 
 ## Bukti
 

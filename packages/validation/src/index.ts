@@ -12,6 +12,18 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(128),
 });
 
+export const emailRequestSchema = z.object({
+  email: z.email(),
+});
+
+export const tokenSchema = z.object({
+  token: z.string().trim().min(32).max(256),
+});
+
+export const resetPasswordSchema = tokenSchema.extend({
+  password: z.string().min(10, "Password minimal 10 karakter.").max(128),
+});
+
 const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);
 export const publicProfileSchema = z.object({
   username: z.string().trim().toLowerCase().min(3, "Username minimal 3 karakter.").max(24, "Username maksimal 24 karakter.").regex(/^[a-z0-9_]+$/, "Gunakan huruf kecil, angka, atau underscore.").refine((value) => !reservedUsernames.has(value), "Username ini tidak dapat digunakan."),
@@ -106,6 +118,8 @@ export const confirmationSchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type EmailRequestInput = z.infer<typeof emailRequestSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type PublicProfileInput = z.infer<typeof publicProfileSchema>;
 export type CommunityPostInput = z.infer<typeof communityPostSchema>;
 export type CommunityCommentInput = z.infer<typeof communityCommentSchema>;
