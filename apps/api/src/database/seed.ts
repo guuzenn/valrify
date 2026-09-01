@@ -389,21 +389,21 @@ async function seed() {
 
   const senjaEntity = (await db.select().from(entities).where(eq(entities.slug, "senja-vault-demo")))[0];
   if (senjaEntity) {
-    const pendingConfirmation = {
+    const demoConfirmation = {
       userId: testerUser.id,
       entityId: senjaEntity.id,
       transactionDate: new Date("2026-08-21"),
       amount: 540_000,
-      note: "Testi fiktif untuk latihan admin. Transaksi selesai melalui rekber dan data akun sudah diamankan oleh pembeli.",
-      status: "PENDING",
+      note: "Testi fiktif. Transaksi selesai melalui rekber dan data akun sudah diamankan oleh pembeli.",
+      status: "APPROVED",
       moderationNote: "",
       reviewedBy: null,
       reviewedAt: null,
       updatedAt: new Date(),
     };
-    await db.insert(transactionConfirmations).values(pendingConfirmation).onConflictDoUpdate({
+    await db.insert(transactionConfirmations).values(demoConfirmation).onConflictDoUpdate({
       target: [transactionConfirmations.userId, transactionConfirmations.entityId, transactionConfirmations.transactionDate],
-      set: pendingConfirmation,
+      set: demoConfirmation,
     });
   }
 
@@ -472,7 +472,7 @@ async function seed() {
   }
 
   await pool.end();
-  console.log("Valrify fictional seed ready: public cases plus one report and one testi for admin review");
+  console.log("Valrify fictional seed ready: public cases, one report for admin review, and one public testi");
 }
 
 seed().catch((error) => {

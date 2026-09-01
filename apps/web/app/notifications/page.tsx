@@ -71,7 +71,7 @@ export default function NotificationsPage() {
     <Header compact backHref="/community" backLabel="Kembali ke Community" />
     <main className="page shell notifications-page">
       <section className="notifications-hero">
-        <div><span>AKTIVITAS AKUN</span><h1>NOTIFIKASI</h1><p>Like dan balasan terbaru dari anggota Community Valrify.</p></div>
+        <div><span>AKTIVITAS AKUN</span><h1>NOTIFIKASI</h1><p>Suka dan balasan terbaru dari pengguna Community Valrify.</p></div>
         <div className="notifications-summary"><strong>{inbox?.unreadCount ?? 0}</strong><span>BELUM DIBACA</span><button type="button" onClick={markAllRead} disabled={!inbox?.unreadCount || markingAll}>{markingAll ? "MENYIMPAN..." : "TANDAI SEMUA DIBACA"}</button></div>
       </section>
 

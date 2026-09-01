@@ -52,12 +52,12 @@ export function AdminEvidenceViewer({ evidence, kind = "report" }: { evidence: A
         </a>;
       })}
     </div>
-    {selected && <div className="admin-evidence-modal" role="dialog" aria-modal="true" aria-label={`Preview ${selected.fileName}`} onClick={() => setSelected(null)}>
+    {selected && <div className="admin-evidence-modal" role="dialog" aria-modal="true" aria-label={`Pratinjau ${selected.fileName}`} onClick={() => setSelected(null)}>
       <div className="admin-evidence-modal-card" onClick={(event) => event.stopPropagation()}>
-        <div><span>// BUKTI PRIVAT</span><strong>{selected.fileName}</strong><button type="button" aria-label="Tutup preview" onClick={() => setSelected(null)}>×</button></div>
+        <div><span>// BUKTI UNTUK ADMIN</span><strong>{selected.fileName}</strong><button type="button" aria-label="Tutup pratinjau" onClick={() => setSelected(null)}>×</button></div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={`${browserApiUrl}${basePath}/${selected.id}`} alt={`Bukti ${selected.fileName}`} />
-        <small>Hanya untuk proses moderasi. Jangan sebarkan sebelum data pribadi diperiksa.</small>
+        <small>Hanya untuk pemeriksaan admin. Jangan bagikan sebelum memastikan tidak ada data pribadi di dalamnya.</small>
       </div>
     </div>}
   </>;

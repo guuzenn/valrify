@@ -78,9 +78,9 @@ export function ConfirmationForm({
     return (
       <div className="success-state">
         <p className="eyebrow">// TESTI TERKIRIM</p>
-        <h2>SEDANG DICEK.</h2>
+        <h2>SUDAH TAMPIL.</h2>
         <p>
-          Testi akan muncul di profil setelah dicek dan disetujui moderator.
+          Testimu langsung muncul di profil transaksi ini.
         </p>
         <Link className="tactical-button" href={`/entity/${entitySlug}`}>
           KEMBALI KE PROFIL
@@ -93,7 +93,7 @@ export function ConfirmationForm({
     <>
       <div className="actor-bar">
         MASUK SEBAGAI <strong>{user.displayName}</strong>
-        <span>{user.role}</span>
+        <span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span>
       </div>
       <form className="report-form" onSubmit={submit}>
         <input type="hidden" name="entityId" value={entityId} />
@@ -137,8 +137,8 @@ export function ConfirmationForm({
             />
           </label>
           <p className="field-note">
-            Maks. 3 file, 5 MB per file. Bukti bersifat privat dan hanya dapat
-            dilihat moderator/admin.
+            Maks. 3 file, 5 MB per file. Bukti hanya dapat dilihat admin dan
+            tidak akan muncul di profil.
           </p>
         </fieldset>
         {state.error && (

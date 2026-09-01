@@ -53,6 +53,7 @@ export class ConfirmationsService {
           transactionDate,
           amount: input.amount,
           note: input.note,
+          status: "APPROVED",
         })
         .returning();
       if (!confirmation) throw new Error("Gagal menyimpan konfirmasi transaksi.");

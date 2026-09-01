@@ -22,8 +22,8 @@ export default async function ConfirmTransactionPage({
         <h1 className="page-title">TRANSAKSINYA LANCAR?</h1>
         <p className="page-intro">
           Kalau kamu pernah jual-beli dengan {entity.displayName} dan semuanya
-          selesai sesuai kesepakatan, ceritakan pengalamanmu di sini. Setiap testi
-          dicek moderator sebelum tampil di profil.
+          selesai sesuai kesepakatan, ceritakan pengalamanmu di sini. Testi akan
+          langsung tampil di profil setelah dikirim.
         </p>
         <ConfirmationForm
           entityId={entity.id}

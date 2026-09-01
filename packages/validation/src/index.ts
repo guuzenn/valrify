@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { identifierTypes } from "@valrify/domain";
+import { identifierTypes, reportCategories } from "@valrify/domain";
 
 export const registerSchema = z.object({
   email: z.email(),
@@ -54,7 +54,6 @@ const reportIdentifiersSchema = z.preprocess((value) => {
 
 export const reportSchema = z.object({
   entityName: z.string().trim().min(2).max(80),
-  title: z.string().trim().min(8).max(120),
   chronology: z.string().trim().min(80).max(5000),
   evidenceUrl: z.preprocess(
     (value) => value === "" ? undefined : value,
@@ -65,13 +64,7 @@ export const reportSchema = z.object({
   identifierValue: z.string().trim().min(2).max(160).optional(),
   provider: z.string().trim().max(40).optional(),
   transactionDate: z.string().optional(),
-  allegedLoss: z.coerce.number().int().min(0).max(1_000_000_000),
-  transactionType: z.enum([
-    "ACCOUNT_PURCHASE",
-    "ACCOUNT_SALE",
-    "ACCOUNT_TRADE",
-    "MIDDLEMAN",
-  ]),
+  category: z.enum(reportCategories),
 }).superRefine((value, context) => {
   if (!value.identifiers && (!value.identifierType || !value.identifierValue)) {
     context.addIssue({
@@ -111,11 +104,6 @@ export const confirmationSchema = z.object({
   note: z.string().trim().min(10).max(500),
 });
 
-export const confirmationReviewSchema = z.object({
-  decision: z.enum(["APPROVE", "REJECT"]),
-  rationale: z.string().trim().min(10).max(1000),
-});
-
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type PublicProfileInput = z.infer<typeof publicProfileSchema>;
@@ -126,4 +114,3 @@ export type CommunityPostReviewInput = z.infer<typeof communityPostReviewSchema>
 export type ReportInput = z.infer<typeof reportSchema>;
 export type ReviewInput = z.infer<typeof reviewSchema>;
 export type ConfirmationInput = z.infer<typeof confirmationSchema>;
-export type ConfirmationReviewInput = z.infer<typeof confirmationReviewSchema>;

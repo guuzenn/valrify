@@ -12,6 +12,10 @@ type SessionUser = {
   role: string;
 };
 
+function roleLabel(role: string) {
+  return ({ USER: "PENGGUNA", VERIFIED_MIDDLEMAN: "REKBER TERVERIFIKASI", MODERATOR: "MODERATOR", ADMIN: "ADMIN" } as Record<string, string>)[role] ?? role;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
@@ -87,7 +91,7 @@ export default function LoginPage() {
     <h1 className="page-title">MASUK ATAU BUAT AKUN.</h1>
     {user===undefined?<div className="actor-bar auth-loading">MEMERIKSA AKUN...</div>:user?<section className="session-card">
       <p className="panel-index">// KAMU SUDAH MASUK</p>
-      <div className="session-identity"><div><span>MASUK SEBAGAI</span><h2>{user.displayName}</h2><p>{user.email}</p></div><strong>{user.role}</strong></div>
+      <div className="session-identity"><div><span>MASUK SEBAGAI</span><h2>{user.displayName}</h2><p>{user.email}</p></div><strong>{roleLabel(user.role)}</strong></div>
       <p>Kalau mau memakai akun lain, keluar dari akun ini dulu.</p>
       <div className="session-actions">
         <button className="button-secondary" type="button" onClick={logout}>KELUAR</button>

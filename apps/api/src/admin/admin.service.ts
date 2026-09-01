@@ -4,14 +4,9 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
-import {
-  canReviewConfirmation,
-  type ConfirmationStatus,
-  type ReportStatus,
-} from "@valrify/domain";
+import { type ReportStatus } from "@valrify/domain";
 import type {
   CommunityPostReviewInput,
-  ConfirmationReviewInput,
   ReviewInput,
 } from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
@@ -30,7 +25,6 @@ import {
   reports,
   reportStatusHistory,
   transactionConfirmationEvidence,
-  transactionConfirmations,
   users,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
@@ -50,7 +44,7 @@ export class AdminService {
       "VERIFIED",
     ] as const;
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const [reportCounts, confirmationCounts, communityCounts, communityCommentCounts, activityCount, recentActions] =
+    const [reportCounts, communityCounts, communityCommentCounts, activityCount, recentActions] =
       await Promise.all([
         this.database.db
           .select({
@@ -60,12 +54,6 @@ export class AdminService {
             rejected: sql<number>`count(*) filter (where ${eq(reports.status, "REJECTED")})::int`,
           })
           .from(reports),
-        this.database.db
-          .select({
-            pending: sql<number>`count(*) filter (where ${eq(transactionConfirmations.status, "PENDING")})::int`,
-            approved: sql<number>`count(*) filter (where ${eq(transactionConfirmations.status, "APPROVED")})::int`,
-          })
-          .from(transactionConfirmations),
         this.database.db
           .select({ pendingPosts: sql<number>`count(distinct ${communityPostReports.postId})::int` })
           .from(communityPostReports)
@@ -100,7 +88,6 @@ export class AdminService {
 
     return {
       reports: reportCounts[0] ?? { total: 0, pending: 0, published: 0, rejected: 0 },
-      confirmations: confirmationCounts[0] ?? { pending: 0, approved: 0 },
       community: { pendingPosts: communityCounts[0]?.pendingPosts ?? 0, pendingComments: communityCommentCounts[0]?.pendingComments ?? 0 },
       reviewedLast24Hours: activityCount[0]?.count ?? 0,
       recentActions,
@@ -114,8 +101,8 @@ export class AdminService {
         publicId: reports.publicId,
         title: reports.title,
         chronology: reports.chronology,
+        transactionType: reports.transactionType,
         transactionDate: reports.transactionDate,
-        allegedLoss: reports.allegedLoss,
         evidenceUrl: reports.evidenceUrl,
         status: reports.status,
         createdAt: reports.createdAt,
@@ -172,41 +159,6 @@ export class AdminService {
           })),
           evidence,
         };
-      }),
-    );
-  }
-
-  async confirmationQueue() {
-    const rows = await this.database.db
-      .select({
-        id: transactionConfirmations.id,
-        transactionDate: transactionConfirmations.transactionDate,
-        amount: transactionConfirmations.amount,
-        note: transactionConfirmations.note,
-        status: transactionConfirmations.status,
-        createdAt: transactionConfirmations.createdAt,
-        entityName: entities.displayName,
-        entitySlug: entities.slug,
-        submitterName: users.displayName,
-      })
-      .from(transactionConfirmations)
-      .innerJoin(users, eq(users.id, transactionConfirmations.userId))
-      .innerJoin(entities, eq(entities.id, transactionConfirmations.entityId))
-      .where(eq(transactionConfirmations.status, "PENDING"))
-      .orderBy(asc(transactionConfirmations.createdAt));
-
-    return Promise.all(
-      rows.map(async (row) => {
-        const evidence = await this.database.db
-          .select({
-            id: transactionConfirmationEvidence.id,
-            fileName: transactionConfirmationEvidence.fileName,
-            mimeType: transactionConfirmationEvidence.mimeType,
-            size: transactionConfirmationEvidence.size,
-          })
-          .from(transactionConfirmationEvidence)
-          .where(eq(transactionConfirmationEvidence.confirmationId, row.id));
-        return { ...row, evidence };
       }),
     );
   }
@@ -433,58 +385,6 @@ export class AdminService {
       }
     });
     return { ok: true };
-  }
-
-  async reviewConfirmation(
-    confirmationId: number,
-    actorId: string,
-    input: ConfirmationReviewInput,
-  ) {
-    const confirmation =
-      await this.database.db.query.transactionConfirmations.findFirst({
-        where: eq(transactionConfirmations.id, confirmationId),
-      });
-    if (!confirmation) {
-      throw new NotFoundException("Konfirmasi transaksi tidak ditemukan.");
-    }
-    if (confirmation.userId === actorId) {
-      throw new BadRequestException(
-        "Moderator tidak dapat meninjau konfirmasi miliknya sendiri.",
-      );
-    }
-    const next: ConfirmationStatus =
-      input.decision === "APPROVE" ? "APPROVED" : "REJECTED";
-    if (
-      !canReviewConfirmation(
-        confirmation.status as ConfirmationStatus,
-        next,
-      )
-    ) {
-      throw new BadRequestException("Konfirmasi ini sudah selesai ditinjau.");
-    }
-
-    await this.database.db.transaction(async (tx) => {
-      await tx
-        .update(transactionConfirmations)
-        .set({
-          status: next,
-          moderationNote: input.rationale,
-          reviewedBy: actorId,
-          reviewedAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(transactionConfirmations.id, confirmationId));
-      await tx.insert(moderationActions).values({
-        transactionConfirmationId: confirmationId,
-        actorId,
-        action:
-          next === "APPROVED"
-            ? "TRANSACTION_CONFIRMATION_APPROVED"
-            : "TRANSACTION_CONFIRMATION_REJECTED",
-        rationale: input.rationale,
-      });
-    });
-    return { ok: true, status: next };
   }
 
   async evidence(id: number) {

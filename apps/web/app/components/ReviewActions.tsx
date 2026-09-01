@@ -5,7 +5,7 @@ import { browserApi } from "../../lib/browser-api";
 
 const noteTemplates = [
   ["BUKTI LENGKAP", "Bukti lengkap dan isi laporan sesuai dengan data yang dikirim."],
-  ["DATA CUKUP", "Identitas akun dan bukti transaksi cukup untuk menerbitkan laporan."],
+  ["DATA CUKUP", "Identitas akun dan bukti transaksi cukup untuk menampilkan laporan."],
   ["BUKTI KURANG", "Bukti yang dikirim belum cukup untuk mendukung laporan."],
   ["DATA TIDAK COCOK", "Data laporan tidak cocok dengan bukti yang dikirim."],
   ["LAPORAN DUPLIKAT", "Laporan ini sama dengan kasus yang sudah pernah dikirim."],
@@ -57,7 +57,7 @@ export function ReviewActions({ reportId, evidence, evidenceUrl, onDone }: { rep
           publicEvidenceIds,
         }),
       });
-      setMessage(decision === "PUBLISH" ? "Laporan diterbitkan." : "Laporan ditolak.");
+      setMessage(decision === "PUBLISH" ? "Laporan sudah ditampilkan." : "Laporan ditolak.");
       onDone();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Tindakan gagal.");
@@ -68,12 +68,12 @@ export function ReviewActions({ reportId, evidence, evidenceUrl, onDone }: { rep
   }
 
   return <form ref={formRef} className="review-actions" onSubmit={(event) => event.preventDefault()}>
-    <label>Ringkasan yang akan tampil (wajib kalau diterbitkan)<textarea name="summary" rows={4} minLength={30}/></label>
+    <label>Ringkasan yang akan dilihat pengguna (wajib jika laporan ditampilkan)<textarea name="summary" rows={4} minLength={30}/></label>
     <div className="evidence-approval"><strong>BUKTI YANG BOLEH DILIHAT PUBLIK</strong><p>Centang hanya gambar yang sudah diperiksa dan tidak membocorkan data korban atau pihak lain.</p>{evidenceUrl && <a href={evidenceUrl} target="_blank" rel="noreferrer">Link posting bukti tersedia ↗</a>}{evidence.filter((item) => item.mimeType.startsWith("image/")).map((item) => <label key={item.id}><input type="checkbox" checked={publicEvidenceIds.includes(item.id)} onChange={(event) => setPublicEvidenceIds((current) => event.target.checked ? [...current, item.id] : current.filter((id) => id !== item.id))}/><span>{item.fileName}</span></label>)}{!evidenceUrl && evidence.every((item) => !item.mimeType.startsWith("image/")) && <small>Tidak ada gambar atau link yang dapat dijadikan bukti publik.</small>}</div>
     <div className="note-templates"><span>ISI CATATAN CEPAT</span><div>{noteTemplates.map(([label, value]) => <button key={label} type="button" onClick={() => setRationale(value)}>{label}</button>)}</div></div>
     <label>Catatan keputusan admin<textarea name="rationale" rows={3} required minLength={10} value={rationale} onChange={(event) => setRationale(event.target.value)}/></label>
-    {pendingDecision && <div className={`admin-decision-confirm ${pendingDecision === "REJECT" ? "reject" : "publish"}`}><div><strong>{pendingDecision === "PUBLISH" ? "TERBITKAN LAPORAN INI?" : "TOLAK LAPORAN INI?"}</strong><p>{pendingDecision === "PUBLISH" ? "Ringkasan dan bukti yang dipilih akan terlihat publik." : "Laporan keluar dari antrean dan alasan tetap tersimpan di audit log."}</p></div><div><button type="button" disabled={working} onClick={() => setPendingDecision(null)}>BATAL</button><button type="button" disabled={working} onClick={() => act(pendingDecision)}>{working ? "MEMPROSES..." : "YA, LANJUTKAN"}</button></div></div>}
-    <div><button onClick={() => prepare("REJECT")} disabled={working} className="button-secondary" type="button">TOLAK</button><button onClick={() => prepare("PUBLISH")} disabled={working} className="tactical-button" type="button">TERBITKAN LAPORAN</button></div>
+    {pendingDecision && <div className={`admin-decision-confirm ${pendingDecision === "REJECT" ? "reject" : "publish"}`}><div><strong>{pendingDecision === "PUBLISH" ? "TAMPILKAN LAPORAN INI?" : "TOLAK LAPORAN INI?"}</strong><p>{pendingDecision === "PUBLISH" ? "Ringkasan dan bukti yang dipilih akan bisa dilihat pengguna." : "Laporan keluar dari antrean dan alasannya tetap tersimpan dalam riwayat keputusan admin."}</p></div><div><button type="button" disabled={working} onClick={() => setPendingDecision(null)}>BATAL</button><button type="button" disabled={working} onClick={() => act(pendingDecision)}>{working ? "MEMPROSES..." : "YA, LANJUTKAN"}</button></div></div>}
+    <div><button onClick={() => prepare("REJECT")} disabled={working} className="button-secondary" type="button">TOLAK</button><button onClick={() => prepare("PUBLISH")} disabled={working} className="tactical-button" type="button">TAMPILKAN LAPORAN</button></div>
     {message && <p className="field-note" role="status">{message}</p>}
   </form>;
 }

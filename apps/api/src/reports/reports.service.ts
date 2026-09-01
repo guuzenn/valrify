@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import {
   maskIdentifier,
   normalizeIdentifier,
+  titleReportCategory,
   type IdentifierType,
 } from "@valrify/domain";
 import type { ReportInput } from "@valrify/validation";
@@ -122,12 +123,12 @@ export class ReportsService {
           publicId,
           reporterId,
           entityId: entity.id,
-          title: input.title,
+          title: titleReportCategory(input.category),
           chronology: input.chronology,
           evidenceUrl: input.evidenceUrl,
           transactionDate: input.transactionDate ? new Date(input.transactionDate) : null,
-          allegedLoss: input.allegedLoss,
-          transactionType: input.transactionType,
+          allegedLoss: 0,
+          transactionType: input.category,
         })
         .returning();
       if (!report) throw new Error("Gagal membuat laporan");

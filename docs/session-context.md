@@ -224,3 +224,48 @@ Verifikasi terakhir sebelum handoff:
 - `git diff --check` lulus; warning CRLF Windows bukan error whitespace.
 
 Prioritas yang disarankan untuk sesi berikutnya adalah Mention v1 dengan autocomplete dari Community Search, lalu Bookmark/Saved Post v1. Follow system sebaiknya ditunda sampai pagination, preference feed, dan aturan notifikasinya dirancang. Sebelum production, kebutuhan utama tetap provider email, object storage, rate limiting terdistribusi, pagination/cursor, indeks pencarian yang sesuai skala, observability, backup, dan integration/e2e test database.
+
+## Keputusan arah produk 28 Agustus 2026
+
+Owner memilih kembali memusatkan Valrify pada fungsi safety dan peningkatan fitur yang sudah ada. Fitur sosial Community tidak menjadi prioritas karena percakapan komunitas sudah lebih mudah dilakukan melalui Facebook dan Discord. Community direncanakan untuk disederhanakan menjadi profil publik dan testi; route serta data Community yang sudah ada sebaiknya disembunyikan terlebih dahulu dan tidak langsung dihapus agar keputusan masih dapat dibalik.
+
+Prioritas produk berikutnya bukan Mention, Bookmark, atau Follow. Fokus yang disetujui adalah:
+
+- pencarian identifier dan database laporan;
+- perlindungan dari penipuan pembayaran, rekber palsu, dan hackback;
+- kualitas scam report, evidence, moderasi, dan informasi publik;
+- profil reputasi dan testi;
+- panduan keamanan serta kanal resmi anti-impersonation;
+- perbaikan homepage dengan struktur yang langsung, proses yang jelas, dan aturan yang mudah dipahami seperti kekuatan informasi pada Julie Sean Rekber, tanpa menyalin visual atau mereknya.
+
+Link posting bukti di Facebook menjadi rekomendasi kuat untuk pengiriman laporan, tetapi bukan syarat wajib selama tersedia evidence privat yang dapat diperiksa moderator. Kejadian lama tetap boleh dilaporkan; umur kejadian tidak membuat laporan ditolak otomatis. Kasus dan audit dapat dipertahankan, sedangkan keterkaitan identifier tetap harus dapat dikoreksi atau disengketakan bila ditemukan kesalahan atau perubahan kepemilikan.
+
+Visi rekber telah diparkir di [rekber-roadmap.md](rekber-roadmap.md). Rekber adalah fase paling akhir dan tidak boleh diimplementasikan sebelum ada perintah baru dari owner. Sampai saat itu, jangan biarkan kebutuhan rekber memperlebar scope sprint safety saat ini.
+
+### Implementasi fokus safety pertama
+
+Homepage tidak lagi mengambil atau menampilkan feed Community. Section `Lagi Ramai` diganti dengan tiga risiko utama—penipuan pembayaran, rekber palsu, dan hackback—beserta CTA ke pencarian, panduan Cara Amanin, dan form scam report. Link Community serta lonceng notifikasi sosial dihapus dari navigasi publik desktop/mobile, tetapi route, API, dan data lama tidak dihapus.
+
+Public profile sekarang berfungsi sebagai profil reputasi dan hanya menampilkan scam report dari peran tepercaya serta testi yang dikirim pengguna. Post Community tidak lagi tampil pada profil. Dashboard akun mengganti statistik aktivitas Community dengan status profil publik. Admin moderation Community tetap tersedia untuk menangani data/report lama.
+
+### Pedoman bahasa antarmuka
+
+Copy antarmuka diaudit ulang agar istilah sistem tidak dibebankan kepada pengguna. Untuk aksi yang sama, gunakan `ditampilkan` atau `muncul di Valrify`, bukan campuran `diterbitkan`, `ditayangkan`, `terbit`, dan `publikasi`. Gunakan `pemeriksaan admin`, `bukti`, `nomor dan akun`, `nama lain`, `antrean`, serta `muat ulang`; hindari `moderasi`, `review`, `evidence`, `identifier`, `alias`, `queue`, dan `refresh` pada teks yang terlihat pengguna. Keterangan data terbatas harus menjelaskan langsung siapa yang bisa melihatnya, bukan hanya menyebutnya `privat`.
+
+Halaman `/methodology` dan tautan `Cara Baca` dihapus dari produk. Penjelasan tanda risiko tidak membutuhkan halaman tersendiri; peringatan yang dibutuhkan pengguna sudah diberikan langsung pada hasil pencarian dan halaman terkait.
+
+### Testi langsung tampil
+
+Keputusan terbaru owner menggantikan rancangan moderasi testi sebelumnya. Testi transaksi langsung berstatus `APPROVED` dan tampil setelah dikirim oleh pengguna dengan email terverifikasi; tidak ada antrean setujui/tolak testi di panel admin. Migrasi `0010_rich_big_bertha.sql` mengubah default status menjadi `APPROVED` dan memindahkan testi lama yang masih `PENDING` ke `APPROVED`. Bukti opsional tetap hanya dapat diakses admin jika kelak diperlukan untuk menangani penyalahgunaan, tetapi bukan syarat publikasi testi. Copy publik harus membedakan dengan jelas bahwa laporan diperiksa admin sedangkan testi merupakan kiriman langsung pengguna.
+
+### Susunan panduan Cara Aman
+
+Panduan `/cara-aman` mengikuti urutan kebutuhan pembeli: istilah, pemeriksaan sebelum transfer, pemeriksaan setelah menerima akun, langkah wajib mengamankan akun, lalu pemeriksaan First Email yang bersifat opsional. Semua bagian utama memakai dropdown tertutup pada tampilan HP agar mudah dipindai; Amankan Akun tetap paling ditonjolkan tetapi tidak dibuka otomatis. Desktop tetap menampilkan seluruh isi. Alur transaksi dan aturan Riot tetap terlihat, sedangkan daftar isi berbentuk deretan tombol dihapus karena menduplikasi judul bagian dan terlihat janggal di desktop.
+
+### Nominal kerugian dihapus dari scam report
+
+Scam report tidak lagi meminta atau menampilkan nominal uang yang hilang. Nilai tersebut tidak membantu fungsi utama pencarian nomor dan akun serta menambah beban pelapor. Kolom database lama tetap dipertahankan dengan nilai baru `0` agar data laporan terdahulu tidak dihapus dan migrasi destruktif tidak diperlukan. Nominal transaksi pada testi tetap dipertahankan karena merupakan konteks reputasi transaksi, bukan nilai kerugian laporan.
+
+### Sprint 1 menuju beta
+
+Roadmap beta dibagi menjadi empat sprint di [beta-roadmap.md](beta-roadmap.md). Sprint pertama mengganti konteks transaksi lama dengan lima kategori masalah: penipuan pembayaran, rekber palsu, hackback, data akun tidak sesuai, dan lainnya. Form tidak lagi meminta judul; server membuat judul netral berdasarkan kategori. Kategori tampil pada antrean admin dan detail laporan publik, sedangkan nilai lama seperti `ACCOUNT_PURCHASE` tetap memiliki label yang dapat dibaca tanpa migrasi database.

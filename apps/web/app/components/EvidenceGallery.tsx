@@ -38,7 +38,7 @@ export function EvidenceGallery({
     </div>
     {selected && <div className="evidence-modal" role="dialog" aria-modal="true" aria-label="Bukti gambar" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
       <div className="evidence-modal-card">
-        <div className="evidence-modal-head"><div><span>BUKTI PUBLIK</span><strong>{selected.caption || "Gambar yang sudah diperiksa admin"}</strong></div><button type="button" onClick={() => setSelected(null)} aria-label="Tutup bukti">×</button></div>
+        <div className="evidence-modal-head"><div><span>BUKTI YANG DIBAGIKAN</span><strong>{selected.caption || "Gambar yang sudah diperiksa admin"}</strong></div><button type="button" onClick={() => setSelected(null)} aria-label="Tutup bukti">×</button></div>
         <img src={evidenceSrc(selected.id)} alt={selected.caption || "Bukti pendukung laporan scam"}/>
         {evidence.length > 1 && <div className="evidence-thumbnails">{evidence.map((item, index) => <button type="button" className={selected.id === item.id ? "active" : ""} key={item.id} onClick={() => setSelected(item)}>BUKTI {index + 1}</button>)}</div>}
       </div>

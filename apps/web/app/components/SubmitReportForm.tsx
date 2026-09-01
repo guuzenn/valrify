@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { browserApi, browserApiUrl } from "../../lib/browser-api";
-import { CurrencyInput } from "./CurrencyInput";
 
 type User = { displayName: string; role: string };
 type IdentifierRow = { id: number; type: string; value: string; provider: string; relatedName: string; secondaryValue: string };
@@ -17,6 +16,14 @@ const types = [
   ["FACEBOOK_NAME", "Facebook"],
   ["PERSON_NAME", "Alias / nama asli"],
   ["OTHER", "Username lain"],
+] as const;
+
+const reportCategories = [
+  ["PAYMENT_FRAUD", "Penipuan pembayaran", "Uang atau barang sudah dikirim, tetapi transaksi tidak diselesaikan."],
+  ["FAKE_MIDDLEMAN", "Rekber palsu", "Mengaku sebagai rekber atau meminta deposit dan biaya palsu."],
+  ["HACKBACK", "Hackback", "Akun diambil kembali setelah transaksi selesai."],
+  ["ACCOUNT_MISMATCH", "Data akun tidak sesuai", "Akun, skin, akses, atau data yang diterima berbeda dari kesepakatan."],
+  ["OTHER", "Masalah lainnya", "Masalah transaksi lain yang belum cocok dengan kategori di atas."],
 ] as const;
 
 const IndonesianBanks = [
@@ -147,15 +154,13 @@ export function SubmitReportForm() {
     try {
       const formData = new FormData(form);
       const entityName = String(formData.get("entityName") ?? "").trim();
-      const title = String(formData.get("title") ?? "").trim();
       const chronology = String(formData.get("chronology") ?? "").trim();
-      if (entityName.length < 2) throw new Error("Isi nama seller atau nama profil utama.");
+      if (entityName.length < 2) throw new Error("Isi nama orang atau akun yang dilaporkan.");
       const emptyIdentifierIndex = identifierRows.findIndex((row) => row.value.trim().length < 2);
       if (emptyIdentifierIndex >= 0) throw new Error(`Lengkapi ${mainFieldLabel(identifierRows[emptyIdentifierIndex]!.type).toLowerCase()} pada data ${emptyIdentifierIndex + 1}.`);
       const missingProviderIndex = identifierRows.findIndex((row) => ["BANK_ACCOUNT", "EWALLET"].includes(row.type) && row.provider.trim().length < 2);
       if (missingProviderIndex >= 0) throw new Error(`Pilih atau ketik ${identifierRows[missingProviderIndex]!.type === "BANK_ACCOUNT" ? "nama bank" : "nama e-wallet"} pada data ${missingProviderIndex + 1}.`);
-      if (title.length < 8) throw new Error("Isi judul masalah minimal 8 karakter.");
-      if (chronology.length < 80) throw new Error("Ceritakan kejadian minimal 80 karakter agar moderator punya konteks yang cukup.");
+      if (chronology.length < 80) throw new Error("Ceritakan kejadian minimal 80 karakter agar admin punya informasi yang cukup.");
 
       const submittedIdentifiers = identifierRows.flatMap((row) => {
         const extra = extraIdentifier(row);
@@ -192,12 +197,16 @@ export function SubmitReportForm() {
   if (state.publicId) return <div className="success-state"><p className="eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>Admin akan mengecek laporanmu. Laporan belum tampil untuk umum.</p><Link className="tactical-button" href="/">KEMBALI KE BERANDA</Link></div>;
 
   return <>
-    <div className="actor-bar">MASUK SEBAGAI <strong>{user.displayName}</strong><span>{user.role}</span></div>
+    <div className="actor-bar">MASUK SEBAGAI <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div>
     <form className="report-form" onSubmit={submit} noValidate>
       {state.error && <p className="form-error form-error-banner" role="alert">{state.error}</p>}
       <fieldset>
-        <legend>01 / SIAPA YANG DILAPORKAN?</legend>
-        <label>Nama seller / nama profil utama<input name="entityName" required minLength={2} maxLength={80}/><small className="field-note">Pakai nama yang paling dikenal pembeli. Nama asli atau nama Facebook bisa ditambahkan sebagai alias di bawah.</small></label>
+        <legend>01 / APA YANG TERJADI?</legend>
+        <div className="report-category-grid">{reportCategories.map(([value, label, description], index) => <label key={value} className="report-category-option"><input type="radio" name="category" value={value} defaultChecked={index === 0}/><span><strong>{label}</strong><small>{description}</small></span></label>)}</div>
+      </fieldset>
+      <fieldset>
+        <legend>02 / SIAPA YANG DILAPORKAN?</legend>
+        <label>Nama orang / akun yang dilaporkan<input name="entityName" required minLength={2} maxLength={80}/><small className="field-note">Pakai nama yang paling dikenal. Nama asli atau nama Facebook bisa ditambahkan sebagai nama lain di bawah.</small></label>
         <div className="identifier-builder">
           <div className="identifier-builder-heading"><div><strong>DATA YANG KAMU PUNYA</strong><p>Tambahkan semua nomor, rekening, atau akun yang dipakai orang ini. Kalau ada yang sudah dikenal Valrify, laporan akan masuk ke profil yang sama.</p></div><span>{submittedIdentifierCount}/8</span></div>
           {identifierRows.map((row, index) => <div className="identifier-entry" key={row.id}>
@@ -218,17 +227,15 @@ export function SubmitReportForm() {
         </div>
       </fieldset>
       <fieldset>
-        <legend>02 / CERITAKAN KEJADIANNYA</legend>
-        <label>Masalahnya apa?<input name="title" required minLength={8} maxLength={120} placeholder="Contoh: Uang sudah ditransfer, akun tidak dikirim"/></label>
+        <legend>03 / CERITAKAN KEJADIANNYA</legend>
         <label>Ceritakan dari awal sampai akhir<textarea name="chronology" required minLength={80} maxLength={5000} rows={9} placeholder="Jelaskan kapan deal, apa yang dijanjikan, apa yang kamu kirim, dan masalah yang terjadi."/></label>
-        <div className="form-grid"><label>Tanggal transaksi<input type="date" name="transactionDate"/></label><label>Uang yang hilang (Rp)<CurrencyInput name="allegedLoss"/></label></div>
-        <label>Kamu sedang apa?<select name="transactionType"><option value="ACCOUNT_PURCHASE">Membeli akun</option><option value="ACCOUNT_SALE">Menjual akun</option><option value="ACCOUNT_TRADE">Tukar akun</option><option value="MIDDLEMAN">Pakai jasa rekber / middleman</option></select></label>
+        <label>Tanggal kejadian<input type="date" name="transactionDate"/></label>
       </fieldset>
       <fieldset>
-        <legend>03 / SERTAKAN BUKTI (WAJIB)</legend>
-        <label>Link posting bukti (Facebook atau sumber lain)<input type="url" name="evidenceUrl" placeholder="https://www.facebook.com/groups/.../posts/..." maxLength={500}/></label>
+        <legend>04 / SERTAKAN BUKTI (WAJIB)</legend>
+        <label>Link posting bukti (Facebook atau sumber lain)<input type="url" name="evidenceUrl" placeholder="https://www.facebook.com/groups/.../posts/..." maxLength={500}/><small className="field-note">Kalau kasus ini sudah kamu posting di grup Facebook, tempel linknya di sini. Ini sangat membantu admin mencocokkan cerita dan bukti.</small></label>
         <label>Screenshot chat / transfer / bukti lain<input type="file" name="evidence" accept="image/png,image/jpeg,image/webp,application/pdf" multiple/></label>
-        <p className="field-note">Isi minimal salah satu: link posting atau upload file. Maks. 5 file, 5 MB per file. Upload hanya dapat dipublikasikan setelah admin memastikan gambar aman ditampilkan.</p>
+        <p className="field-note">Isi minimal salah satu: link posting atau unggah file. Maks. 5 file, 5 MB per file. Semua file hanya bisa dilihat admin. Gambar baru akan ditampilkan jika aman dibagikan.</p>
       </fieldset>
       <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : "KIRIM SCAM REPORT ↗"}</button>
     </form>

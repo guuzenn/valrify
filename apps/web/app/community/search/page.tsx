@@ -16,7 +16,7 @@ function formatDate(value: string) {
 }
 
 function roleLabel(role: string) {
-  return ({ USER: "ANGGOTA", VERIFIED_MIDDLEMAN: "VERIFIED MIDDLEMAN", MODERATOR: "MODERATOR", ADMIN: "ADMIN" } as Record<string, string>)[role] ?? role;
+  return ({ USER: "PENGGUNA", VERIFIED_MIDDLEMAN: "REKBER TERVERIFIKASI", MODERATOR: "MODERATOR", ADMIN: "ADMIN" } as Record<string, string>)[role] ?? role;
 }
 
 function Highlight({ text, query }: { text: string; query: string }) {
@@ -59,7 +59,7 @@ export default async function CommunitySearchPage({ searchParams }: { searchPara
           <Link className="community-search-post-body" href={`/community/post/${post.id}`}><p><Highlight text={post.body} query={result.query}/></p><span>BUKA POST →</span></Link>
           <footer><time>{formatDate(post.createdAt)}</time><span>{post.likeCount} SUKA</span><span>{post.commentCount} BALASAN</span></footer>
         </article>)}
-      </section> : <section className="community-search-empty"><strong>POST-NYA BELUM KETEMU.</strong><p>Tidak ada post published yang memuat kata “{query}”. Coba kata yang lebih pendek atau cek tab Anggota.</p><Link href={`/community/search?q=${encodeURIComponent(query)}&tab=members`}>CARI DI ANGGOTA →</Link></section>)}
+      </section> : <section className="community-search-empty"><strong>POST-NYA BELUM KETEMU.</strong><p>Tidak ada post yang memuat kata “{query}”. Coba kata yang lebih pendek atau cari di tab Pengguna.</p><Link href={`/community/search?q=${encodeURIComponent(query)}&tab=members`}>CARI PENGGUNA →</Link></section>)}
 
       {tab === "members" && (result.members.length ? <section className="community-search-members" aria-label="Hasil anggota">
         {result.members.map((member) => <Link href={`/u/${member.username}`} key={member.username}><span className="community-search-member-avatar">{member.displayName.slice(0, 1).toUpperCase()}</span><div><strong><Highlight text={member.displayName} query={result.query}/></strong><small>@<Highlight text={member.username} query={result.query}/></small><p>{member.bio || "Belum menambahkan bio."}</p></div><aside><b data-role={member.role}>{roleLabel(member.role)}</b><span>{member.postCount} POST</span><em aria-hidden="true">→</em></aside></Link>)}

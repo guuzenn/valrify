@@ -46,10 +46,10 @@ export function PublicProfileSettings({ initialUsername, initialBio, initialUser
   const usernameLocked = Boolean(usernameCanChangeAt && new Date(usernameCanChangeAt) > new Date());
 
   return <section className="account-public-profile">
-    <div className="account-public-intro"><span>// PROFIL PUBLIK V1</span><h2>IDENTITAS KOMUNITAS.</h2><p>Buat username supaya profilmu bisa dibagikan. Email, bukti, laporan pending, dan catatan admin tetap privat.</p>{savedUsername && <Link href={`/u/${savedUsername}`}>LIHAT PROFIL PUBLIK →</Link>}</div>
+    <div className="account-public-intro"><span>// PROFIL PUBLIK</span><h2>PROFIL YANG BISA DIBAGIKAN.</h2><p>Buat username supaya orang lain bisa membuka profilmu. Email, bukti, laporan yang masih diperiksa, dan catatan admin tidak ditampilkan.</p>{savedUsername && <Link href={`/u/${savedUsername}`}>LIHAT PROFIL PUBLIK →</Link>}</div>
     <form onSubmit={(event) => void submit(event)}>
       <label><span>USERNAME PUBLIK</span><div className="account-username-input"><b>@</b><input required disabled={usernameLocked} minLength={3} maxLength={24} pattern="[a-z0-9_]+" value={username} onChange={(event) => setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="contoh: reyv_valo" autoComplete="username"/></div><small>{usernameLocked && usernameCanChangeAt ? `Bisa diganti lagi ${new Intl.DateTimeFormat("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" }).format(new Date(usernameCanChangeAt))}. Bio tetap bisa diedit.` : "Setelah diganti, username tidak dapat diubah lagi selama 7 hari."}</small></label>
-      <label><span>BIO SINGKAT</span><textarea maxLength={160} rows={3} value={bio} onChange={(event) => setBio(event.target.value)} placeholder="Ceritakan sedikit tentang dirimu di komunitas."/><small>{bio.length}/160 karakter</small></label>
+      <label><span>BIO SINGKAT</span><textarea maxLength={160} rows={3} value={bio} onChange={(event) => setBio(event.target.value)} placeholder="Ceritakan sedikit tentang dirimu."/><small>{bio.length}/160 karakter</small></label>
       {error && <p className="account-profile-message error">{error}</p>}
       {message && <p className="account-profile-message success">{message}</p>}
       <button type="submit" disabled={saving}>{saving ? "MENYIMPAN..." : savedUsername ? "SIMPAN PERUBAHAN" : "BUAT PROFIL PUBLIK"}</button>

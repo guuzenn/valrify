@@ -40,7 +40,6 @@ export class AccountService {
           title: reports.title,
           status: reports.status,
           publicSummary: reports.publicSummary,
-          allegedLoss: reports.allegedLoss,
           transactionDate: reports.transactionDate,
           createdAt: reports.createdAt,
           updatedAt: reports.updatedAt,

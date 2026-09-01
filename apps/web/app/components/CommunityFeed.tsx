@@ -67,7 +67,7 @@ export function CommunityFeed({ initialPosts }: { initialPosts: CommunityPost[] 
       setPosts((current) => [post, ...current]);
       setBody("");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Post belum bisa diterbitkan.");
+      setError(reason instanceof Error ? reason.message : "Post belum bisa dikirim.");
     } finally {
       setPosting(false);
     }
@@ -115,7 +115,7 @@ export function CommunityFeed({ initialPosts }: { initialPosts: CommunityPost[] 
 
   return <><div className="community-layout">
     <aside className="community-sidebar">
-      <div><span>// COMMUNITY V1</span><h1>NGOBROL<br/><b>BARENG.</b></h1><p>Bagikan pengalaman, tips transaksi, atau diskusi seputar jual beli akun Valorant.</p></div>
+      <div><span>// COMMUNITY</span><h1>NGOBROL<br/><b>BARENG.</b></h1><p>Bagikan pengalaman, tips transaksi, atau diskusi seputar jual beli akun Valorant.</p></div>
       <form action="/community/search" className="community-quick-search"><label htmlFor="community-quick-q">CARI DI COMMUNITY</label><div><input id="community-quick-q" name="q" minLength={2} maxLength={80} required placeholder="Post atau username..."/><button type="submit" aria-label="Cari di Community">→</button></div></form>
       <div className="community-rules"><strong>SEBELUM POSTING</strong><p>Jangan bagikan data pribadi atau membuat tuduhan baru di sini. Untuk melaporkan scam, gunakan form laporan dan sertakan bukti.</p><Link href="/submit">LAPOR SCAM →</Link></div>
     </aside>

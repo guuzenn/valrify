@@ -11,8 +11,7 @@ test("reports accept a bank account holder name", () => {
       { type: "BANK_ACCOUNT", value: "1234567890", provider: "BCA" },
       { type: "BANK_ACCOUNT_NAME", value: "Anton Demo", provider: "BCA" },
     ]),
-    allegedLoss: "1000000",
-    transactionType: "ACCOUNT_PURCHASE",
+    category: "PAYMENT_FRAUD",
   });
 
   assert.equal(result.success, true);
@@ -32,8 +31,7 @@ test("reports accept composite e-wallet, Riot, and Facebook identifiers", () => 
       { type: "FACEBOOK_NAME", value: "Facebook Demo" },
       { type: "FACEBOOK_URL", value: "https://www.facebook.com/demo", provider: "Facebook" },
     ]),
-    allegedLoss: "1000000",
-    transactionType: "ACCOUNT_PURCHASE",
+    category: "HACKBACK",
   });
 
   assert.equal(result.success, true);
