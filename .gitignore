@@ -47,3 +47,8 @@ pnpm-debug.log*
 /.wrangler/
 /outputs/
 /work/
+
+# Internal project documentation
+/docs/**/*.md
+**/AGENTS.md
+**/CLAUDE.md
