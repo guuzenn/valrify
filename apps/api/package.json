@@ -8,6 +8,7 @@
     "start": "node dist/main.js",
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test --test-isolation=none test/*.test.ts",
+    "test:integration": "tsx --test --test-isolation=none test/*.integration.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/database/seed.ts"

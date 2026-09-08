@@ -258,3 +258,59 @@ footer p,footer small { color:var(--muted); font-size:12px; }
   .admin-review-item>summary{padding:14px 12px}
   .admin-fact-grid article{padding:12px}
 }
+
+/* Search result states */
+.search-page .page-search{position:relative;margin-bottom:72px}
+.page-search .search-help{grid-column:1/-1;color:#aeb8b3;font-size:11px;line-height:1.5;margin:2px 5px 0}
+.page-search input[aria-invalid="true"]{border-color:var(--red);box-shadow:inset 4px 0 0 var(--red)}
+.search-state{max-width:920px;background:var(--white);border:1px solid var(--border);border-left:5px solid var(--red);padding:34px;margin-bottom:62px}
+.search-state-code{display:block;color:var(--red);font:900 10px monospace;letter-spacing:.12em}
+.search-state h2{font-size:clamp(42px,6vw,68px);margin:14px 0 16px}
+.search-state>p{max-width:700px;color:var(--muted);font-size:15px;line-height:1.65}
+.search-state .result-query{margin:14px 0 0;color:var(--ink);font-size:10px}
+.search-state-invalid{border-left-color:var(--danger)}
+.search-state-invalid .search-state-code{color:var(--danger)}
+.search-examples{display:grid;gap:8px;background:#ece8e1;padding:16px 18px;margin:24px 0}
+.search-examples strong{font-size:9px;letter-spacing:.1em}
+.search-examples span{color:var(--muted);font-size:12px;line-height:1.5}
+.search-next-steps{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin:28px 0}
+.search-next-steps article{display:grid;grid-template-columns:auto 1fr;gap:14px;background:#f5f2ed;padding:18px}
+.search-next-steps article>span{color:var(--red);font:900 11px monospace}
+.search-next-steps strong{font-size:11px;letter-spacing:.05em}
+.search-next-steps p{color:var(--muted);font-size:11px;line-height:1.55;margin:7px 0 0}
+.search-state-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.search-secondary-link{font-size:10px;font-weight:900;letter-spacing:.08em;border-bottom:2px solid var(--ink);padding:8px 0}
+.search-found-heading{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:18px}
+.search-found-heading .result-query{margin:9px 0 0}
+.search-found-heading>strong{background:var(--ink);color:white;padding:11px 14px;font-size:9px;letter-spacing:.08em;white-space:nowrap}
+.search-found-note{display:grid;grid-template-columns:250px 1fr;gap:24px;border-left:4px solid var(--warning);background:#e5e1da;padding:18px 20px;margin-bottom:22px}
+.search-found-note strong{font-size:10px;letter-spacing:.07em}
+.search-found-note p{color:var(--muted);font-size:12px;line-height:1.55;margin:0}
+.search-page .result-card{min-width:0;transition:transform .16s ease,box-shadow .16s ease}
+.search-page .result-card:hover{transform:translateY(-2px);box-shadow:7px 7px 0 rgba(15,25,35,.1)}
+.search-page .result-card>div,.search-page .result-card h2,.search-page .matched-id{min-width:0;overflow-wrap:anywhere}
+
+@media(max-width:600px){
+  .mobile-back-row+.search-page{padding-top:22px}
+  .search-page .page-title{font-size:clamp(44px,14vw,56px)}
+  .search-page .page-search{grid-template-columns:1fr;margin:25px 0 36px;padding:9px}
+  .search-page .page-search input{padding:15px 13px;font-size:13px}
+  .search-page .page-search button{min-height:48px}
+  .page-search .search-help{font-size:9px;margin:3px 3px 1px}
+  .search-state{padding:20px 17px;margin-bottom:38px}
+  .search-state h2{font-size:clamp(37px,11vw,48px);margin-block:10px 12px}
+  .search-state>p{font-size:12px}
+  .search-next-steps{grid-template-columns:1fr;margin:20px 0}
+  .search-next-steps article{padding:14px}
+  .search-state-actions{display:grid;gap:10px}
+  .search-state-actions .tactical-button{width:100%;min-height:46px}
+  .search-secondary-link{text-align:center;padding:12px}
+  .search-found-heading{align-items:start;margin-bottom:13px}
+  .search-found-heading>strong{font-size:7px;padding:9px}
+  .search-found-note{grid-template-columns:1fr;gap:7px;padding:14px;margin-bottom:15px}
+  .search-page .result-card{gap:18px;padding:20px 17px;margin-bottom:12px}
+  .search-page .result-card h2{font-size:28px}
+  .search-page .result-metrics{gap:10px}
+  .search-page .result-meta strong{font-size:30px}
+  .search-page .card-link{justify-self:start;min-height:36px;display:inline-flex;align-items:center}
+}

@@ -90,6 +90,7 @@ Gunakan akun pengguna untuk mengirim laporan atau testi, kemudian gunakan akun a
 | `pnpm build` | Membuat build seluruh workspace |
 | `pnpm lint` | Memeriksa TypeScript |
 | `pnpm test` | Menjalankan unit test |
+| `pnpm test:integration` | Menguji pencarian publik terhadap PostgreSQL lokal |
 | `pnpm db:up` | Menjalankan PostgreSQL melalui Docker |
 | `pnpm db:down` | Menghentikan layanan Docker |
 | `pnpm db:generate` | Membuat migration database |

@@ -9,6 +9,7 @@
     "build": "pnpm --workspace-concurrency=1 -r --sort build",
     "lint": "pnpm --workspace-concurrency=1 -r --if-present lint",
     "test": "pnpm --workspace-concurrency=1 -r --if-present test",
+    "test:integration": "pnpm --filter @valrify/api test:integration",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @valrify/api db:generate",
