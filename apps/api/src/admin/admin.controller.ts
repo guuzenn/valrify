@@ -92,9 +92,10 @@ export class AdminController {
     response.setHeader("content-type", result.meta.mimeType);
     response.setHeader(
       "content-disposition",
-      `inline; filename="${result.meta.fileName.replace(/["\r\n]/g, "_")}"`,
+      result.meta.mimeType === "application/pdf" ? 'attachment; filename="evidence.pdf"' : 'inline; filename="evidence"',
     );
     response.setHeader("cache-control", "private, no-store");
+    response.setHeader("content-security-policy", "sandbox; default-src 'none'");
     response.setHeader("x-content-type-options", "nosniff");
     response.send(result.bytes);
   }

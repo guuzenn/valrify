@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { browserApi } from "../../../lib/browser-api";
 import { CommunityModerationActions } from "../../components/CommunityModerationActions";
-import { Footer, Header } from "../../components/SiteChrome";
 
 type ReportDetail = { id: number; reason: string; detail: string; createdAt: string; reporterName: string };
 type Author = { id: string; displayName: string; username: string | null; role: string };
@@ -45,12 +44,12 @@ export default function CommunityModerationPage() {
   const total = (posts?.length ?? 0) + (comments?.length ?? 0);
   const activeItems = tab === "posts" ? posts ?? [] : comments ?? [];
 
-  return <><Header compact backHref="/admin/reports" backLabel="Kembali ke panel admin"/><main className="page shell community-admin-page">
+  return <main className="page shell community-admin-page">
     <div className="community-admin-bar"><Link href="/admin/reports">← PANEL ADMIN</Link><Link href="/community" target="_blank">BUKA COMMUNITY ↗</Link><button type="button" disabled={refreshing} onClick={() => void load()}>{refreshing ? "MEMUAT..." : "MUAT ULANG"}</button></div>
     <section className="community-admin-hero"><div><p className="eyebrow">// LAPORAN COMMUNITY</p><h1>ANTREAN<br/>LAPORAN.</h1><p>Periksa laporan post dan komentar tanpa menampilkan identitas pelapor. Satu keputusan akan menyelesaikan semua laporan pada konten yang sama.</p></div><div><strong>{total}</strong><span>KONTEN PERLU DICEK</span></div></section>
     {error ? <div className="admin-access-error"><span>AKSES TERBATAS</span><h2>ANTREAN TIDAK DAPAT DIBUKA.</h2><p>{error}</p><Link href="/login" className="tactical-button">MASUK SEBAGAI ADMIN</Link></div> : loading ? <div className="admin-loading"><span/><p>MEMUAT LAPORAN COMMUNITY...</p></div> : <>
       <div className="community-admin-tabs"><button type="button" aria-selected={tab === "posts"} onClick={() => setTab("posts")}>POST DILAPORKAN <strong>{posts.length}</strong></button><button type="button" aria-selected={tab === "comments"} onClick={() => setTab("comments")}>KOMENTAR DILAPORKAN <strong>{comments.length}</strong></button></div>
       {activeItems.length === 0 ? <div className="community-admin-empty"><strong>TIDAK ADA {tab === "posts" ? "POST" : "KOMENTAR"} YANG PERLU DICEK.</strong><p>Belum ada laporan yang menunggu keputusan.</p></div> : tab === "posts" ? <div className="community-admin-list">{posts.map((item) => <article key={item.postId} className="community-admin-card"><header><div><span>POST #{item.postId}</span><strong>{item.reportCount} LAPORAN</strong></div><time>Laporan pertama {formatDate(item.firstReportedAt)}</time></header><AuthorRow author={item.author}/><blockquote>{item.body}</blockquote><Reports reports={item.reports}/><CommunityModerationActions targetId={item.postId} kind="post" onDone={() => void load()}/></article>)}</div> : <div className="community-admin-list">{comments.map((item) => <article key={item.commentId} className="community-admin-card comment"><header><div><span>KOMENTAR #{item.commentId}</span><strong>{item.reportCount} LAPORAN</strong></div><time>Laporan pertama {formatDate(item.firstReportedAt)}</time></header><AuthorRow author={item.author}/><blockquote>{item.body}</blockquote><div className="community-admin-parent"><span>DI POST #{item.postId}</span><p>{item.postBody}</p></div><Reports reports={item.reports}/><CommunityModerationActions targetId={item.commentId} kind="comment" onDone={() => void load()}/></article>)}</div>}
     </>}
-  </main><Footer/></>;
+  </main>;
 }

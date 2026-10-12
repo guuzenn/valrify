@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { formatRupiah } from "@valrify/domain";
 import { browserApi, notifyAuthSessionChanged } from "../../lib/browser-api";
 import { PublicProfileSettings } from "../components/PublicProfileSettings";
+import { SessionSettings } from "../components/SessionSettings";
 import { Footer, Header } from "../components/SiteChrome";
 
 type AccountOverview = {
@@ -75,6 +76,7 @@ export default function AccountPage() {
         {tab === "confirmations" && <div className="account-history"><div className="account-section-heading"><div><span>// RIWAYAT TESTI</span><h2>TESTI TRANSAKSI.</h2></div></div>{data.confirmations.length === 0 ? <div className="account-empty"><strong>BELUM ADA TESTI.</strong><p>Testi transaksi dikirim dari profil seller atau pembeli yang pernah kamu transaksikan.</p><Link href="/search" className="tactical-button">CARI PROFIL</Link></div> : <div className="account-report-list">{data.confirmations.map((item) => { const status = confirmationStatus[item.status] ?? { label: item.status, description: "Status testi tidak dikenali.", tone: "muted" }; return <article key={item.id} className="account-history-card confirmation"><div className="account-history-top"><div><span>TESTI #{item.id}</span><h3>{item.entityName}</h3><p>Transaksi {formatDate(item.transactionDate)}</p></div><span className={`account-status ${status.tone}`}>{status.label}</span></div><div className="account-status-explain"><strong>STATUS SEKARANG</strong><p>{status.description}</p></div>{item.moderationNote && <div className="account-moderator-note"><strong>CATATAN LAMA</strong><p>{item.moderationNote}</p></div>}<p className="account-confirmation-note">{item.note}</p><div className="account-history-facts"><span><small>NOMINAL</small><strong>{formatRupiah(item.amount)}</strong></span><span><small>BUKTI DIKIRIM</small><strong>{item.evidenceCount} FILE</strong></span><span><small>DIKIRIM</small><strong>{formatDate(item.createdAt)}</strong></span></div><div className="account-history-links"><Link href={`/entity/${item.entitySlug}`}>BUKA PROFIL ↗</Link></div></article>; })}</div>}</div>}
       </section>
       <aside className="account-privacy-note"><strong>DATA INI HANYA BISA KAMU LIHAT.</strong><p>Email, laporan yang belum ditampilkan, bukti, dan catatan admin di halaman ini tidak dapat dilihat pengguna lain. Nama pengirim juga tidak dicantumkan pada laporan.</p></aside>
+      <SessionSettings/>
     </>}
   </main><Footer/></>;
 }

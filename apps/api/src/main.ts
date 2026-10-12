@@ -5,6 +5,7 @@ import type { NestExpressApplication } from "@nestjs/platform-express";
 import cookieParser from "cookie-parser";
 import { AppModule } from "./app.module";
 import { readTrustProxyHops } from "./rate-limit.config";
+import { readWebOrigins, securityMiddleware } from "./security";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -14,8 +15,11 @@ async function bootstrap() {
   if (trustProxyHops > 0) app.set("trust proxy", trustProxyHops);
   app.setGlobalPrefix("api");
   app.use(cookieParser());
+  app.getHttpAdapter().getInstance().disable("x-powered-by");
+  const origins = readWebOrigins();
+  app.use(securityMiddleware(origins));
   app.enableCors({
-    origin: (process.env.WEB_ORIGIN ?? "http://localhost:3000").split(","),
+    origin: origins,
     credentials: true,
   });
   await app.listen(Number(process.env.PORT ?? 3001));

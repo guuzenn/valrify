@@ -314,3 +314,17 @@ footer p,footer small { color:var(--muted); font-size:12px; }
   .search-page .result-meta strong{font-size:30px}
   .search-page .card-link{justify-self:start;min-height:36px;display:inline-flex;align-items:center}
 }
+ .admin-chrome { background: var(--ink, #0f1923); color: #ece8e1; border-bottom: 3px solid #ff4655; }
+ .admin-chrome > div { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 22px; flex-wrap: wrap; }
+ .admin-chrome .brand { color: inherit; }
+ .admin-chrome small { color: #ff4655; font-size: 12px; }
+ .admin-chrome nav { display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; }
+ .admin-chrome a:hover { color: #ff4655; }
+ .session-settings { margin-top: 30px; padding: 28px; background: #fff; border: 1px solid #d5d1ca; border-top: 3px solid #ff4655; }
+ .session-settings h2 { font-size: 28px; margin-bottom: 12px; }
+ .session-settings > p { max-width: 760px; }
+ .session-settings ul { list-style: none; padding: 0; margin-top: 20px; }
+ .session-settings li { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding-block: 16px; border-top: 1px solid #d5d1ca; }
+ .session-settings li p { margin: 6px 0 0; font-size: 14px; }
+ .session-settings button { padding: 10px 16px; border: 1px solid #ff4655; color: #b52c3a; cursor: pointer; }
+ .session-settings button:disabled { opacity: .5; cursor: wait; }

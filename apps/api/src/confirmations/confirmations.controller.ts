@@ -33,7 +33,7 @@ export class ConfirmationsController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FilesInterceptor("proof", 3, {
-      limits: { fileSize: 5 * 1024 * 1024 },
+      limits: { fileSize: 5 * 1024 * 1024, files: 3, fields: 12, fieldSize: 64 * 1024, parts: 16 },
       fileFilter: (_request, file, callback) =>
         callback(
           allowedProofTypes.has(file.mimetype)

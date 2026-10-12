@@ -47,7 +47,8 @@ export class EmailService {
   constructor() {
     if (Boolean(this.apiKey) !== Boolean(this.fromEmail)) throw new Error("BREVO_API_KEY dan EMAIL_FROM harus diisi bersamaan.");
     if (process.env.NODE_ENV === "production" && !this.isConfigured()) throw new Error("Brevo wajib dikonfigurasi pada production.");
-    new URL(this.publicAppUrl);
+    const appUrl = new URL(this.publicAppUrl);
+    if (process.env.NODE_ENV === "production" && (appUrl.protocol !== "https:" || !process.env.PUBLIC_APP_URL)) throw new Error("PUBLIC_APP_URL HTTPS wajib dikonfigurasi pada production.");
   }
 
   isConfigured() {

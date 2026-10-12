@@ -1,5 +1,6 @@
 import { index, integer, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, boolean, type AnyPgColumn } from "drizzle-orm/pg-core";
 export const roleEnum=pgEnum("user_role",["USER","VERIFIED_MIDDLEMAN","MODERATOR","ADMIN"]);
+export const authSessions = pgTable("auth_sessions", { id: text("id").primaryKey(), userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(), expiresAt: timestamp("expires_at", { withTimezone: true }).notNull() }, (t) => [index("auth_sessions_user_idx").on(t.userId), index("auth_sessions_expiry_idx").on(t.expiresAt)]);
 export const reportStatusEnum=pgEnum("report_status",["SUBMITTED","UNDER_REVIEW","NEEDS_INFO","VERIFIED","REJECTED","WITHDRAWN","PUBLISHED"]);
 export const communityPostStatusEnum=pgEnum("community_post_status",["PUBLISHED","REMOVED"]);
 export const communityPostReportStatusEnum=pgEnum("community_post_report_status",["PENDING","DISMISSED","POST_REMOVED"]);

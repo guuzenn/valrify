@@ -12,6 +12,7 @@ import {
   users,
 } from "../src/database/schema";
 import { PublicService } from "../src/public/public.service";
+import { ConfirmationsService } from "../src/confirmations/confirmations.service";
 import type { EvidenceStorage } from "../src/storage/evidence-storage";
 
 test("public search normalizes phone formats and excludes non-public reports", { timeout: 30_000 }, async () => {
@@ -62,6 +63,7 @@ test("public search normalizes phone formats and excludes non-public reports", {
     await database.db.insert(entityIdentifiers).values([
       { entityId: publishedEntity!.id, identifierId: publishedPhoneId!.id, isPrimary: true },
       { entityId: publishedEntity!.id, identifierId: publishedNameId!.id },
+      { entityId: hiddenEntity!.id, identifierId: hiddenPhoneId!.id },
     ]);
 
     const [publishedReport, hiddenReport] = await database.db.insert(reports).values([
@@ -111,6 +113,9 @@ test("public search normalizes phone formats and excludes non-public reports", {
 
     assert.deepEqual(await service.search(publishedPhone.slice(0, 6)), []);
     assert.deepEqual(await service.search(hiddenPhone), []);
+    assert.equal(await service.entity(hiddenSlug), null);
+    assert.equal((await service.entity(publishedSlug))?.slug, publishedSlug);
+    await assert.rejects(() => new ConfirmationsService(database, storage).create(userId, { entityId: hiddenEntity!.id, transactionDate: "2026-10-01", amount: 0, note: "Privat tidak boleh dibuka lewat testi." }, []), /Profil tidak ditemukan/);
   } finally {
     if (createdReportIds.length) await database.db.delete(reports).where(inArray(reports.id, createdReportIds));
     if (createdEntityIds.length) await database.db.delete(entities).where(inArray(entities.id, createdEntityIds));

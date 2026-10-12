@@ -1,9 +1,11 @@
 import { z } from "zod";
 import { identifierTypes, reportCategories } from "@valrify/domain";
 
+const newPasswordSchema = z.string().min(10, "Password minimal 10 karakter.").max(72, "Password terlalu panjang.").refine((value) => new TextEncoder().encode(value).length <= 72, "Password terlalu panjang. Gunakan password yang lebih pendek.");
+
 export const registerSchema = z.object({
   email: z.email(),
-  password: z.string().min(10).max(128),
+  password: newPasswordSchema,
   displayName: z.string().trim().min(2).max(80),
 });
 
@@ -21,7 +23,7 @@ export const tokenSchema = z.object({
 });
 
 export const resetPasswordSchema = tokenSchema.extend({
-  password: z.string().min(10, "Password minimal 10 karakter.").max(128),
+  password: newPasswordSchema,
 });
 
 const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);

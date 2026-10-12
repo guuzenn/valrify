@@ -220,6 +220,7 @@ const demoEntities: DemoEntity[] = [
 ];
 
 async function seed() {
+  if (process.env.NODE_ENV === "production") throw new Error("Demo seed is disabled in production. Create the admin separately with a unique password.");
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL ?? "postgresql://valrify:valrify_dev@localhost:5434/valrify",
   });

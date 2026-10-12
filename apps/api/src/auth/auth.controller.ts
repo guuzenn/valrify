@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Req, Res, UseGuards } from "@nestjs/common";
 import type { Request, Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { emailRequestSchema, loginSchema, registerSchema, resetPasswordSchema, tokenSchema } from "@valrify/validation";
@@ -6,10 +6,10 @@ import { RATE_LIMITS } from "../rate-limit.config";
 import { parseSchema } from "../validation/parse-schema";
 import { AuthService } from "./auth.service";
 import { CurrentActor } from "./current-actor";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+import { JwtAuthGuard, type AuthenticatedRequest } from "./jwt-auth.guard";
 import type { AuthActor } from "./auth.types";
 
-const cookieOptions = () => ({ httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/", maxAge: 7 * 24 * 60 * 60 * 1000 });
+const cookieOptions = (maxAge: number) => ({ httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/", maxAge });
 
 @Controller("auth")
 export class AuthController {
@@ -43,13 +43,14 @@ export class AuthController {
   @Throttle({ default: RATE_LIMITS.login })
   async login(@Body() body: unknown, @Res({ passthrough: true }) response: Response) {
     const result = await this.auth.login(parseSchema(loginSchema, body));
-    response.cookie("valrify_session", result.token, cookieOptions());
+    response.cookie("valrify_session", result.token, cookieOptions(result.maxAge));
     return { user: result.actor };
   }
 
   @Post("logout")
   @HttpCode(200)
-  logout(@Res({ passthrough: true }) response: Response) {
+  async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+    await this.auth.logout(request.cookies?.valrify_session ?? request.headers.authorization?.replace(/^Bearer /, ""));
     response.clearCookie("valrify_session", { path: "/" });
     return { ok: true };
   }
@@ -57,4 +58,16 @@ export class AuthController {
   @Get("me")
   @UseGuards(JwtAuthGuard)
   me(@CurrentActor() actor: AuthActor, @Req() _request: Request) { return { user: actor }; }
+
+  @Get("sessions")
+  @UseGuards(JwtAuthGuard)
+  sessions(@Req() request: AuthenticatedRequest) { return this.auth.sessions(request.user.id, request.authSessionId); }
+
+  @Delete("sessions/:id")
+  @UseGuards(JwtAuthGuard)
+  async revoke(@Param("id", new ParseUUIDPipe()) id: string, @Req() request: AuthenticatedRequest, @Res({ passthrough: true }) response: Response) {
+    const result = await this.auth.revokeSession(request.user.id, id);
+    if (id === request.authSessionId) response.clearCookie("valrify_session", { path: "/" });
+    return result;
+  }
 }

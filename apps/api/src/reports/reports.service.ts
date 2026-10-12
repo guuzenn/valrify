@@ -19,6 +19,7 @@ import {
   reportStatusHistory,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
+import { validateEvidence } from "../storage/validate-evidence";
 
 const strongIdentifierTypes = new Set<IdentifierType>([
   "PHONE",
@@ -41,6 +42,7 @@ export class ReportsService {
     input: ReportInput,
     files: Express.Multer.File[],
   ) {
+    validateEvidence(files);
     return this.database.db.transaction(async (tx) => {
       const submittedValues = [
         ...input.identifiers.map((identifier) => ({ ...identifier, isSubmitted: true })),

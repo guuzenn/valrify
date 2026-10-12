@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { labelIdentifierType, labelReportCategory } from "@valrify/domain";
 import { browserApi } from "../../../lib/browser-api";
 import { AdminEvidenceViewer } from "../../components/AdminEvidenceViewer";
-import { Footer, Header } from "../../components/SiteChrome";
 import { ReviewActions } from "../../components/ReviewActions";
 
 type Evidence = { id: number; fileName: string; mimeType: string; size: number; evidenceType?: string; caption?: string; isPublicApproved?: boolean };
@@ -55,7 +54,7 @@ export default function ReviewPage() {
   const pendingTotal = (reports?.length ?? 0) + (overview?.community.pendingPosts ?? 0) + (overview?.community.pendingComments ?? 0);
   const loading = reports === null || overview === null;
 
-  return <><Header compact backHref="/" backLabel="Kembali ke situs"/><main className="page shell admin-panel">
+  return <main className="page shell admin-panel">
     <div className="admin-commandbar"><div><span className="admin-live-dot"/> PANEL ADMIN VALRIFY</div><div><Link href="/admin/community">LAPORAN COMMUNITY</Link><Link href="/" target="_blank">BUKA SITUS ↗</Link><button type="button" disabled={refreshing} onClick={() => void load()}>{refreshing ? "MEMUAT..." : "MUAT ULANG"}</button></div></div>
     <section className="admin-hero"><div><p className="eyebrow">// PANEL ADMIN</p><h1 className="page-title">PUSAT<br/>PEMERIKSAAN.</h1></div><div><strong>{pendingTotal}</strong><span>ITEM PERLU TINDAKAN</span><small>{lastUpdated ? `Terakhir diperbarui ${formatDate(lastUpdated.toISOString(), true)}` : "Menghubungkan ke server..."}</small></div></section>
 
@@ -75,5 +74,5 @@ export default function ReviewPage() {
         {tab === "activity" && <section className="admin-queue" aria-label="Keputusan admin terbaru"><div className="admin-queue-heading"><div><span>// RIWAYAT KEPUTUSAN</span><h2>AKTIVITAS TERBARU</h2></div><p>Catatan lengkap tetap tersimpan di database. Bagian ini menampilkan delapan keputusan terakhir.</p></div>{overview.recentActions.length === 0 ? <div className="admin-zero"><strong>BELUM ADA AKTIVITAS.</strong></div> : <ol className="admin-activity-list">{overview.recentActions.map((action) => <li key={action.id}><span className={action.action.includes("REJECTED") || action.action.includes("REMOVED") ? "rejected" : "published"}>{actionLabels[action.action] ?? action.action}</span><div><strong>{action.reportPublicId ? `${action.reportPublicId} · ${action.reportTitle}` : action.communityPostId ? `COMMUNITY POST #${action.communityPostId}` : action.communityCommentId ? `KOMENTAR #${action.communityCommentId}` : `TESTI #${action.confirmationId}`}</strong><p>{action.rationale}</p></div><div><strong>{action.actorName}</strong><time dateTime={action.createdAt}>{formatDate(action.createdAt, true)}</time></div></li>)}</ol>}</section>}
       </section>
     </>}
-  </main><Footer/></>;
+  </main>;
 }

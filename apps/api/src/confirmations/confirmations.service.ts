@@ -12,6 +12,8 @@ import {
   transactionConfirmations,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
+import { validateEvidence } from "../storage/validate-evidence";
+import { publicEntityCondition } from "../database/public-entity";
 
 @Injectable()
 export class ConfirmationsService {
@@ -25,9 +27,8 @@ export class ConfirmationsService {
     input: ConfirmationInput,
     files: Express.Multer.File[],
   ) {
-    const entity = await this.database.db.query.entities.findFirst({
-      where: eq(entities.id, input.entityId),
-    });
+    validateEvidence(files);
+    const [entity] = await this.database.db.select().from(entities).where(and(eq(entities.id, input.entityId), publicEntityCondition)).limit(1);
     if (!entity) throw new NotFoundException("Profil tidak ditemukan.");
 
     const transactionDate = new Date(`${input.transactionDate}T00:00:00.000Z`);

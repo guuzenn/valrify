@@ -11,7 +11,8 @@
     "test:integration": "tsx --test --test-isolation=none test/*.integration.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx src/database/seed.ts"
+    "db:seed": "tsx src/database/seed.ts",
+    "admin:create": "tsx src/auth/create-admin.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.883.0",
@@ -26,7 +27,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
-    "multer": "^2.0.2",
+    "multer": "^2.4.0",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",

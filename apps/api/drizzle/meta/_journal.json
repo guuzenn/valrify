@@ -85,6 +85,13 @@
       "when": 1788246156777,
       "tag": "0011_left_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790931645887,
+      "tag": "0012_conscious_wolf_cub",
+      "breakpoints": true
     }
   ]
 }

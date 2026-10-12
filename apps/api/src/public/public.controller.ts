@@ -78,9 +78,10 @@ export class PublicController {
     response.setHeader("content-type", result.meta.mimeType);
     response.setHeader(
       "content-disposition",
-      `inline; filename="${result.meta.fileName.replace(/["\r\n]/g, "_")}"`,
+      'inline; filename="evidence"',
     );
-    response.setHeader("cache-control", "public, max-age=3600");
+    response.setHeader("cache-control", "no-store");
+    response.setHeader("content-security-policy", "sandbox; default-src 'none'");
     response.setHeader("x-content-type-options", "nosniff");
     response.send(result.bytes);
   }

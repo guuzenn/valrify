@@ -23,6 +23,8 @@ import {
   users,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
+import { publicEntityCondition } from "../database/public-entity";
+import { publicImageTypes } from "../storage/validate-evidence";
 
 const partialSearchTypes = [
   "PERSON_NAME",
@@ -243,7 +245,7 @@ export class PublicService {
         eq(entityIdentifiers.identifierId, identifiers.id),
       )
       .innerJoin(entities, eq(entities.id, entityIdentifiers.entityId))
-      .where(inArray(identifiers.normalizedValue, variants));
+      .where(and(inArray(identifiers.normalizedValue, variants), publicEntityCondition));
 
     const textQuery = query.trim().toLocaleLowerCase("id-ID").replace(/\s+/g, " ");
     const partialPattern = `%${textQuery.replace(/[\\%_]/g, "\\$&")}%`;
@@ -417,9 +419,7 @@ export class PublicService {
   }
 
   async entity(slug: string) {
-    const entity = await this.database.db.query.entities.findFirst({
-      where: eq(entities.slug, slug),
-    });
+    const [entity] = await this.database.db.select().from(entities).where(and(eq(entities.slug, slug), publicEntityCondition)).limit(1);
     if (!entity) return null;
 
     const [identifierRows, publishedIdentifierRows, reportRows, confirmationRows] = await Promise.all([
@@ -607,7 +607,7 @@ export class PublicService {
         ),
       )
       .limit(1);
-    if (!row || !row.mimeType.startsWith("image/")) return null;
+    if (!row || !publicImageTypes.includes(row.mimeType)) return null;
     return { meta: row, bytes: await this.storage.get(row.storageKey) };
   }
 }

@@ -1,13 +1,14 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { and, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt, lte } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { EmailRequestInput, LoginInput, RegisterInput, ResetPasswordInput } from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
-import { emailVerificationTokens, passwordResetTokens, users } from "../database/schema";
+import { authSessions, emailVerificationTokens, passwordResetTokens, users } from "../database/schema";
 import type { AuthActor } from "./auth.types";
 import { EmailService } from "./email.service";
+import { isDemoAccount } from "./auth.config";
 
 const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");
 const newToken = () => randomBytes(32).toString("hex");
@@ -96,17 +97,62 @@ export class AuthService {
       const [row] = await tx.delete(passwordResetTokens).where(and(eq(passwordResetTokens.tokenHash, tokenHash(input.token)), gt(passwordResetTokens.expiresAt, new Date()))).returning({ userId: passwordResetTokens.userId });
       if (!row) throw new BadRequestException("Tautan reset password tidak valid atau sudah kedaluwarsa.");
       await tx.update(users).set({ passwordHash }).where(eq(users.id, row.userId));
+      await tx.delete(authSessions).where(eq(authSessions.userId, row.userId));
       await tx.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, row.userId));
       return { ok: true, message: "Password berhasil diganti. Silakan masuk kembali." };
     });
   }
 
   async login(input: LoginInput) {
-    const user = await this.database.db.query.users.findFirst({ where: eq(users.email, input.email.toLowerCase()) });
-    if (!user?.passwordHash || !(await compare(input.password, user.passwordHash))) throw new UnauthorizedException("Email atau password salah.");
-    if (!user.emailVerifiedAt) throw new UnauthorizedException("Verifikasi email terlebih dahulu.");
-    const actor: AuthActor = { id: user.id, email: user.email, displayName: user.displayName, role: user.role, emailVerified: true };
-    return { actor, token: await this.jwt.signAsync(actor) };
+    return this.database.db.transaction(async (tx) => {
+      const [user] = await tx.select().from(users).where(eq(users.email, input.email.toLowerCase())).for("update");
+      if (!user?.passwordHash || !(await compare(input.password, user.passwordHash))) throw new UnauthorizedException("Email atau password salah.");
+      if (process.env.NODE_ENV === "production" && isDemoAccount(user)) throw new UnauthorizedException("Akun demo tidak dapat dipakai di production.");
+      if (!user.emailVerifiedAt) throw new UnauthorizedException("Verifikasi email terlebih dahulu.");
+      const actor: AuthActor = { id: user.id, email: user.email, displayName: user.displayName, role: user.role, emailVerified: true };
+      const maxAge = (actor.role === "ADMIN" || actor.role === "MODERATOR" ? 2 * 60 * 60 : 7 * 24 * 60 * 60) * 1000;
+      const sessionId = randomUUID();
+      // ponytail: expired sessions are pruned on login; schedule pruning if dormant accounts accumulate.
+      await tx.delete(authSessions).where(and(eq(authSessions.userId, user.id), lte(authSessions.expiresAt, new Date())));
+      await tx.insert(authSessions).values({ id: sessionId, userId: user.id, expiresAt: new Date(Date.now() + maxAge) });
+      return { actor, maxAge, token: await this.jwt.signAsync({ sub: user.id, sid: sessionId }, { expiresIn: maxAge / 1000 }) };
+    });
+  }
+
+  private async sessionClaims(token: string) {
+    try {
+      const claims = await this.jwt.verifyAsync<{ sub: string; sid: string }>(token);
+      if (typeof claims.sub !== "string" || typeof claims.sid !== "string") throw new Error("Missing session");
+      return claims;
+    } catch { throw new UnauthorizedException("Sesi tidak valid. Silakan masuk kembali."); }
+  }
+
+  async authenticate(token: string) {
+    const claims = await this.sessionClaims(token);
+    const session = await this.database.db.query.authSessions.findFirst({ where: and(eq(authSessions.id, claims.sid), eq(authSessions.userId, claims.sub), gt(authSessions.expiresAt, new Date())) });
+    const actor = session ? await this.actor(claims.sub) : null;
+    if (!session || !actor?.emailVerified) throw new UnauthorizedException("Sesi berakhir. Silakan masuk kembali.");
+    if (process.env.NODE_ENV === "production" && isDemoAccount(actor)) throw new UnauthorizedException("Akun demo tidak dapat dipakai di production.");
+    if (["ADMIN", "MODERATOR"].includes(actor.role) && session.createdAt.getTime() + 2 * 60 * 60 * 1000 <= Date.now()) throw new UnauthorizedException("Sesi admin berakhir. Silakan masuk kembali.");
+    return { id: session.id, actor };
+  }
+
+  async logout(token?: string) {
+    if (!token) return;
+    let claims;
+    try { claims = await this.sessionClaims(token); } catch { return; }
+    await this.database.db.delete(authSessions).where(and(eq(authSessions.id, claims.sid), eq(authSessions.userId, claims.sub)));
+  }
+
+  async sessions(userId: string, currentId: string) {
+    const rows = await this.database.db.select({ id: authSessions.id, createdAt: authSessions.createdAt, expiresAt: authSessions.expiresAt }).from(authSessions).where(and(eq(authSessions.userId, userId), gt(authSessions.expiresAt, new Date()))).orderBy(desc(authSessions.createdAt));
+    return { sessions: rows.map((row) => ({ ...row, current: row.id === currentId })) };
+  }
+
+  async revokeSession(userId: string, sessionId: string) {
+    const rows = await this.database.db.delete(authSessions).where(and(eq(authSessions.userId, userId), eq(authSessions.id, sessionId))).returning({ id: authSessions.id });
+    if (!rows.length) throw new NotFoundException("Sesi tidak ditemukan.");
+    return { ok: true };
   }
 
   async actor(userId: string) {

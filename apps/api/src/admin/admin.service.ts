@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -10,6 +11,7 @@ import type {
   ReviewInput,
 } from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
+import { publicImageTypes } from "../storage/validate-evidence";
 import {
   communityCommentReports,
   communityComments,
@@ -287,7 +289,7 @@ export class AdminService {
       );
       if (
         selectedRows.length !== publicEvidenceIds.length ||
-        selectedRows.some((row) => !row.mimeType.startsWith("image/"))
+        selectedRows.some((row) => !publicImageTypes.includes(row.mimeType))
       ) {
         throw new BadRequestException(
           "Bukti publik harus berupa gambar dari laporan yang sedang ditinjau.",
@@ -302,6 +304,8 @@ export class AdminService {
 
     await this.database.db.transaction(async (tx) => {
       let from = report.status as ReportStatus;
+      const [lockedReport] = await tx.select({ status: reports.status }).from(reports).where(eq(reports.id, reportId)).for("update");
+      if (!lockedReport || lockedReport.status !== report.status) throw new ConflictException("Laporan sudah berubah. Muat ulang sebelum memeriksa kembali.");
       if (input.decision === "PUBLISH") {
         for (const next of [
           "UNDER_REVIEW",
