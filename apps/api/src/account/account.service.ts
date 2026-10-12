@@ -87,7 +87,7 @@ export class AccountService {
         .where(eq(reportStatusHistory.reportId, report.id))
         .orderBy(desc(reportStatusHistory.createdAt))
         .limit(1);
-      const showModeratorNote = report.status === "REJECTED" || report.status === "NEEDS_INFO";
+      const showModeratorNote = report.status === "REJECTED" || report.status === "NEEDS_INFO" || report.status === "WITHDRAWN";
       return {
         ...report,
         moderatorNote: showModeratorNote ? latestHistory[0]?.note || null : null,

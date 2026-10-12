@@ -25,7 +25,7 @@ const reportStatus: Record<string, StatusInfo> = {
   VERIFIED: { label: "SIAP DITAMPILKAN", description: "Pemeriksaan selesai. Laporan akan segera muncul di Valrify.", tone: "review" },
   PUBLISHED: { label: "SUDAH DITAMPILKAN", description: "Laporan sudah dapat dilihat dan ditemukan lewat pencarian.", tone: "published" },
   REJECTED: { label: "TIDAK DITAMPILKAN", description: "Pemeriksaan selesai, tetapi laporan tidak ditampilkan.", tone: "rejected" },
-  WITHDRAWN: { label: "DIBATALKAN", description: "Laporan telah dibatalkan.", tone: "muted" },
+  WITHDRAWN: { label: "DITARIK", description: "Laporan ditarik dan tidak dapat dilihat publik. Data tetap tersimpan dalam riwayat.", tone: "muted" },
 };
 const confirmationStatus: Record<string, StatusInfo> = {
   PENDING: { label: "BELUM DITAMPILKAN", description: "Testi lama ini belum ditampilkan.", tone: "pending" },

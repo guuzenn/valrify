@@ -1,34 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SessionNav } from "./SessionNav";
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
     const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
+    dialog.showModal();
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+      dialog.close();
+      triggerRef.current?.focus({ preventScroll: true });
     };
   }, [open]);
 
   return <div className="mobile-menu">
     <Link className="mobile-quick-report" href="/submit">LAPOR SCAM</Link>
-    <button className="mobile-menu-trigger" type="button" aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? "Tutup menu" : "Buka menu"} onClick={() => setOpen((value) => !value)}>
+    <button ref={triggerRef} className="mobile-menu-trigger" type="button" aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? "Tutup menu" : "Buka menu"} onClick={() => setOpen((value) => !value)}>
       <span /><span /><span />
     </button>
-    {open && <>
-      <button className="mobile-menu-backdrop" type="button" aria-label="Tutup menu" onClick={() => setOpen(false)} />
-      <div className="mobile-menu-panel" id="mobile-navigation">
+    {open && <dialog ref={dialogRef} className="mobile-menu-panel" id="mobile-navigation" aria-label="Navigasi mobile" onCancel={() => setOpen(false)} onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
         <div className="mobile-menu-heading"><span>// MENU</span><button type="button" aria-label="Tutup menu" onClick={() => setOpen(false)}>×</button></div>
         <nav aria-label="Navigasi mobile" onClick={() => setOpen(false)}>
           <Link href="/search"><small>01</small> CEK DATA</Link>
@@ -36,7 +36,6 @@ export function MobileMenu() {
           <SessionNav />
           <Link href="/submit" className="mobile-menu-report">LAPOR SCAM <span aria-hidden="true">↗</span></Link>
         </nav>
-      </div>
-    </>}
+    </dialog>}
   </div>;
 }

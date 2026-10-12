@@ -23,7 +23,7 @@ import {
   users,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
-import { publicEntityCondition } from "../database/public-entity";
+import { publicEntityCondition, publicIdentifierCondition } from "../database/public-entity";
 import { publicImageTypes } from "../storage/validate-evidence";
 
 const partialSearchTypes = [
@@ -245,7 +245,7 @@ export class PublicService {
         eq(entityIdentifiers.identifierId, identifiers.id),
       )
       .innerJoin(entities, eq(entities.id, entityIdentifiers.entityId))
-      .where(and(inArray(identifiers.normalizedValue, variants), publicEntityCondition));
+      .where(and(inArray(identifiers.normalizedValue, variants), publicEntityCondition, publicIdentifierCondition));
 
     const textQuery = query.trim().toLocaleLowerCase("id-ID").replace(/\s+/g, " ");
     const partialPattern = `%${textQuery.replace(/[\\%_]/g, "\\$&")}%`;
@@ -435,7 +435,8 @@ export class PublicService {
           identifiers,
           eq(identifiers.id, entityIdentifiers.identifierId),
         )
-        .where(eq(entityIdentifiers.entityId, entity.id)),
+        .innerJoin(entities, eq(entities.id, entityIdentifiers.entityId))
+        .where(and(eq(entityIdentifiers.entityId, entity.id), publicIdentifierCondition)),
       this.database.db
         .selectDistinct({ identifierId: reportIdentifiers.identifierId })
         .from(reportIdentifiers)

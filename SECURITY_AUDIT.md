@@ -64,3 +64,13 @@ Kedua versi dikunci melalui override pnpm dan lockfile. Next lokal tetap 16.3.8,
 Verifikasi setelah patch: `pnpm audit --json` tidak menemukan advisory pada 519 dependency; 31 unit test dan 2 integration test lulus; lint TypeScript, build seluruh workspace, dan pemeriksaan diff lulus. Integration test menggunakan database lokal dan membersihkan fixture. Ini bukan pentest atau pengujian konfigurasi production.
 
 Bagian ini mencatat patch kode/dependency, bukan persetujuan rilis publik. MFA admin, kontak koreksi/takedown aktif, backup/restore, dan konfigurasi hosting production masih harus diselesaikan dan diverifikasi.
+
+### Penarikan laporan dan backup lokal — 12 Oktober 2026
+
+Penarikan laporan `PUBLISHED` kini tersedia pada tab **SUDAH TAMPIL** di panel admin. API tetap dilindungi role moderator/admin, melarang self-review, memvalidasi alasan, dan mengunci baris sebelum mengubah status menjadi `WITHDRAWN`. Status history dan moderation action ditulis dalam transaksi yang sama dengan pencabutan approval bukti publik. Tidak ada penghapusan bukti atau data sumber. Penarikan belum dapat dibatalkan lewat panel.
+
+Proyeksi publik menyembunyikan identifier laporan yang ditarik kecuali masih didukung laporan `PUBLISHED` lain pada entity yang sama. Kasus/bukti publik, daftar laporan, dan hitungan risiko mengikuti status terbaru. Profil dengan testi approved tetap tersedia tanpa identifier yang hanya didukung laporan withdrawn. Alasan penarikan tersedia secara privat untuk pelapor.
+
+`pnpm db:backup` membuat arsip custom PostgreSQL lokal dengan snapshot konsisten, checksum SHA-256, jumlah baris dan fingerprint isi setiap tabel public/drizzle. `pnpm db:restore:test <file.dump>` hanya membuat database sementara bernama acak, memeriksa kesamaan tabel hasil restore, lalu membersihkannya. Verifikasi nyata berhasil pada 22 tabel. Backup di `.data/backups/` diabaikan Git dan hanya mencakup database; evidence dan salinan di luar perangkat masih perlu ditangani terpisah.
+
+Kontak resmi, MFA, penjadwalan backup, backup evidence, dan verifikasi hosting production masih belum selesai. Penarikan oleh admin bukan pengganti kanal koreksi pengguna yang aktif.

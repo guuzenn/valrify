@@ -96,6 +96,16 @@ Gunakan akun pengguna untuk mengirim laporan atau testi, kemudian gunakan akun a
 | `pnpm db:generate` | Membuat migration database |
 | `pnpm db:migrate` | Menerapkan migration database |
 | `pnpm db:seed` | Mengisi data demonstrasi |
+| `pnpm db:backup` | Membuat backup PostgreSQL Docker lokal beserta checksum dan fingerprint tabel |
+| `pnpm db:restore:test <file.dump>` | Menguji restore backup ke database sementara tanpa menimpa database sumber |
+
+Backup lokal disimpan di `.data/backups/` dan tidak masuk Git. Jalankan `pnpm db:up` terlebih dahulu. Setelah `pnpm db:backup`, gunakan perintah verifikasi yang dicetak untuk memeriksa bahwa seluruh isi tabel hasil restore sama dengan snapshot backup. Database sementara otomatis dibersihkan. Simpan arsip `.dump` dan pasangan `.dump.json` bersama di lokasi privat; keduanya diperlukan untuk verifikasi.
+
+Perintah ini khusus database development pada Docker Compose lokal, tidak membaca `DATABASE_URL` production. Backup hanya mencakup database dan metadata bukti; file evidence lokal/R2 perlu backup terpisah. Salinan di disk yang sama belum melindungi dari kerusakan perangkat.
+
+### Menarik laporan publik
+
+Di `/admin/reports`, buka tab **SUDAH TAMPIL**, pilih laporan, lalu **TARIK LAPORAN**. Alasan minimal 10 karakter dan konfirmasi kedua wajib diisi. Moderator/admin tidak dapat menarik kirimannya sendiri. Laporan berubah menjadi `WITHDRAWN`; halaman kasus dan bukti publik tidak dapat dibuka, identifier tanpa dukungan laporan published lain disembunyikan, dan hitungan laporan diperbarui. Data sumber, bukti privat, serta alasan penarikan tetap tersimpan untuk audit. Pelapor dapat melihat alasan di Akun Saya. Panel belum menyediakan pembatalan penarikan atau publikasi ulang.
 
 ## Struktur repositori
 

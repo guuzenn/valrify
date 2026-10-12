@@ -1,0 +1,24 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Footer, Header } from "../components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "Privasi",
+  description: "Bagaimana Valrify menggunakan data akun, laporan, testi, dan bukti serta membatasi aksesnya.",
+};
+
+export default function PrivacyPage() {
+  return <><Header compact backLabel="Kembali ke beranda"/><main className="page shell narrow info-page">
+    <div className="info-hero"><p className="eyebrow">// INFORMASI BETA</p>
+    <h1 className="page-title">PRIVASI DATA.</h1>
+    <p className="page-intro">Pahami data yang kamu kirim, siapa yang bisa melihatnya, dan informasi yang dapat muncul di Valrify.</p>
+    <p className="info-updated">Diperbarui 2 Oktober 2026 · Valrify dikelola oleh reyv.</p></div>
+
+    <section><h2>Data yang kamu kirim</h2><p>Saat membuat akun, kamu mengisi nama, email, dan password. Password disimpan dalam bentuk hash, bukan teks aslinya. Kamu juga bisa memilih username dan mengisi bio untuk profil yang bisa dilihat orang lain.</p><p>Laporan berisi cerita kejadian, tanggal, nomor atau akun yang dilaporkan, serta file bukti atau link posting. Testi berisi profil yang diberi testi, tanggal, jumlah uang transaksi, catatan, dan bukti jika kamu menyertakannya.</p><p>Data ini dipakai untuk login, mencari riwayat, memeriksa laporan, menampilkan profil, dan menangani penyalahgunaan. Alamat IP dipakai untuk membatasi jumlah request agar layanan tidak dibanjiri spam.</p></section>
+    <section><h2>Yang bisa dilihat orang lain</h2><p>Laporan baru tidak langsung muncul. Setelah disetujui admin, ringkasan laporan serta nomor dan akun yang dilaporkan bisa ditampilkan lengkap supaya mudah dicocokkan.</p><p>Nama pengirim biasa tidak ditampilkan pada laporan. Nama admin, moderator, atau rekber terverifikasi bisa ditampilkan sebagai pengirim. Role tersebut tetap bukan jaminan bahwa semua isi laporan benar.</p><p>Testi langsung tampil jika email pengirim sudah diverifikasi. Jika kamu membuat username, nama, username, bio, dan testi yang kamu kirim bisa dilihat di profilmu. Laporan dari pengguna biasa tidak muncul di profil pengirimnya.</p></section>
+    <section><h2>Yang hanya bisa dilihat kamu dan admin</h2><p>Email akun, laporan yang belum disetujui atau ditolak, dan catatan admin tidak ditampilkan ke orang lain. Kamu bisa melihat riwayat kirimanmu di halaman akun. Admin bisa melihatnya untuk pemeriksaan. Data login juga tidak ditampilkan ke publik.</p><p>File bukti tidak langsung muncul di laporan. Admin memilih gambar yang boleh dilihat orang lain setelah memeriksa isinya. PDF, gambar yang tidak dipilih, dan bukti testi hanya bisa diakses admin. Link posting bukti bisa tampil setelah laporan disetujui. Jika kamu membuka link tersebut, aturan privasi situs tujuan yang berlaku.</p></section>
+    <section><h2>Penyimpanan data dan login</h2><p>Data aplikasi disimpan di database. File bukti disimpan di server atau penyimpanan privat Cloudflare R2, sesuai tempat aplikasi dijalankan. Valrify memeriksa izin akses sebelum membuka file.</p><p>Valrify memakai Brevo untuk mengirim email verifikasi dan reset password saat layanan email sudah diaktifkan. Email, nama, dan link verifikasi atau reset dipakai untuk pengiriman tersebut.</p><p>Cookie dipakai agar kamu tetap login, dengan masa berlaku sampai tujuh hari. Sesi admin dan moderator berlaku dua jam. Cookie login tidak bisa dibaca oleh script di halaman. Kamu bisa melihat dan mengakhiri sesi di halaman akun. Logout mengakhiri sesi yang dipakai; reset password mengakhiri semua sesi. Jika memakai perangkat bersama, logout setelah selesai.</p></section>
+    <section><h2>Penyimpanan, perubahan, dan penghapusan data</h2><p>Data akun, laporan, bukti, dan catatan admin disimpan agar layanan berjalan dan riwayat pemeriksaan tetap tersedia. Selama beta, batas waktu penyimpanan dan jadwal penghapusan otomatis belum ditentukan. Belum ada tombol untuk menghapus akun atau data sendiri.</p><p>Memakai Valrify bukan berarti kamu mengizinkan chat atau bukti yang kamu kirim dipakai untuk penelitian TA. Penggunaan untuk penelitian memerlukan izin tersendiri dan penghilangan data yang bisa mengenali seseorang.</p><p>Jika data salah, nomor sudah berganti pemilik, atau kamu ingin meminta perubahan maupun penghapusan, baca <Link href="/kontak">halaman Kontak & koreksi</Link>. Kontak resmi masih disiapkan.</p></section>
+    <aside className="info-notice"><strong>Sebelum mengirim bukti</strong><p>Tutup password, OTP, recovery code, dokumen identitas, serta data korban atau orang lain yang tidak diperlukan. Jangan kirim data login akun game ke Valrify.</p></aside>
+  </main><Footer/></>;
+}

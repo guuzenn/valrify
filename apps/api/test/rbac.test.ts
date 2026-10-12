@@ -7,6 +7,8 @@ import {
   publicProfileSchema,
   reportSchema,
   resetPasswordSchema,
+  reviewSchema,
+  reportQueueSchema,
 } from "@valrify/validation";
 import { buildAuthEmail } from "../src/auth/email.service";
 import { RATE_LIMITS, readTrustProxyHops } from "../src/rate-limit.config";
@@ -24,6 +26,12 @@ test("moderation roles and publish lifecycle", () => {
   assert.equal(canModerate("ADMIN"), true);
   assert.equal(canTransition("SUBMITTED", "PUBLISHED"), false);
   assert.equal(canTransition("VERIFIED", "PUBLISHED"), true);
+  assert.equal(canTransition("PUBLISHED", "WITHDRAWN"), true);
+  assert.equal(canTransition("WITHDRAWN", "PUBLISHED"), false);
+  assert.equal(reviewSchema.safeParse({ decision: "WITHDRAW", rationale: "Nomor ternyata salah dikaitkan." }).success, true);
+  assert.equal(reviewSchema.safeParse({ decision: "WITHDRAW", rationale: "   " }).success, false);
+  assert.equal(reportQueueSchema.parse(undefined), "PENDING");
+  assert.equal(reportQueueSchema.safeParse("WITHDRAWN").success, false);
 });
 
 test("successful transaction input is constrained", () => {

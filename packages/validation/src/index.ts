@@ -96,9 +96,11 @@ export const reportSchema = z.object({
   }],
 }));
 
+export const reportQueueSchema = z.enum(["PENDING", "PUBLISHED"]).default("PENDING");
+
 export const reviewSchema = z.object({
-  decision: z.enum(["PUBLISH", "REJECT"]),
-  summary: z.string().trim().max(2000),
+  decision: z.enum(["PUBLISH", "REJECT", "WITHDRAW"]),
+  summary: z.string().trim().max(2000).default(""),
   rationale: z.string().trim().min(10).max(2000),
   publicEvidenceIds: z.array(z.number().int().positive()).max(5).default([]),
 }).superRefine((value, context) => {

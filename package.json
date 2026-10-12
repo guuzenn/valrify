@@ -14,7 +14,9 @@
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @valrify/api db:generate",
     "db:migrate": "pnpm --filter @valrify/api db:migrate",
-    "db:seed": "pnpm --filter @valrify/api db:seed"
+    "db:seed": "pnpm --filter @valrify/api db:seed",
+    "db:backup": "node apps/api/scripts/local-db-backup.mjs backup",
+    "db:restore:test": "node apps/api/scripts/local-db-backup.mjs verify"
   },
   "devDependencies": { "tsx": "^4.20.6", "typescript": "^5.9.3" }
 }

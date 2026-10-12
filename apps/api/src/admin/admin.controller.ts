@@ -4,11 +4,12 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Res,
   UseGuards,
 } from "@nestjs/common";
 import type { Response } from "express";
-import { communityPostReviewSchema, reviewSchema } from "@valrify/validation";
+import { communityPostReviewSchema, reportQueueSchema, reviewSchema } from "@valrify/validation";
 import { CurrentActor } from "../auth/current-actor";
 import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -29,8 +30,8 @@ export class AdminController {
   }
 
   @Get("reports")
-  queue() {
-    return this.admin.queue();
+  queue(@Query("status") status: unknown) {
+    return this.admin.queue(parseSchema(reportQueueSchema, status));
   }
 
   @Post("reports/:id/review")

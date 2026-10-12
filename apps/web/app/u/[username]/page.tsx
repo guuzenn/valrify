@@ -41,7 +41,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
     <section className="public-member-stats reputation-only" aria-label="Aktivitas publik">
       <article className="report"><span>LAPORAN DITAMPILKAN</span><strong>{member.stats.reports}</strong><small>Dikirim admin, moderator, atau rekber terverifikasi</small></article>
-      <article className="positive"><span>TESTI DISETUJUI</span><strong>{member.stats.testimonials}</strong><small>Aktivitas transaksi publik</small></article>
+      <article className="positive"><span>TESTI DITAMPILKAN</span><strong>{member.stats.testimonials}</strong><small>Testi langsung dari pengguna</small></article>
     </section>
 
     <section className="public-member-content">

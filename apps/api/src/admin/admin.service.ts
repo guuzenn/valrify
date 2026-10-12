@@ -96,7 +96,7 @@ export class AdminService {
     };
   }
 
-  async queue() {
+  async queue(status: "PENDING" | "PUBLISHED" = "PENDING") {
     const rows = await this.database.db
       .select({
         id: reports.id,
@@ -115,7 +115,7 @@ export class AdminService {
       .innerJoin(users, eq(users.id, reports.reporterId))
       .leftJoin(entities, eq(entities.id, reports.entityId))
       .where(
-        inArray(reports.status, [
+        status === "PUBLISHED" ? eq(reports.status, "PUBLISHED") : inArray(reports.status, [
           "SUBMITTED",
           "UNDER_REVIEW",
           "NEEDS_INFO",
@@ -274,7 +274,7 @@ export class AdminService {
         "Admin tidak dapat memeriksa laporan yang dikirim sendiri. Gunakan akun tester untuk mengirim.",
       );
     }
-    if (!["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(report.status)) {
+    if (input.decision === "WITHDRAW" ? report.status !== "PUBLISHED" : !["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(report.status)) {
       throw new BadRequestException("Status laporan tidak dapat diubah.");
     }
 
@@ -306,7 +306,12 @@ export class AdminService {
       let from = report.status as ReportStatus;
       const [lockedReport] = await tx.select({ status: reports.status }).from(reports).where(eq(reports.id, reportId)).for("update");
       if (!lockedReport || lockedReport.status !== report.status) throw new ConflictException("Laporan sudah berubah. Muat ulang sebelum memeriksa kembali.");
-      if (input.decision === "PUBLISH") {
+      if (input.decision === "WITHDRAW") {
+        await tx.update(reports).set({ status: "WITHDRAWN", updatedAt: new Date() }).where(eq(reports.id, reportId));
+        await tx.update(reportEvidence).set({ isPublicApproved: false }).where(eq(reportEvidence.reportId, reportId));
+        await tx.insert(reportStatusHistory).values({ reportId, fromStatus: "PUBLISHED", toStatus: "WITHDRAWN", actorId, note: input.rationale });
+        await tx.insert(moderationActions).values({ reportId, actorId, action: "REPORT_WITHDRAWN", rationale: input.rationale });
+      } else if (input.decision === "PUBLISH") {
         for (const next of [
           "UNDER_REVIEW",
           "VERIFIED",

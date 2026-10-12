@@ -2,6 +2,7 @@ import Link from "next/link";
 import { formatIndonesianDate, labelIdentifierType } from "@valrify/domain";
 import { MobileMenu } from "./components/MobileMenu";
 import { SessionNav } from "./components/SessionNav";
+import { Footer } from "./components/SiteChrome";
 import { getRecentCases } from "../lib/api";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ export default async function Home() {
   const recentCases = await getRecentCases();
   return (
     <main>
-      <header className="site-header shell">
+      <div className="site-header-band"><header className="site-header shell">
         <Link className="wordmark" href="/" aria-label="Valrify beranda">VALRIFY<span>{"//"}</span></Link>
         <nav aria-label="Navigasi utama">
           <a href="#cara-kerja">CARA KERJA</a>
@@ -19,7 +20,7 @@ export default async function Home() {
           <Link href="/submit" className="nav-report">LAPOR SCAM</Link>
         </nav>
         <MobileMenu />
-      </header>
+      </header></div>
 
       <section className="hero shell">
         <div className="hero-copy">
@@ -95,11 +96,7 @@ export default async function Home() {
         <p>Laporan diperiksa admin, sedangkan testi langsung tampil dari pengguna. Informasi di Valrify bukan putusan hukum dan bukan jaminan transaksi pasti aman.</p>
       </section>
 
-      <footer className="shell">
-        <div className="wordmark">VALRIFY<span>{"//"}</span></div>
-        <p>Cek riwayat penjual atau pembeli akun Valorant sebelum transaksi.</p>
-        <small>Valrify by reyv · © 2026</small>
-      </footer>
+      <Footer />
     </main>
   );
 }
