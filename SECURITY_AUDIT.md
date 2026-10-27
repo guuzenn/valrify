@@ -1,5 +1,11 @@
 # Audit keamanan Valrify — 2 Oktober 2026
 
+## Tambahan — Turnstile, 26–27 Oktober 2026
+
+Register, forgot-password, dan resend-verification kini mewajibkan token Turnstile pada endpoint API. Verifikasi melalui Siteverify memiliki timeout 10 detik dan memeriksa success, action endpoint, serta hostname sesuai origin aplikasi. Token kosong, tidak valid, kedaluwarsa/dipakai ulang, konfigurasi secret yang tidak tersedia, dan gangguan provider menolak request sebelum proses akun/email. Widget frontend di-reset setelah submit; rate limit tetap aktif. Login email/Google belum memakai CAPTCHA. Gunakan widget production terpisah dari localhost; site key publik ditanam saat build, secret hanya untuk backend.
+
+Lint/build, 34 unit test, 5 integration test, dan tes browser dengan widget/API tiruan lulus. HTTP smoke memastikan tiga endpoint menolak token kosong dan Siteverify nyata menolak token tidak valid. Owner mengonfirmasi pengujian alur register/verifikasi/login/reset email nyata selesai pada 27 Oktober. Email kontak `support@valrify.app` juga sudah diuji menerima pesan melalui Cloudflare Email Routing dan mengirim balasan melalui Gmail/Brevo. Hosting production belum diuji; catatan audit lama di bawah bersifat historis.
+
 Audit kode, dependency, database lokal, dan akses HTTP. Ini bukan pentest independen atau audit konfigurasi hosting yang sudah terpasang. Tidak ada deployment, commit, atau push dalam pekerjaan ini.
 
 RBAC sudah ada sebelum audit: USER, VERIFIED_MIDDLEMAN, MODERATOR, ADMIN. Controller admin membatasi MODERATOR/ADMIN; akun dan notifikasi menggunakan ID pengguna yang sedang login. Password memakai bcrypt, cookie HttpOnly/SameSite=Lax, token verifikasi/reset di-hash dan sekali pakai, query memakai parameter Drizzle, serta endpoint sensitif memiliki rate limit.

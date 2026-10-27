@@ -41,9 +41,15 @@ export class AuthService {
     if (existing) throw new BadRequestException("Email sudah terdaftar.");
     const id = randomUUID();
     const passwordHash = await hash(input.password, 12);
-    await this.database.db.insert(users).values({ id, email, displayName: input.displayName, passwordHash });
+    try {
+      await this.database.db.insert(users).values({ id, email, username: input.username, usernameChangedAt: new Date(), displayName: input.username, passwordHash });
+    } catch (error) {
+      const databaseError = error as { code?: string; cause?: { code?: string } };
+      if (databaseError.code === "23505" || databaseError.cause?.code === "23505") throw new BadRequestException("Email atau username sudah digunakan.");
+      throw error;
+    }
     const token = await this.createVerificationToken(id);
-    const emailSent = await this.deliverAuthEmail({ to: email, displayName: input.displayName, token, kind: "verification" });
+    const emailSent = await this.deliverAuthEmail({ to: email, displayName: input.username, token, kind: "verification" });
     return {
       message: emailSent ? "Akun dibuat. Cek email untuk menyelesaikan verifikasi." : "Akun dibuat, tetapi email verifikasi belum dapat dikirim. Coba kirim ulang dari halaman verifikasi.",
       emailSent,
@@ -109,6 +115,11 @@ export class AuthService {
       if (!user?.passwordHash || !(await compare(input.password, user.passwordHash))) throw new UnauthorizedException("Email atau password salah.");
       if (process.env.NODE_ENV === "production" && isDemoAccount(user)) throw new UnauthorizedException("Akun demo tidak dapat dipakai di production.");
       if (!user.emailVerifiedAt) throw new UnauthorizedException("Verifikasi email terlebih dahulu.");
+      return this.issueSession(tx, user);
+    });
+  }
+
+  private async issueSession(tx: Pick<typeof this.database.db, "insert" | "delete">, user: typeof users.$inferSelect) {
       const actor: AuthActor = { id: user.id, email: user.email, displayName: user.displayName, role: user.role, emailVerified: true };
       const maxAge = (actor.role === "ADMIN" || actor.role === "MODERATOR" ? 2 * 60 * 60 : 7 * 24 * 60 * 60) * 1000;
       const sessionId = randomUUID();
@@ -116,6 +127,16 @@ export class AuthService {
       await tx.delete(authSessions).where(and(eq(authSessions.userId, user.id), lte(authSessions.expiresAt, new Date())));
       await tx.insert(authSessions).values({ id: sessionId, userId: user.id, expiresAt: new Date(Date.now() + maxAge) });
       return { actor, maxAge, token: await this.jwt.signAsync({ sub: user.id, sid: sessionId }, { expiresIn: maxAge / 1000 }) };
+  }
+
+  async googleLogin(profile: { subject: string; email: string; displayName: string }) {
+    return this.database.db.transaction(async (tx) => {
+      await tx.insert(users).values({ id: randomUUID(), googleSubject: profile.subject, email: profile.email, displayName: profile.displayName, emailVerifiedAt: new Date() }).onConflictDoNothing();
+      const [user] = await tx.select().from(users).where(eq(users.googleSubject, profile.subject)).for("update");
+      // Email alone must never link a Google identity to an existing account.
+      if (!user) throw new BadRequestException("Email sudah terdaftar. Masuk dengan password akun Valrify kamu.");
+      if (process.env.NODE_ENV === "production" && isDemoAccount(user)) throw new UnauthorizedException("Akun demo tidak dapat dipakai di production.");
+      return this.issueSession(tx, user);
     });
   }
 

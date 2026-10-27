@@ -1,4 +1,10 @@
 import type { NextConfig } from "next";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { loadEnvFile } from "node:process";
+
+const rootEnv = resolve(process.cwd(), "../../.env");
+if (existsSync(rootEnv)) loadEnvFile(rootEnv);
 
 const apiUrl = process.env.API_URL ?? "http://localhost:3001/api";
 

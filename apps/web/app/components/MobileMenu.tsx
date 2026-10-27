@@ -33,6 +33,7 @@ export function MobileMenu() {
         <nav aria-label="Navigasi mobile" onClick={() => setOpen(false)}>
           <Link href="/search"><small>01</small> CEK DATA</Link>
           <Link href="/cara-aman"><small>02</small> CARA AMANIN</Link>
+          <Link href="/rekber"><small>03</small> REKOMENDASI REKBER</Link>
           <SessionNav />
           <Link href="/submit" className="mobile-menu-report">LAPOR SCAM <span aria-hidden="true">↗</span></Link>
         </nav>

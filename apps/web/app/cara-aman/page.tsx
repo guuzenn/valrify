@@ -50,7 +50,7 @@ export default function AccountSafetyPage() {
       <div className="red-flag-list">
         <article><span>01</span><div><h3>CEK RIWAYAT SELLER</h3><p>Cari nama, nomor, rekening, username, dan nama lain yang pernah dipakai seller di Valrify dan grup Facebook.</p><Link href="/search">CEK DI VALRIFY <span aria-hidden="true">↗</span></Link></div></article>
         <article><span>02</span><div><h3>MINTA BUKTI PEMBELIAN</h3><p>Kalau seller mengaku akun itu hasil beli, minta bukti belinya. Jika katanya dari store, hubungi akun resmi store dan tanyakan apakah akun itu benar pernah dijual di sana.</p></div></article>
-        <article><span>03</span><div><h3>PASTIKAN REKBERNYA ASLI</h3><p>Kalau kamu tidak kenal rekbernya, tanyakan di grup komunitas. Cocokkan nomor dengan nomor resmi rekber. Jangan percaya nomor alternatif yang hanya dikirim seller.</p></div></article>
+        <article><span>03</span><div><h3>PASTIKAN REKBERNYA ASLI</h3><p>Kalau kamu tidak kenal rekbernya, tanyakan di grup komunitas. Cocokkan nomor dengan nomor resmi rekber. Jangan percaya nomor alternatif yang hanya dikirim seller.</p><Link href="/rekber">PANDUAN MEMILIH REKBER <span aria-hidden="true">↗</span></Link></div></article>
         <article><span>04</span><div><h3>TRANSFER KE REKBER</h3><p>Transfer dana ke rekening resmi rekber, bukan ke seller. Setelah dana diterima rekber, seller baru memberikan data akun untuk diperiksa.</p></div></article>
       </div>
     </GuideSection>

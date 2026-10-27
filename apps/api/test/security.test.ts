@@ -12,7 +12,10 @@ test("security boundaries reject demo production secrets, foreign mutations and 
   assert.equal(isDemoAccount({ id: "demo-admin", email: "admin@valrify.app" }), true);
   assert.equal(isDemoAccount({ id: "real", email: "tester@valrify.local" }), true);
   assert.equal(isDemoAccount({ id: "real", email: "admin@valrify.app" }), false);
-  assert.equal(registerSchema.safeParse({ email: "user@example.com", displayName: "User", password: "x".repeat(73) }).success, false);
+  assert.equal(registerSchema.safeParse({ email: "user@example.com", username: "user_test", password: "x".repeat(73) }).success, false);
+  const registration = { email: "user@example.com", username: "  Player_01  ", password: "Password!2026" };
+  assert.equal(registerSchema.parse(registration).username, "player_01");
+  for (const username of ["ab", "admin", "player name", "x".repeat(25)]) assert.equal(registerSchema.safeParse({ ...registration, username }).success, false);
   assert.equal(resetPasswordSchema.safeParse({ token: "a".repeat(64), password: "é".repeat(37) }).success, false);
   assert.throws(() => readWebOrigins({ NODE_ENV: "production", WEB_ORIGIN: "http://localhost:3000" }));
   const origins = readWebOrigins({ NODE_ENV: "production", WEB_ORIGIN: "https://valrify.app" });

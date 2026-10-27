@@ -16,6 +16,7 @@ export default async function Home() {
         <nav aria-label="Navigasi utama">
           <a href="#cara-kerja">CARA KERJA</a>
           <Link href="/cara-aman">CARA AMANIN</Link>
+          <Link href="/rekber">REKBER</Link>
           <SessionNav />
           <Link href="/submit" className="nav-report">LAPOR SCAM</Link>
         </nav>

@@ -69,7 +69,7 @@ export function ConfirmationForm({
           dikirim berkali-kali.
         </p>
         <Link href="/login" className="tactical-button">
-          MASUK / DAFTAR
+          MASUK KE AKUN
         </Link>
       </div>
     );

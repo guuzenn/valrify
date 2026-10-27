@@ -1,3 +1,4 @@
+import { z } from "zod";
 import "../load-env";
 import { randomUUID } from "node:crypto";
 import { hash } from "bcryptjs";
@@ -9,7 +10,7 @@ import { isDemoAccount, readAuthSecret } from "./auth.config";
 
 async function createAdmin() {
   readAuthSecret();
-  const input = registerSchema.parse({ email: process.env.VALRIFY_BOOTSTRAP_ADMIN_EMAIL, password: process.env.VALRIFY_BOOTSTRAP_ADMIN_PASSWORD, displayName: process.env.VALRIFY_BOOTSTRAP_ADMIN_NAME ?? "Admin Valrify" });
+  const input = registerSchema.omit({ username: true }).extend({ displayName: z.string().trim().min(2).max(80) }).parse({ email: process.env.VALRIFY_BOOTSTRAP_ADMIN_EMAIL, password: process.env.VALRIFY_BOOTSTRAP_ADMIN_PASSWORD, displayName: process.env.VALRIFY_BOOTSTRAP_ADMIN_NAME ?? "Admin Valrify" });
   const id = randomUUID(), email = input.email.toLowerCase();
   if (isDemoAccount({ id, email }) || input.password === "DemoPass!2026") throw new Error("Gunakan email nyata dan password unik untuk admin.");
   const database = new DatabaseService();

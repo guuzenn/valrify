@@ -9,6 +9,7 @@ import { AuthService } from "../src/auth/auth.service";
 import type { EmailService } from "../src/auth/email.service";
 import { DatabaseService } from "../src/database/database.service";
 import { authSessions, passwordResetTokens, users } from "../src/database/schema";
+import { registerSchema } from "@valrify/validation";
 
 test("sessions use current roles, isolate owners, and revoke after logout/reset", { timeout: 30_000 }, async () => {
   const database = new DatabaseService();
@@ -47,6 +48,60 @@ test("sessions use current roles, isolate owners, and revoke after logout/reset"
   } finally {
     await database.db.delete(passwordResetTokens).where(inArray(passwordResetTokens.userId, ids));
     await database.db.delete(users).where(inArray(users.id, ids));
+    await database.onModuleDestroy();
+  }
+});
+
+test("Google accounts keep a stable subject and never auto-link an existing email", async () => {
+  const database = new DatabaseService();
+  const subject = randomUUID();
+  const existingId = randomUUID();
+  const email = `${randomUUID()}@gmail.com`;
+  const existingEmail = `${randomUUID()}@gmail.com`;
+  const auth = new AuthService(database, new JwtService({ secret: "google-integration-test" }), {} as EmailService);
+  const createdIds: string[] = [existingId];
+  try {
+    await database.db.insert(users).values({ id: existingId, email: existingEmail, displayName: "Existing admin", role: "ADMIN", emailVerifiedAt: new Date() });
+    await assert.rejects(() => auth.googleLogin({ subject, email: existingEmail, displayName: "Google user" }), /Masuk dengan password/);
+    const results = await Promise.all([1, 2].map(() => auth.googleLogin({ subject, email, displayName: "Google user" })));
+    createdIds.push(results[0]!.actor.id);
+    assert.equal(results[0]!.actor.id, results[1]!.actor.id);
+    assert.equal(results[0]!.actor.role, "USER");
+    assert.equal(results[0]!.actor.emailVerified, true);
+    assert.equal((await auth.authenticate(results[0]!.token)).actor.id, results[0]!.actor.id);
+    const returning = await auth.googleLogin({ subject, email: existingEmail, displayName: "Changed Google name" });
+    assert.equal(returning.actor.id, results[0]!.actor.id);
+    assert.equal(returning.actor.email, email);
+    assert.equal(returning.actor.role, "USER");
+    await auth.logout(returning.token);
+    await assert.rejects(() => auth.authenticate(returning.token));
+    assert.equal((await database.db.query.users.findFirst({ where: eq(users.id, existingId) }))!.googleSubject, null);
+  } finally {
+    await database.db.delete(users).where(inArray(users.id, createdIds));
+    await database.onModuleDestroy();
+  }
+});
+
+test("registration reserves a normalized unique username and starts its cooldown", async () => {
+  const database = new DatabaseService();
+  const suffix = randomUUID().replaceAll("-", "").slice(0, 16);
+  const email = `${suffix}@example.com`;
+  const duplicateEmail = `other-${suffix}@example.com`;
+  const username = `user_${suffix}`;
+  const emailService = { send: async () => true, isConfigured: () => true } as unknown as EmailService;
+  const auth = new AuthService(database, new JwtService({ secret: "registration-test" }), emailService);
+  try {
+    const input = registerSchema.parse({ email, username: username.toUpperCase(), password: "Password!2026" });
+    await auth.register(input);
+    const user = await database.db.query.users.findFirst({ where: eq(users.email, email) });
+    assert.equal(user?.username, username);
+    assert.equal(user?.displayName, username);
+    assert.ok(user?.usernameChangedAt);
+    assert.equal(user?.emailVerifiedAt, null);
+    await assert.rejects(() => auth.register({ ...input, email: duplicateEmail }), /username sudah digunakan/);
+    assert.equal(await database.db.query.users.findFirst({ where: eq(users.email, duplicateEmail) }), undefined);
+  } finally {
+    await database.db.delete(users).where(inArray(users.email, [email, duplicateEmail]));
     await database.onModuleDestroy();
   }
 });

@@ -3,10 +3,13 @@ import { identifierTypes, reportCategories } from "@valrify/domain";
 
 const newPasswordSchema = z.string().min(10, "Password minimal 10 karakter.").max(72, "Password terlalu panjang.").refine((value) => new TextEncoder().encode(value).length <= 72, "Password terlalu panjang. Gunakan password yang lebih pendek.");
 
+const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);
+const usernameSchema = z.string().trim().toLowerCase().min(3, "Username minimal 3 karakter.").max(24, "Username maksimal 24 karakter.").regex(/^[a-z0-9_]+$/, "Gunakan huruf kecil, angka, atau underscore.").refine((value) => !reservedUsernames.has(value), "Username ini tidak dapat digunakan.");
+
 export const registerSchema = z.object({
   email: z.email(),
   password: newPasswordSchema,
-  displayName: z.string().trim().min(2).max(80),
+  username: usernameSchema,
 });
 
 export const loginSchema = z.object({
@@ -26,9 +29,8 @@ export const resetPasswordSchema = tokenSchema.extend({
   password: newPasswordSchema,
 });
 
-const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);
 export const publicProfileSchema = z.object({
-  username: z.string().trim().toLowerCase().min(3, "Username minimal 3 karakter.").max(24, "Username maksimal 24 karakter.").regex(/^[a-z0-9_]+$/, "Gunakan huruf kecil, angka, atau underscore.").refine((value) => !reservedUsernames.has(value), "Username ini tidak dapat digunakan."),
+  username: usernameSchema,
   bio: z.string().trim().max(160, "Bio maksimal 160 karakter."),
 });
 

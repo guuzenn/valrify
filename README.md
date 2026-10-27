@@ -73,6 +73,20 @@ Setelah aplikasi berjalan:
 
 Konfigurasi bawaan ditujukan untuk development lokal. Sebelum deployment publik, ganti `AUTH_SECRET`, konfigurasi email, kredensial database, dan pengaturan penyimpanan dengan nilai yang aman.
 
+### Turnstile
+
+Register, lupa password, dan kirim ulang verifikasi membutuhkan Turnstile. Isi `NEXT_PUBLIC_TURNSTILE_SITE_KEY` dan `TURNSTILE_SECRET_KEY` di `.env` root, lalu restart web/API. Web memuat environment root melalui `next.config.ts`; site key publik ditanam saat build, jadi build ulang jika key berubah. Secret hanya dibaca API.
+
+Gunakan widget development dengan hostname `localhost`, dan widget production terpisah dengan hostname domain yang sama dengan `WEB_ORIGIN`/`PUBLIC_APP_URL`. Backend memvalidasi token sekali pakai, action, dan hostname melalui Siteverify; kegagalan verifikasi atau gangguan layanan menolak request. Widget di-reset setelah submit agar token tidak dipakai ulang. Login email/Google tidak memakai CAPTCHA pada tahap ini; rate limit tetap aktif.
+
+### Login Google
+
+Pendaftaran email di `/register` meminta username unik 3–24 karakter (huruf, angka, underscore), dinormalisasi lowercase. Username digunakan untuk profil `/u/username` dan mengikuti cooldown perubahan tujuh hari. Login tetap memakai email/password. Akun Google memilih username lewat pengaturan akun.
+
+Isi `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, dan `PUBLIC_APP_URL` pada environment API. Daftarkan `${PUBLIC_APP_URL}/api/auth/google/callback` sebagai Authorized redirect URI di Google Console (lokal: `http://localhost:3000/api/auth/google/callback`, tanpa slash terakhir). Jalankan `pnpm db:migrate`, lalu restart API. Tombol **Lanjutkan dengan Google** tersedia di `/login`. Alur hanya meminta identitas dasar (`openid email profile`); token Google tidak disimpan.
+
+Akun Google baru mendapat role USER dan memakai ID Google sebagai identitas tetap. Email Google harus terverifikasi. Email yang sudah terdaftar pada akun lain tidak ditautkan otomatis; gunakan login password untuk akun tersebut. Penautan akun belum tersedia. Gunakan client Google terpisah untuk production dengan callback HTTPS yang sesuai domain.
+
 ### Akun demo
 
 | Peran | Email | Password |
