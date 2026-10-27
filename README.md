@@ -93,6 +93,18 @@ Workflow manual **Build production web** di tab GitHub Actions membuat paket Nex
 
 Artifact `valrify-web-linux-x64` berisi arsip `.tar.gz` dan checksum SHA-256, tersedia selama tujuh hari. Arsip menyertakan runtime dependencies, aset publik, CSS/JavaScript, dan file `REVISION` berisi commit source. Workflow menguji halaman dan aset dari server standalone sebelum mengunggah artifact. Saat pemasangan, cocokkan arsitektur VPS dan checksum, ekstrak ke direktori rilis baru, lalu jalankan `apps/web/server.js` dengan `NODE_ENV=production`, `HOSTNAME=127.0.0.1`, `PORT=3000`, `API_URL=http://127.0.0.1:3001/api`, serta `PUBLIC_APP_URL=https://valrify.app`. Jangan memasukkan `.env` backend ke paket web. Workflow hanya membuat paket, tidak melakukan deployment.
 
+### Login admin dan MFA
+
+Admin/moderator memakai password dan authenticator TOTP melalui `/<ADMIN_LOGIN_SLUG>`. Atur `ADMIN_LOGIN_SLUG=mgmt-<hasil openssl rand -hex 12>` pada runtime web **dan** API dengan nilai yang sama, tanpa slash. Slug tidak ditanam saat build dan tidak ditautkan dari halaman publik. Path yang salah menghasilkan 404. Halaman panel tetap `/admin/*`; API tetap `/api/admin/*`. Akses panel tanpa sesi yang sah menghasilkan 404, sedangkan API tetap memeriksa role. Alamat tersembunyi bukan pengganti otorisasi.
+
+Pada API, isi `MFA_ENCRYPTION_KEY` dengan hasil `openssl rand -hex 32`, terpisah dari `AUTH_SECRET`. Simpan key ini dalam backup privat: key diperlukan untuk membuka secret authenticator terenkripsi dalam backup database. Jangan menggantinya tanpa prosedur migrasi enkripsi. Pastikan jam server tersinkron agar TOTP valid. Jalankan `pnpm db:migrate` (termasuk `0014_shallow_wendell_vaughn.sql`) sebelum menjalankan API versi ini. Sesi admin lama tanpa verifikasi MFA akan ditolak; sesi pengguna biasa tetap mengikuti aturan sebelumnya.
+
+Login pertama melalui URL khusus memerlukan password akun admin yang emailnya sudah terverifikasi, lalu pemasangan authenticator dan pembuktian kode enam digit. QR dibuat di server tanpa layanan eksternal. Setelah aktif, delapan recovery code ditampilkan sekali; simpan di password manager. Login berikutnya memerlukan password dan kode authenticator baru. Login publik/password dan Google tidak menerbitkan sesi untuk admin/moderator. Akun admin pertama dibuat dengan perintah `admin:create` yang dijelaskan pada audit keamanan; script hanya membuat email baru, bukan mempromosikan akun pengguna yang ada.
+
+Jika HP hilang, masuk melalui URL khusus dengan password lalu pilih **Gunakan recovery code**. Satu recovery code hanya bisa dipakai sekali dan mewajibkan pemasangan authenticator baru sebelum masuk panel. Proses ini mencabut sesi lama; setelah pemasangan selesai semua recovery code lama diganti. Reset password mencabut sesi/challenge login tetapi tidak mematikan MFA. Jika authenticator dan seluruh recovery code hilang, pemulihan memerlukan operator server dengan pemeriksaan kepemilikan; tidak ada tombol reset MFA publik. Challenge password berlaku lima menit, dengan maksimal lima percobaan MFA per akun dalam challenge yang belum kedaluwarsa.
+
+Pada deployment yang masih memblokir admin di Nginx, pertahankan blokir hingga API/web diperbarui dan login MFA diuji. Sesudahnya ganti blok `return 403` sementara dengan penerusan ke layanan yang sudah memeriksa sesi/MFA; jangan membuka port aplikasi/database ke publik. Cloudflare Access tidak diperlukan oleh alur ini.
+
 ### Akun demo
 
 | Peran | Email | Password |

@@ -21,7 +21,9 @@ test("sessions use current roles, isolate owners, and revoke after logout/reset"
   try {
     await database.db.insert(users).values(ids.map((id, index) => ({ id, email: `${id}@valrify.local`, displayName: "Session Test", role: index === 0 ? "ADMIN" as const : "USER" as const, passwordHash: null, emailVerifiedAt: new Date() })));
     await database.db.update(users).set({ passwordHash: await hash(password, 4) }).where(eq(users.id, ids[0]!));
-    const first = await auth.login({ email, password });
+    await assert.rejects(() => auth.login({ email, password }));
+    const admin = await database.db.query.users.findFirst({ where: eq(users.id, ids[0]!) });
+    const first = await auth.issueSession(database.db, admin!, true);
     assert.equal(first.maxAge, 2 * 60 * 60 * 1000);
     const session = await auth.authenticate(first.token);
     assert.equal(session.actor.role, "ADMIN");

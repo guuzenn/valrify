@@ -5,10 +5,11 @@ import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { EmailRequestInput, LoginInput, RegisterInput, ResetPasswordInput } from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
-import { authSessions, emailVerificationTokens, passwordResetTokens, users } from "../database/schema";
+import { adminLoginChallenges, authSessions, emailVerificationTokens, passwordResetTokens, users } from "../database/schema";
 import type { AuthActor } from "./auth.types";
 import { EmailService } from "./email.service";
 import { isDemoAccount } from "./auth.config";
+import { isPrivileged } from "./admin-mfa.crypto";
 
 const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");
 const newToken = () => randomBytes(32).toString("hex");
@@ -104,6 +105,7 @@ export class AuthService {
       if (!row) throw new BadRequestException("Tautan reset password tidak valid atau sudah kedaluwarsa.");
       await tx.update(users).set({ passwordHash }).where(eq(users.id, row.userId));
       await tx.delete(authSessions).where(eq(authSessions.userId, row.userId));
+      await tx.delete(adminLoginChallenges).where(eq(adminLoginChallenges.userId, row.userId));
       await tx.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, row.userId));
       return { ok: true, message: "Password berhasil diganti. Silakan masuk kembali." };
     });
@@ -113,19 +115,21 @@ export class AuthService {
     return this.database.db.transaction(async (tx) => {
       const [user] = await tx.select().from(users).where(eq(users.email, input.email.toLowerCase())).for("update");
       if (!user?.passwordHash || !(await compare(input.password, user.passwordHash))) throw new UnauthorizedException("Email atau password salah.");
+      if (isPrivileged(user.role)) throw new UnauthorizedException("Email atau password salah.");
       if (process.env.NODE_ENV === "production" && isDemoAccount(user)) throw new UnauthorizedException("Akun demo tidak dapat dipakai di production.");
       if (!user.emailVerifiedAt) throw new UnauthorizedException("Verifikasi email terlebih dahulu.");
       return this.issueSession(tx, user);
     });
   }
 
-  private async issueSession(tx: Pick<typeof this.database.db, "insert" | "delete">, user: typeof users.$inferSelect) {
+  async issueSession(tx: Pick<typeof this.database.db, "insert" | "delete">, user: typeof users.$inferSelect, mfaVerified = false) {
+      if (isPrivileged(user.role) && !mfaVerified) throw new UnauthorizedException("Verifikasi MFA admin diperlukan.");
       const actor: AuthActor = { id: user.id, email: user.email, displayName: user.displayName, role: user.role, emailVerified: true };
       const maxAge = (actor.role === "ADMIN" || actor.role === "MODERATOR" ? 2 * 60 * 60 : 7 * 24 * 60 * 60) * 1000;
       const sessionId = randomUUID();
       // ponytail: expired sessions are pruned on login; schedule pruning if dormant accounts accumulate.
       await tx.delete(authSessions).where(and(eq(authSessions.userId, user.id), lte(authSessions.expiresAt, new Date())));
-      await tx.insert(authSessions).values({ id: sessionId, userId: user.id, expiresAt: new Date(Date.now() + maxAge) });
+      await tx.insert(authSessions).values({ id: sessionId, userId: user.id, mfaVerifiedAt: mfaVerified ? new Date() : null, expiresAt: new Date(Date.now() + maxAge) });
       return { actor, maxAge, token: await this.jwt.signAsync({ sub: user.id, sid: sessionId }, { expiresIn: maxAge / 1000 }) };
   }
 
@@ -135,6 +139,7 @@ export class AuthService {
       const [user] = await tx.select().from(users).where(eq(users.googleSubject, profile.subject)).for("update");
       // Email alone must never link a Google identity to an existing account.
       if (!user) throw new BadRequestException("Email sudah terdaftar. Masuk dengan password akun Valrify kamu.");
+      if (isPrivileged(user.role)) throw new UnauthorizedException("Gunakan login admin dengan password dan authenticator.");
       if (process.env.NODE_ENV === "production" && isDemoAccount(user)) throw new UnauthorizedException("Akun demo tidak dapat dipakai di production.");
       return this.issueSession(tx, user);
     });
@@ -153,12 +158,14 @@ export class AuthService {
     const session = await this.database.db.query.authSessions.findFirst({ where: and(eq(authSessions.id, claims.sid), eq(authSessions.userId, claims.sub), gt(authSessions.expiresAt, new Date())) });
     const actor = session ? await this.actor(claims.sub) : null;
     if (!session || !actor?.emailVerified) throw new UnauthorizedException("Sesi berakhir. Silakan masuk kembali.");
+    if (isPrivileged(actor.role) && !session.mfaVerifiedAt) throw new UnauthorizedException("Masuk kembali melalui login admin dan verifikasi MFA.");
     if (process.env.NODE_ENV === "production" && isDemoAccount(actor)) throw new UnauthorizedException("Akun demo tidak dapat dipakai di production.");
     if (["ADMIN", "MODERATOR"].includes(actor.role) && session.createdAt.getTime() + 2 * 60 * 60 * 1000 <= Date.now()) throw new UnauthorizedException("Sesi admin berakhir. Silakan masuk kembali.");
     return { id: session.id, actor };
   }
 
-  async logout(token?: string) {
+  async logout(token?: string, challenge?: unknown) {
+    if (typeof challenge === "string" && /^[a-f0-9]{64}$/.test(challenge)) await this.database.db.delete(adminLoginChallenges).where(eq(adminLoginChallenges.tokenHash, tokenHash(challenge)));
     if (!token) return;
     let claims;
     try { claims = await this.sessionClaims(token); } catch { return; }

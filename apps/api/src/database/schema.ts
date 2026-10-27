@@ -1,6 +1,19 @@
-import { index, integer, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, boolean, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { index, integer, bigint, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, boolean, type AnyPgColumn } from "drizzle-orm/pg-core";
 export const roleEnum=pgEnum("user_role",["USER","VERIFIED_MIDDLEMAN","MODERATOR","ADMIN"]);
-export const authSessions = pgTable("auth_sessions", { id: text("id").primaryKey(), userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(), expiresAt: timestamp("expires_at", { withTimezone: true }).notNull() }, (t) => [index("auth_sessions_user_idx").on(t.userId), index("auth_sessions_expiry_idx").on(t.expiresAt)]);
+export const authSessions = pgTable("auth_sessions", { id: text("id").primaryKey(), userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }), createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(), expiresAt: timestamp("expires_at", { withTimezone: true }).notNull() }, (t) => [index("auth_sessions_user_idx").on(t.userId), index("auth_sessions_expiry_idx").on(t.expiresAt)]);
+export const adminMfa = pgTable("admin_mfa", {
+  userId: text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  secret: text("secret").notNull(),
+  lastUsedStep: bigint("last_used_step", { mode: "number" }).notNull(),
+  recoveryHashes: jsonb("recovery_hashes").$type<string[]>().notNull(),
+});
+export const adminLoginChallenges = pgTable("admin_login_challenges", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  setupSecret: text("setup_secret"),
+  attempts: integer("attempts").notNull().default(0),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+}, (t) => [index("admin_login_challenges_user_idx").on(t.userId), index("admin_login_challenges_expiry_idx").on(t.expiresAt)]);
 export const reportStatusEnum=pgEnum("report_status",["SUBMITTED","UNDER_REVIEW","NEEDS_INFO","VERIFIED","REJECTED","WITHDRAWN","PUBLISHED"]);
 export const communityPostStatusEnum=pgEnum("community_post_status",["PUBLISHED","REMOVED"]);
 export const communityPostReportStatusEnum=pgEnum("community_post_report_status",["PENDING","DISMISSED","POST_REMOVED"]);

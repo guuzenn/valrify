@@ -6,6 +6,6 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": { "build": "tsc -p tsconfig.json" },
-  "dependencies": { "@valrify/domain": "workspace:*", "zod": "^4.1.12" },
+  "dependencies": { "@valrify/domain": "workspace:*", "zod": "^4.6.6" },
   "devDependencies": { "typescript": "^5.9.3" }
 }

@@ -31,6 +31,9 @@ test("security boundaries reject demo production secrets, foreign mutations and 
   assert.equal(check("POST", "https://valrify.app", "session").passed, true);
   assert.equal(check("GET", undefined, "session").passed, true);
   assert.equal(check("POST").passed, true); // non-browser bearer clients
+  let pendingPassed = false;
+  middleware({ method: "POST", headers: {}, cookies: { valrify_admin_challenge: "pending" } } as unknown as Request, { setHeader() {}, status() { return this; }, json() {} } as unknown as Response, () => { pendingPassed = true; });
+  assert.equal(pendingPassed, false);
   const file = (mimetype: string, buffer: Buffer) => ({ mimetype, buffer } as Express.Multer.File);
   assert.throws(() => validateEvidence([file("image/png", Buffer.from("<script>alert(1)</script>"))]));
   assert.throws(() => validateEvidence([file("image/svg+xml", Buffer.from("<svg/>"))]));

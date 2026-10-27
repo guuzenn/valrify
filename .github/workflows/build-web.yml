@@ -44,6 +44,7 @@ jobs:
           NODE_ENV: production
           HOSTNAME: 127.0.0.1
           PORT: '3100'
+          ADMIN_LOGIN_SLUG: mgmt-ci0000000000000000000000
         run: |
           node apps/web/server.js > "$RUNNER_TEMP/web-smoke.log" 2>&1 &
           web_pid=$!
@@ -58,6 +59,9 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:3100/auth-texture.svg -o /dev/null
           css_path=$(node -e 'const html=require("node:fs").readFileSync(process.env.RUNNER_TEMP+"/rekber.html","utf8"); const css=html.match(/href="([^" ]+\.css[^" ]*)"/); if(!css)process.exit(1); process.stdout.write(css[1].replaceAll("&amp;","&"));')
           curl --fail --silent --show-error "http://127.0.0.1:3100$css_path" -o /dev/null
+          curl --fail --silent --show-error "http://127.0.0.1:3100/$ADMIN_LOGIN_SLUG" -o "$RUNNER_TEMP/admin-login.html"
+          grep -q 'MASUK ADMIN.' "$RUNNER_TEMP/admin-login.html"
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/mgmt-wrong0000000000000000000)" = '404'
       - name: Package Linux x64 web
         run: |
           tar -czf valrify-web-linux-x64.tar.gz -C apps/web/.next/standalone .

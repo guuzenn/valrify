@@ -37,7 +37,7 @@ export class AuthController {
       const profile = await this.google.profile(request.cookies?.valrify_google_flow, request.query.state, request.query.code);
       const result = await this.auth.googleLogin(profile);
       response.cookie("valrify_session", result.token, cookieOptions(result.maxAge));
-      response.redirect(`${this.google.appUrl()}${["ADMIN", "MODERATOR"].includes(result.actor.role) ? "/admin/reports" : "/account"}`);
+      response.redirect(`${this.google.appUrl()}/account`);
     } catch (error) {
       const reason = error instanceof BadRequestException ? "existing_account" : "failed";
       response.redirect(`${this.google.appUrl()}/login?google_error=${reason}`);
@@ -91,8 +91,9 @@ export class AuthController {
   @Post("logout")
   @HttpCode(200)
   async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-    await this.auth.logout(request.cookies?.valrify_session ?? request.headers.authorization?.replace(/^Bearer /, ""));
+    await this.auth.logout(request.cookies?.valrify_session ?? request.headers.authorization?.replace(/^Bearer /, ""), request.cookies?.valrify_admin_challenge);
     response.clearCookie("valrify_session", { path: "/" });
+    response.clearCookie("valrify_admin_challenge", { path: "/api/auth" });
     return { ok: true };
   }
 

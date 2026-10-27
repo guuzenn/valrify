@@ -400,6 +400,18 @@ footer p,footer small { color:var(--muted); font-size:12px; }
 .auth-text-link{color:var(--red-text);font-size:12px;padding-block:5px}
 .google-sign-in{display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;color:#1f1f1f;border-color:#747775}.google-sign-in img{flex-shrink:0}
 .turnstile-field{min-width:0}
+.admin-login-card>form,.mfa-recovery{display:grid;gap:16px}
+.admin-login-card p{font-size:14px;line-height:1.65;color:#c1c9cc;margin:0}
+.admin-login-card .form-error{color:#ffb2ba}
+.admin-login-card h2{font-size:clamp(25px,5vw,34px);line-height:1.1;overflow-wrap:anywhere}
+.admin-login-card label{display:grid;gap:8px;font-size:13px}
+.admin-login-card input{padding:14px;border:1px solid var(--border);border-radius:0;background:var(--white)}
+.admin-login-card button.auth-text-link{background:none;border:0;cursor:pointer;text-align:left;min-height:44px}
+.mfa-qr{display:block;width:min(240px,100%);height:auto;margin-inline:auto;background:white}
+.mfa-recovery pre{overflow-wrap:anywhere;white-space:pre-wrap;font-size:clamp(10px,2.7vw,14px);line-height:2;background:var(--white);color:var(--ink);padding:16px;margin:0}
+.admin-login-card .mfa-saved{display:flex;align-items:flex-start;gap:10px;line-height:1.5}
+.admin-login-card .mfa-saved input{width:20px;height:20px;flex-shrink:0;margin:0}
+.auth-result-card .auth-text-link{display:block;margin-top:16px}
 body:has(.auth-flow-page){background-image:linear-gradient(145deg,transparent 28%,rgba(15,25,35,.025) 28%,rgba(15,25,35,.025) 35%,transparent 35%,transparent 65%,rgba(15,25,35,.025) 65%,rgba(15,25,35,.025) 72%,transparent 72%),url('/auth-texture.svg');background-size:100% 1100px,640px 640px}
 .page.auth-flow-page{max-width:600px}
 .auth-flow-page>.eyebrow,.auth-flow-page>.page-title{text-align:center}
