@@ -1,20 +1,40 @@
-name: Build production web
+name: CI and production deploy
 
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: valrify-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: valrify
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: valrify_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U valrify -d valrify_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
       API_URL: http://127.0.0.1:3001/api
       PUBLIC_APP_URL: https://valrify.app
       NEXT_TELEMETRY_DISABLED: '1'
+      DATABASE_URL: postgresql://valrify:ci-only-password@127.0.0.1:5432/valrify_ci
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -28,10 +48,17 @@ jobs:
         run: |
           npm install --global pnpm@11.13.1
           pnpm install --frozen-lockfile
-      - name: Build web
+      - name: Build shared packages and validate
         run: |
           pnpm --filter @valrify/domain build
-          pnpm --filter @valrify/web build
+          pnpm --filter @valrify/validation build
+          pnpm lint
+          pnpm test
+          pnpm db:migrate
+          pnpm test:integration
+          bash scripts/deploy/release.test.sh
+      - name: Build workspace
+        run: pnpm build
       - name: Assemble standalone web
         run: |
           cp -r apps/web/public apps/web/.next/standalone/apps/web/public
@@ -66,11 +93,69 @@ jobs:
         run: |
           tar -czf valrify-web-linux-x64.tar.gz -C apps/web/.next/standalone .
           sha256sum valrify-web-linux-x64.tar.gz > valrify-web-linux-x64.tar.gz.sha256
+      - name: Assemble API and combined release
+        run: |
+          mkdir -p "$RUNNER_TEMP/release"
+          pnpm --filter @valrify/api deploy --legacy --prod --frozen-lockfile "$RUNNER_TEMP/release/api"
+          cp -a apps/web/.next/standalone "$RUNNER_TEMP/release/web"
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/release/REVISION"
+          test -f "$RUNNER_TEMP/release/api/dist/main.js"
+          test -f "$RUNNER_TEMP/release/api/scripts/migrate.cjs"
+          test -z "$(find "$RUNNER_TEMP/release" -name '.env*' -print -quit)"
+          # Re-run against the drizzle-kit-initialized CI database: must be a no-op.
+          before=$(psql "$DATABASE_URL" -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations')
+          (cd "$RUNNER_TEMP/release/api" && node scripts/migrate.cjs && node scripts/migrate.cjs)
+          after=$(psql "$DATABASE_URL" -Atc 'SELECT count(*) FROM drizzle.__drizzle_migrations')
+          test "$before" = "$after"
+          tar -czf valrify-linux-x64.tar.gz -C "$RUNNER_TEMP/release" .
+          sha256sum valrify-linux-x64.tar.gz > valrify-linux-x64.tar.gz.sha256
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: valrify-web-linux-x64
           path: |
             valrify-web-linux-x64.tar.gz
             valrify-web-linux-x64.tar.gz.sha256
+            valrify-linux-x64.tar.gz
+            valrify-linux-x64.tar.gz.sha256
           if-no-files-found: error
           retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: deploy
+      RELEASE_ID: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: valrify-web-linux-x64
+          path: artifact
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          test -n "$DEPLOY_HOST" && test -n "$DEPLOY_SSH_KEY" && test -n "$DEPLOY_KNOWN_HOSTS"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+          printf 'Host *\n  BatchMode yes\n  StrictHostKeyChecking yes\n  ConnectTimeout 15\n' > ~/.ssh/config
+      - name: Transfer and activate tested release
+        run: |
+          target="$DEPLOY_USER@$DEPLOY_HOST"
+          remote="/home/deploy/valrify-deploy/incoming/$RELEASE_ID"
+          ssh "$target" "mkdir -p '$remote' && chmod 700 '$remote'"
+          scp artifact/valrify-linux-x64.tar.gz artifact/valrify-linux-x64.tar.gz.sha256 scripts/deploy/release.sh "$target:$remote/"
+          ssh "$target" "bash '$remote/release.sh' /home/deploy/valrify-deploy '$RELEASE_ID'"
+      - name: Remove runner SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519
