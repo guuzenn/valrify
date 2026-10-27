@@ -87,6 +87,12 @@ Isi `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, dan `PUBLIC_APP_URL` pada enviro
 
 Akun Google baru mendapat role USER dan memakai ID Google sebagai identitas tetap. Email Google harus terverifikasi. Email yang sudah terdaftar pada akun lain tidak ditautkan otomatis; gunakan login password untuk akun tersebut. Penautan akun belum tersedia. Gunakan client Google terpisah untuk production dengan callback HTTPS yang sesuai domain.
 
+### Build web untuk VPS
+
+Workflow manual **Build production web** di tab GitHub Actions membuat paket Next.js standalone pada Ubuntu 24.04 x64 dengan Node.js 24. Tambahkan repository variable `NEXT_PUBLIC_TURNSTILE_SITE_KEY` berisi site key production sebelum menjalankannya. Workflow tidak memerlukan secret backend atau akses SSH.
+
+Artifact `valrify-web-linux-x64` berisi arsip `.tar.gz` dan checksum SHA-256, tersedia selama tujuh hari. Arsip menyertakan runtime dependencies, aset publik, CSS/JavaScript, dan file `REVISION` berisi commit source. Workflow menguji halaman dan aset dari server standalone sebelum mengunggah artifact. Saat pemasangan, cocokkan arsitektur VPS dan checksum, ekstrak ke direktori rilis baru, lalu jalankan `apps/web/server.js` dengan `NODE_ENV=production`, `HOSTNAME=127.0.0.1`, `PORT=3000`, `API_URL=http://127.0.0.1:3001/api`, serta `PUBLIC_APP_URL=https://valrify.app`. Jangan memasukkan `.env` backend ke paket web. Workflow hanya membuat paket, tidak melakukan deployment.
+
 ### Akun demo
 
 | Peran | Email | Password |

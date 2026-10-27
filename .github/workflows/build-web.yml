@@ -1,0 +1,72 @@
+name: Build production web
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+      API_URL: http://127.0.0.1:3001/api
+      PUBLIC_APP_URL: https://valrify.app
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+      - name: Check production site key
+        run: test -n "$NEXT_PUBLIC_TURNSTILE_SITE_KEY"
+      - name: Install dependencies
+        run: |
+          npm install --global pnpm@11.13.1
+          pnpm install --frozen-lockfile
+      - name: Build web
+        run: |
+          pnpm --filter @valrify/domain build
+          pnpm --filter @valrify/web build
+      - name: Assemble standalone web
+        run: |
+          cp -r apps/web/public apps/web/.next/standalone/apps/web/public
+          cp -r apps/web/.next/static apps/web/.next/standalone/apps/web/.next/static
+          printf '%s\n' "$GITHUB_SHA" > apps/web/.next/standalone/REVISION
+          test -z "$(find apps/web/.next/standalone -name '.env*' -print -quit)"
+      - name: Smoke test standalone web
+        working-directory: apps/web/.next/standalone
+        env:
+          NODE_ENV: production
+          HOSTNAME: 127.0.0.1
+          PORT: '3100'
+        run: |
+          node apps/web/server.js > "$RUNNER_TEMP/web-smoke.log" 2>&1 &
+          web_pid=$!
+          trap 'kill "$web_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail --max-time 2 http://127.0.0.1:3100/rekber -o "$RUNNER_TEMP/rekber.html"; then
+              break
+            fi
+            sleep 1
+          done
+          grep -q 'Valrify belum berafiliasi dengan rekber mana pun.' "$RUNNER_TEMP/rekber.html"
+          curl --fail --silent --show-error http://127.0.0.1:3100/auth-texture.svg -o /dev/null
+          css_path=$(node -e 'const html=require("node:fs").readFileSync(process.env.RUNNER_TEMP+"/rekber.html","utf8"); const css=html.match(/href="([^" ]+\.css[^" ]*)"/); if(!css)process.exit(1); process.stdout.write(css[1].replaceAll("&amp;","&"));')
+          curl --fail --silent --show-error "http://127.0.0.1:3100$css_path" -o /dev/null
+      - name: Package Linux x64 web
+        run: |
+          tar -czf valrify-web-linux-x64.tar.gz -C apps/web/.next/standalone .
+          sha256sum valrify-web-linux-x64.tar.gz > valrify-web-linux-x64.tar.gz.sha256
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: valrify-web-linux-x64
+          path: |
+            valrify-web-linux-x64.tar.gz
+            valrify-web-linux-x64.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
