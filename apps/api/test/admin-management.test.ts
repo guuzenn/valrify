@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import "reflect-metadata";
-import type { ExecutionContext } from "@nestjs/common";
 import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Reflector } from "@nestjs/core";
+import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host";
 import { adminRoleSchema, adminUserQuerySchema, middlemanDirectorySchema } from "@valrify/validation";
 import { AdminManagementController } from "../src/admin/admin-management.controller";
 import { JwtAuthGuard } from "../src/auth/jwt-auth.guard";
@@ -14,7 +14,7 @@ test("management endpoints require authentication and only permit assigned admin
   const guard = new RolesGuard(new Reflector());
   for (const method of ["dashboard", "users", "user", "role", "directory", "createDirectory", "updateDirectory", "activity"] as const) {
     for (const role of ["USER", "VERIFIED_MIDDLEMAN", "MODERATOR", "ADMIN"] as const) {
-      const context = { getHandler: () => AdminManagementController.prototype[method], getClass: () => AdminManagementController, switchToHttp: () => ({ getRequest: () => ({ user: { role } }) }) } as ExecutionContext;
+      const context = new ExecutionContextHost([{ user: { role } }], AdminManagementController, AdminManagementController.prototype[method]);
       if (role === "ADMIN" || (method === "dashboard" && role === "MODERATOR")) assert.equal(guard.canActivate(context), true);
       else assert.throws(() => guard.canActivate(context), { status: 403 });
     }
