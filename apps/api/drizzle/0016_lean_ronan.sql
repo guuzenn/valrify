@@ -1,0 +1,2 @@
+DROP INDEX "identifiers_type_normalized_unique";--> statement-breakpoint
+CREATE UNIQUE INDEX "identifiers_type_normalized_unique" ON "identifiers" USING btree ("type","normalized_value",(case when "type" in ('BANK_ACCOUNT', 'EWALLET') then lower(coalesce("provider", '')) else '' end));

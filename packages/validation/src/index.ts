@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { identifierTypes, reportCategories } from "@valrify/domain";
+import { identifierTypes, normalizeIdentifier, reportCategories, reportPartyRoles } from "@valrify/domain";
 
 const newPasswordSchema = z.string().min(10, "Password minimal 10 karakter.").max(72, "Password terlalu panjang.").refine((value) => new TextEncoder().encode(value).length <= 72, "Password terlalu panjang. Gunakan password yang lebih pendek.");
 
@@ -55,7 +55,7 @@ export const communityPostReviewSchema = z.object({
 
 const reportIdentifierSchema = z.object({
   type: z.enum(identifierTypes),
-  value: z.string().trim().min(2).max(160),
+  value: z.string().trim().min(2, "Isi nomor atau akun minimal dua karakter.").max(160),
   provider: z.string().trim().max(40).optional(),
 });
 
@@ -100,7 +100,40 @@ export const reportSchema = z.object({
 
 export const reportQueueSchema = z.enum(["PENDING", "PUBLISHED"]).default("PENDING");
 
+export const reportEditSchema = z.object({
+  updatedAt: z.iso.datetime(),
+  chronology: z.string().trim().min(30, "Kronologi minimal 30 karakter.").max(5000, "Kronologi maksimal 5.000 karakter."),
+  category: z.enum(reportCategories),
+  transactionDate: z.union([z.iso.date(), z.literal("")]),
+  evidenceUrl: z.union([z.url().max(500).refine(value => /^https?:\/\//.test(value), "Link bukti harus menggunakan http atau https."), z.literal("")]),
+  rationale: z.string().trim().min(10, "Alasan koreksi minimal 10 karakter.").max(2000),
+  parties: z.array(z.object({
+    entityId: z.number().int().positive().optional(),
+    entityName: z.string().trim().min(2, "Nama pihak minimal dua karakter.").max(80),
+    role: z.enum(reportPartyRoles),
+    identifiers: z.array(reportIdentifierSchema).min(1).max(8),
+  })).min(1).max(4),
+}).superRefine((value, context) => {
+  if (value.parties.reduce((sum, party) => sum + party.identifiers.length, 0) > 8) {
+    context.addIssue({ code: "custom", path: ["parties"], message: "Maksimal delapan nomor atau akun untuk seluruh pihak." });
+  }
+  const owners = new Map<string, number>();
+  for (const [index, party] of value.parties.entries()) for (const identifier of party.identifiers) {
+    if (!["PHONE", "BANK_ACCOUNT", "EWALLET", "DISCORD", "FACEBOOK_URL", "RIOT_ID"].includes(identifier.type)) continue;
+    const provider = ["BANK_ACCOUNT", "EWALLET"].includes(identifier.type) ? (identifier.provider ?? "").trim().toLowerCase() : "";
+    const key = `${identifier.type}:${normalizeIdentifier(identifier.type, identifier.value)}:${provider}`;
+    if (owners.has(key) && owners.get(key) !== index) context.addIssue({ code: "custom", path: ["parties", index], message: "Nomor atau akun yang sama tidak boleh dimasukkan ke dua pihak berbeda." });
+    owners.set(key, index);
+  }
+  for (const [index, party] of value.parties.entries()) for (const identifier of party.identifiers) {
+    if (["BANK_ACCOUNT", "EWALLET"].includes(identifier.type) && !identifier.provider?.trim()) context.addIssue({ code: "custom", path: ["parties", index, "identifiers"], message: "Nama bank atau e-wallet wajib diisi." });
+    if (identifier.type === "FACEBOOK_URL" && !/^https?:\/\//.test(identifier.value)) context.addIssue({ code: "custom", path: ["parties", index, "identifiers"], message: "Link profil harus menggunakan http atau https." });
+  }
+});
+export type ReportEditInput = z.infer<typeof reportEditSchema>;
+
 export const reviewSchema = z.object({
+  updatedAt: z.iso.datetime().optional(),
   decision: z.enum(["PUBLISH", "REJECT", "WITHDRAW"]),
   summary: z.string().trim().max(2000).default(""),
   rationale: z.string().trim().min(10).max(2000),

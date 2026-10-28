@@ -18,12 +18,13 @@ import {
   identifiers,
   reportEvidence,
   reportIdentifiers,
+  reportParties,
   reports,
   transactionConfirmations,
   users,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
-import { publicEntityCondition, publicIdentifierCondition } from "../database/public-entity";
+import { publicEntityCondition, publicIdentifierCondition, reportInvolvesEntity, reportIdentifierForEntity } from "../database/public-entity";
 import { publicImageTypes } from "../storage/validate-evidence";
 
 const partialSearchTypes = [
@@ -264,7 +265,7 @@ export class PublicService {
             .from(identifiers)
             .innerJoin(reportIdentifiers, eq(reportIdentifiers.identifierId, identifiers.id))
             .innerJoin(reports, eq(reports.id, reportIdentifiers.reportId))
-            .innerJoin(entities, eq(entities.id, reports.entityId))
+            .innerJoin(entities, reportIdentifierForEntity(entities.id))
             .where(and(
               eq(reports.status, "PUBLISHED"),
               inArray(identifiers.type, [...partialSearchTypes]),
@@ -277,7 +278,7 @@ export class PublicService {
               displayName: entities.displayName,
             })
             .from(entities)
-            .innerJoin(reports, eq(reports.entityId, entities.id))
+            .innerJoin(reports, reportInvolvesEntity(entities.id))
             .where(and(
               eq(reports.status, "PUBLISHED"),
               ilike(entities.displayName, partialPattern),
@@ -309,7 +310,7 @@ export class PublicService {
             .from(reports)
             .where(
               and(
-                eq(reports.entityId, row.entityId),
+                reportInvolvesEntity(row.entityId),
                 eq(reports.status, "PUBLISHED"),
               ),
             ),
@@ -331,7 +332,7 @@ export class PublicService {
                 .where(
                   and(
                     eq(reportIdentifiers.identifierId, row.identifierId),
-                    eq(reports.entityId, row.entityId),
+                    reportIdentifierForEntity(row.entityId),
                     eq(reports.status, "PUBLISHED"),
                   ),
                 ),
@@ -384,7 +385,8 @@ export class PublicService {
           })
           .from(reportIdentifiers)
           .innerJoin(identifiers, eq(identifiers.id, reportIdentifiers.identifierId))
-          .where(inArray(reportIdentifiers.reportId, rows.map((row) => row.id)))
+          .innerJoin(reports, eq(reports.id, reportIdentifiers.reportId))
+          .where(and(inArray(reportIdentifiers.reportId, rows.map((row) => row.id)), reportIdentifierForEntity(reports.entityId)))
       : [];
     const priority: Partial<Record<IdentifierType, number>> = {
       BANK_ACCOUNT: 0,
@@ -442,7 +444,7 @@ export class PublicService {
         .from(reportIdentifiers)
         .innerJoin(reports, eq(reports.id, reportIdentifiers.reportId))
         .where(
-          and(eq(reports.entityId, entity.id), eq(reports.status, "PUBLISHED")),
+          and(reportIdentifierForEntity(entity.id), eq(reports.status, "PUBLISHED")),
         ),
       this.database.db
         .select({
@@ -456,7 +458,7 @@ export class PublicService {
         .from(reports)
         .innerJoin(users, eq(users.id, reports.reporterId))
         .where(
-          and(eq(reports.entityId, entity.id), eq(reports.status, "PUBLISHED")),
+          and(reportInvolvesEntity(entity.id), eq(reports.status, "PUBLISHED")),
         )
         .orderBy(desc(reports.publishedAt)),
       this.database.db
@@ -526,6 +528,7 @@ export class PublicService {
         status: reports.status,
         slug: entities.slug,
         entityName: entities.displayName,
+        entityId: reports.entityId,
         uploaderDisplayName: users.displayName,
         uploaderRole: users.role,
       })
@@ -541,6 +544,7 @@ export class PublicService {
     const [ids, evidence] = await Promise.all([
       this.database.db
         .select({
+          entityId: reportIdentifiers.entityId,
           type: identifiers.type,
           rawValue: identifiers.rawValue,
           provider: identifiers.provider,
@@ -563,7 +567,10 @@ export class PublicService {
         ),
     ]);
     const { status, uploaderDisplayName, uploaderRole, ...publicReport } = report;
-    const publicIdentifiers = ids.map((identifier) => ({
+    const partyRows = await this.database.db.select({ entityId: reportParties.entityId, entityName: reportParties.displayName, role: reportParties.role, slug: entities.slug }).from(reportParties).innerJoin(entities, eq(entities.id, reportParties.entityId)).where(eq(reportParties.reportId, report.id)).orderBy(reportParties.position);
+    const parties = (partyRows.length ? partyRows : [{ entityId: report.entityId, entityName: report.entityName, role: "REPORTED", slug: report.slug }]).map(party => ({ ...party, identifiers: ids.filter(id => (id.entityId ?? report.entityId) === party.entityId).map(id => ({ type: id.type, displayValue: publicIdentifierValue(id.type as IdentifierType, id.rawValue, id.provider, status, true) })) }));
+    const primaryIds = ids.filter(id => (id.entityId ?? report.entityId) === report.entityId);
+    const publicIdentifiers = primaryIds.map((identifier) => ({
       type: identifier.type,
       displayValue: publicIdentifierValue(
         identifier.type as IdentifierType,
@@ -575,7 +582,7 @@ export class PublicService {
     }));
     const normalizedEntityName = report.entityName?.toLocaleLowerCase("id-ID").replace(/\s+/g, " ");
     const aliases = publicIdentifiers.filter((identifier, index) => {
-      const source = ids[index]!;
+      const source = primaryIds[index]!;
       return aliasTypes.has(identifier.type) && !(
         identifier.type === "PERSON_NAME" &&
         source.rawValue.toLocaleLowerCase("id-ID").replace(/\s+/g, " ") === normalizedEntityName
@@ -583,6 +590,7 @@ export class PublicService {
     });
     return {
       ...publicReport,
+      parties,
       uploadedBy: publicUploaderAttribution(uploaderDisplayName, uploaderRole as Role),
       aliases,
       identifiers: publicIdentifiers.filter((identifier) => !aliasTypes.has(identifier.type)),

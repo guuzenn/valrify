@@ -27,7 +27,7 @@ const reportCategories = [
   ["OTHER", "Masalah lainnya", "Masalah transaksi lain yang belum cocok dengan kategori di atas."],
 ] as const;
 
-const IndonesianBanks = [
+export const IndonesianBanks = [
   "BCA",
   "Bank Mandiri",
   "BRI",
@@ -42,9 +42,9 @@ const IndonesianBanks = [
   "Bank Danamon",
 ] as const;
 
-const IndonesianEwallets = ["DANA", "GoPay", "OVO", "ShopeePay", "LinkAja"] as const;
+export const IndonesianEwallets = ["DANA", "GoPay", "OVO", "ShopeePay", "LinkAja"] as const;
 
-function SearchableProvider({ id, value, onChange, options, placeholder }: {
+export function SearchableProvider({ id, value, onChange, options, placeholder }: {
   id: string;
   value: string;
   onChange: (value: string) => void;

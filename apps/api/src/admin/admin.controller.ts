@@ -3,13 +3,14 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Res,
   UseGuards,
 } from "@nestjs/common";
 import type { Response } from "express";
-import { communityPostReviewSchema, reportQueueSchema, reviewSchema } from "@valrify/validation";
+import { communityPostReviewSchema, reportEditSchema, reportQueueSchema, reviewSchema } from "@valrify/validation";
 import { CurrentActor } from "../auth/current-actor";
 import type { AuthActor } from "../auth/auth.types";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -41,6 +42,11 @@ export class AdminController {
     @Body() body: unknown,
   ) {
     return this.admin.review(Number(id), actor.id, parseSchema(reviewSchema, body));
+  }
+
+  @Patch("reports/:id")
+  editReport(@Param("id") id: string, @CurrentActor() actor: AuthActor, @Body() body: unknown) {
+    return this.admin.editReport(Number(id), actor.id, parseSchema(reportEditSchema, body));
   }
 
   @Get("community-post-reports")

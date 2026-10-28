@@ -137,6 +137,12 @@ Backup lokal disimpan di `.data/backups/` dan tidak masuk Git. Jalankan `pnpm db
 
 Perintah ini khusus database development pada Docker Compose lokal, tidak membaca `DATABASE_URL` production. Backup hanya mencakup database dan metadata bukti; file evidence lokal/R2 perlu backup terpisah. Salinan di disk yang sama belum melindungi dari kerusakan perangkat.
 
+### Mengoreksi laporan sebelum publikasi
+
+Di antrean `/admin/reports`, buka detail lalu pilih **UBAH DATA LAPORAN**. Moderator/admin dapat mengoreksi kategori, kronologi privat, tanggal kejadian, link bukti, serta nama dan nomor/akun setiap pihak yang dilaporkan. Gunakan **TAMBAH PIHAK TERPISAH** untuk pengarah dan rekber yang berbeda; satu laporan mendukung empat pihak dengan total delapan identifier. Pihak pertama menjadi profil utama dan dapat diganti lewat **JADIKAN UTAMA**. Setiap pihak memiliki profil terpisah yang terhubung melalui halaman kasus setelah publikasi.
+
+Alasan koreksi wajib diisi. Data sebelum/sesudah perubahan tersimpan dalam audit privat. Simpan atau batalkan koreksi sebelum moderasi; sesi admin dengan data lama wajib memuat ulang. Admin tidak dapat mengoreksi kirimannya sendiri, dan fitur ini hanya berlaku sebelum laporan dipublikasikan. File bukti privat tetap dipertahankan; approval bukti publik tetap merupakan langkah terpisah.
+
 ### Menarik laporan publik
 
 Di `/admin/reports`, buka tab **SUDAH TAMPIL**, pilih laporan, lalu **TARIK LAPORAN**. Alasan minimal 10 karakter dan konfirmasi kedua wajib diisi. Moderator/admin tidak dapat menarik kirimannya sendiri. Laporan berubah menjadi `WITHDRAWN`; halaman kasus dan bukti publik tidak dapat dibuka, identifier tanpa dukungan laporan published lain disembunyikan, dan hitungan laporan diperbarui. Data sumber, bukti privat, serta alasan penarikan tetap tersimpan untuk audit. Pelapor dapat melihat alasan di Akun Saya. Panel belum menyediakan pembatalan penarikan atau publikasi ulang.

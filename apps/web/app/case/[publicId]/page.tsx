@@ -2,7 +2,7 @@ import { ArrowIcon } from "../../components/ArrowIcon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatIndonesianDate, labelIdentifierType, labelReportCategory } from "@valrify/domain";
+import { formatIndonesianDate, labelIdentifierType, labelReportCategory, labelReportPartyRole } from "@valrify/domain";
 import { Disclaimer, Footer, Header } from "../../components/SiteChrome";
 import { EvidenceGallery } from "../../components/EvidenceGallery";
 import { getPublicCase } from "../../../lib/api";
@@ -33,7 +33,7 @@ export default async function CasePage({ params }: { params: Promise<{ publicId:
       <article className="case-body"><p className="panel-index">CERITA SINGKAT</p><p className="summary">{report.publicSummary}</p><p className="source-line">DIKIRIM PENGGUNA · NAMA PELAPOR DISEMBUNYIKAN</p></article>
       <aside className="case-facts"><div><span>STATUS</span><strong>SUDAH DITAMPILKAN</strong></div><div><span>KATEGORI</span><strong>{labelReportCategory(report.transactionType)}</strong></div><div><span>TANGGAL KEJADIAN</span><strong>{formatIndonesianDate(report.transactionDate)}</strong></div><div><span>AKUN TERKAIT</span><Link className="inline-profile-link" href={`/entity/${report.slug}`}>{String(report.entityName)} <span aria-hidden="true"><ArrowIcon/></span></Link></div></aside>
     </section>
-    <section className="data-panel case-identifiers"><h2>IDENTITAS & AKUN TERKAIT</h2><p className="publication-note">Nama seller dipakai sebagai nama profil utama. Nama lain, nomor, dan akun di bawah berasal dari laporan yang sudah dicek admin.</p>{report.aliases.map((identifier, index) => <div className="identifier-row" key={`alias-${index}`}><span>{labelIdentifierType(identifier.type)}</span><strong>{identifier.displayValue}</strong></div>)}{report.identifiers.map((identifier, index) => <div className="identifier-row" key={`account-${index}`}><span>{labelIdentifierType(identifier.type)}</span><strong>{identifier.displayValue}</strong></div>)}</section>
+    <section className="data-panel case-identifiers"><h2>PIHAK & AKUN YANG DILAPORKAN</h2><p className="publication-note">Setiap pihak memiliki profil dan data akun sendiri. Keterkaitan dalam kasus ini tidak berarti mereka orang yang sama.</p>{report.parties?.length ? report.parties.map(party => <article className="case-party" key={party.entityId}><div className="case-party-heading"><span>{labelReportPartyRole(party.role)}</span><Link href={`/entity/${party.slug}`}>{party.entityName} <ArrowIcon/></Link></div>{party.identifiers.filter(identifier => identifier.type !== "PERSON_NAME" || identifier.displayValue.toLocaleLowerCase("id-ID") !== party.entityName.toLocaleLowerCase("id-ID")).map((identifier, index) => <div className="identifier-row" key={index}><span>{labelIdentifierType(identifier.type)}</span><strong>{identifier.displayValue}</strong></div>)}</article>) : [...report.aliases, ...report.identifiers].map((identifier, index) => <div className="identifier-row" key={index}><span>{labelIdentifierType(identifier.type)}</span><strong>{identifier.displayValue}</strong></div>)}</section>
     <EvidenceGallery publicId={report.publicId} evidence={report.evidence} evidenceUrl={report.evidenceUrl}/>
     <Disclaimer/>
   </main><Footer/></>;

@@ -127,6 +127,9 @@ importers:
       '@valrify/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@valrify/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       next:
         specifier: 16.4.1
         version: 16.4.1(@types/node@22.20.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)

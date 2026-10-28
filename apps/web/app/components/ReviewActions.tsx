@@ -16,7 +16,7 @@ type EvidenceOption = { id: number; fileName: string; mimeType: string; isPublic
 
 type Decision = "PUBLISH" | "REJECT" | "WITHDRAW";
 
-export function ReviewActions({ reportId, evidence, evidenceUrl, published = false, onDone }: { reportId: number; evidence: EvidenceOption[]; evidenceUrl: string | null; published?: boolean; onDone: () => void }) {
+export function ReviewActions({ reportId, updatedAt, evidence, evidenceUrl, published = false, onDone }: { reportId: number; updatedAt: string; evidence: EvidenceOption[]; evidenceUrl: string | null; published?: boolean; onDone: () => void }) {
   const [message, setMessage] = useState("");
   const [rationale, setRationale] = useState("");
   const [pendingDecision, setPendingDecision] = useState<Decision | null>(null);
@@ -55,6 +55,7 @@ export function ReviewActions({ reportId, evidence, evidenceUrl, published = fal
         method: "POST",
         body: JSON.stringify({
           decision,
+          updatedAt,
           summary,
           rationale: data.get("rationale"),
           publicEvidenceIds,

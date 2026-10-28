@@ -166,6 +166,8 @@ Push workflow/script/manifest ke `main`, lalu amati tab Actions. Jika workflow s
 
 ## Verifikasi dan pemulihan
 
+Editor laporan multipihak memerlukan migration `0015_skinny_retro_girl.sql` dan `0016_lean_ronan.sql`, yang dijalankan otomatis sebelum aktivasi rilis. Laporan lama dipertahankan sebagai satu pihak; bank/e-wallet membedakan identifier berdasarkan provider. Setelah admin menyimpan laporan dengan beberapa pihak, hindari rollback API ke versi sebelum fitur ini: versi lama menganggap seluruh identifier dalam satu laporan milik profil utama. Gunakan perbaikan ke depan atau prosedur pemulihan data yang sesuai untuk menjaga atribusi antarprofil.
+
 Setelah deploy pertama, periksa halaman publik, login admin/TOTP, serta alur laporan/bukti. Workflow mengecek health API, konten halaman rekber, aset CSS dan penolakan admin anonim; ini bukan tes seluruh fitur production.
 
 ```bash

@@ -6,6 +6,8 @@ export const reportStatuses = ["SUBMITTED","UNDER_REVIEW","NEEDS_INFO","VERIFIED
 export type ReportStatus = (typeof reportStatuses)[number];
 export const reportCategories = ["PAYMENT_FRAUD","FAKE_MIDDLEMAN","HACKBACK","ACCOUNT_MISMATCH","OTHER"] as const;
 export type ReportCategory = (typeof reportCategories)[number];
+export const reportPartyRoles = ["REPORTED", "SELLER", "BUYER", "REFERRER", "MIDDLEMAN"] as const;
+export const labelReportPartyRole = (role: string) => ({ REPORTED: "Terlapor", SELLER: "Penjual", BUYER: "Pembeli", REFERRER: "Pengarah", MIDDLEMAN: "Rekber" } as Record<string, string>)[role] ?? "Terlapor";
 export const labelReportCategory=(category:string)=>({PAYMENT_FRAUD:"Penipuan pembayaran",FAKE_MIDDLEMAN:"Rekber palsu",HACKBACK:"Hackback",ACCOUNT_MISMATCH:"Data akun tidak sesuai",OTHER:"Masalah lainnya",ACCOUNT_PURCHASE:"Transaksi pembelian akun",ACCOUNT_SALE:"Transaksi penjualan akun",ACCOUNT_TRADE:"Transaksi tukar akun",MIDDLEMAN:"Transaksi melalui rekber"} as Record<string,string>)[category]??"Kategori tidak diketahui";
 export const titleReportCategory=(category:ReportCategory)=>({PAYMENT_FRAUD:"Pembayaran dilakukan, transaksi tidak diselesaikan",FAKE_MIDDLEMAN:"Dugaan penyamaran sebagai rekber",HACKBACK:"Akun diambil kembali setelah transaksi",ACCOUNT_MISMATCH:"Data akun tidak sesuai kesepakatan",OTHER:"Masalah dalam transaksi akun"} as Record<ReportCategory,string>)[category];
 

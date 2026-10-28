@@ -4,11 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
-import { type ReportStatus } from "@valrify/domain";
+import { and, asc, desc, eq, gte, inArray, ne, sql } from "drizzle-orm";
+import { normalizeIdentifier, titleReportCategory, type ReportStatus } from "@valrify/domain";
 import type {
   CommunityPostReviewInput,
   ReviewInput,
+  ReportEditInput,
 } from "@valrify/validation";
 import { DatabaseService } from "../database/database.service";
 import { publicImageTypes } from "../storage/validate-evidence";
@@ -24,12 +25,14 @@ import {
   notifications,
   reportEvidence,
   reportIdentifiers,
+  reportParties,
   reports,
   reportStatusHistory,
   transactionConfirmationEvidence,
   users,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
+import { resolveReportParty } from "../reports/resolve-report-party";
 
 @Injectable()
 export class AdminService {
@@ -67,7 +70,7 @@ export class AdminService {
         this.database.db
           .select({ count: sql<number>`count(*)::int` })
           .from(moderationActions)
-          .where(gte(moderationActions.createdAt, since)),
+          .where(and(gte(moderationActions.createdAt, since), ne(moderationActions.action, "REPORT_EDITED"))),
         this.database.db
           .select({
             id: moderationActions.id,
@@ -108,6 +111,8 @@ export class AdminService {
         evidenceUrl: reports.evidenceUrl,
         status: reports.status,
         createdAt: reports.createdAt,
+        updatedAt: reports.updatedAt,
+        entityId: reports.entityId,
         entityName: entities.displayName,
         reporterName: users.displayName,
       })
@@ -128,6 +133,7 @@ export class AdminService {
       rows.map(async (row) => {
         const ids = await this.database.db
           .select({
+            entityId: reportIdentifiers.entityId,
             type: identifiers.type,
             rawValue: identifiers.rawValue,
             provider: identifiers.provider,
@@ -150,8 +156,16 @@ export class AdminService {
           })
           .from(reportEvidence)
           .where(eq(reportEvidence.reportId, row.id));
+        const storedParties = await this.database.db.select().from(reportParties).where(eq(reportParties.reportId, row.id)).orderBy(asc(reportParties.position));
+        const parties = (storedParties.length ? storedParties : row.entityId ? [{ entityId: row.entityId, displayName: row.entityName!, role: "REPORTED" }] : []).map(party => {
+          const all = ids.filter(id => (id.entityId ?? row.entityId) === party.entityId);
+          const explicit = all.filter(id => id.type !== "PERSON_NAME" || normalizeIdentifier("PERSON_NAME", id.rawValue) !== normalizeIdentifier("PERSON_NAME", party.displayName));
+          return { entityId: party.entityId, entityName: party.displayName, role: party.role, identifiers: (explicit.length ? explicit : all).map(id => ({ type: id.type, value: id.rawValue, provider: id.provider ?? "" })) };
+        });
         return {
           ...row,
+          entityName: parties[0]?.entityName ?? row.entityName,
+          parties,
           identifiers: ids.map((identifier) => ({
             type: identifier.type,
             displayValue:
@@ -264,11 +278,43 @@ export class AdminService {
     return { ok: true, status: nextStatus };
   }
 
+  async editReport(reportId: number, actorId: string, input: ReportEditInput) {
+    return this.database.db.transaction(async tx => {
+      const [report] = await tx.select().from(reports).where(eq(reports.id, reportId)).for("update");
+      if (!report) throw new NotFoundException("Laporan tidak ditemukan.");
+      if (report.reporterId === actorId) throw new BadRequestException("Admin tidak dapat mengubah laporan yang dikirim sendiri.");
+      if (!["SUBMITTED", "UNDER_REVIEW", "NEEDS_INFO", "VERIFIED"].includes(report.status)) throw new BadRequestException("Hanya laporan yang belum dipublikasikan dapat diedit.");
+      if (report.updatedAt.getTime() !== new Date(input.updatedAt).getTime()) throw new ConflictException("Laporan sudah berubah. Muat ulang sebelum menyimpan.");
+      const previousParties = await tx.select().from(reportParties).where(eq(reportParties.reportId, reportId));
+      const previousIdentifiers = await tx.select().from(reportIdentifiers).where(eq(reportIdentifiers.reportId, reportId));
+      const allowedEntityIds = new Set([report.entityId, ...previousParties.map(party => party.entityId)]);
+      const resolved: Array<Awaited<ReturnType<typeof resolveReportParty>> & { party: ReportEditInput["parties"][number]; position: number }> = [];
+      for (const [position, party] of input.parties.entries()) {
+        if (party.entityId && !allowedEntityIds.has(party.entityId)) throw new BadRequestException("Profil asal tidak termasuk dalam laporan ini.");
+        const result = await resolveReportParty(tx, party, party.entityId);
+        if (result.matchedEntityIds.length > 1) throw new BadRequestException("Data satu pihak cocok dengan beberapa profil. Periksa kembali pembagian nomor dan akun.");
+        if (resolved.some(item => item.entity.id === result.entity.id)) throw new BadRequestException("Dua pihak cocok dengan profil yang sama. Periksa kembali nomor dan akun masing-masing.");
+        resolved.push({ ...result, party, position });
+      }
+      await tx.delete(reportIdentifiers).where(eq(reportIdentifiers.reportId, reportId));
+      await tx.delete(reportParties).where(eq(reportParties.reportId, reportId));
+      for (const item of resolved) {
+        await tx.insert(reportParties).values({ reportId, entityId: item.entity.id, displayName: item.party.entityName, role: item.party.role, position: item.position });
+        for (const identifier of item.identifierRows) await tx.insert(reportIdentifiers).values({ reportId, identifierId: identifier.id, entityId: item.entity.id }).onConflictDoNothing();
+      }
+      const updatedAt = new Date(Math.max(Date.now(), report.updatedAt.getTime() + 1));
+      await tx.update(reports).set({ entityId: resolved[0]!.entity.id, chronology: input.chronology, title: titleReportCategory(input.category), transactionType: input.category, transactionDate: input.transactionDate ? new Date(input.transactionDate) : null, evidenceUrl: input.evidenceUrl || null, updatedAt }).where(eq(reports.id, reportId));
+      await tx.insert(moderationActions).values({ reportId, actorId, action: "REPORT_EDITED", rationale: input.rationale, details: { before: { report, parties: previousParties, identifiers: previousIdentifiers }, after: input } });
+      return { ok: true, updatedAt };
+    });
+  }
+
   async review(reportId: number, actorId: string, input: ReviewInput) {
     const report = await this.database.db.query.reports.findFirst({
       where: eq(reports.id, reportId),
     });
     if (!report) throw new NotFoundException("Laporan tidak ditemukan.");
+    if (input.updatedAt && new Date(input.updatedAt).getTime() !== report.updatedAt.getTime()) throw new ConflictException("Laporan sudah diubah. Muat ulang sebelum memeriksa kembali.");
     if (report.reporterId === actorId) {
       throw new BadRequestException(
         "Admin tidak dapat memeriksa laporan yang dikirim sendiri. Gunakan akun tester untuk mengirim.",
@@ -304,8 +350,8 @@ export class AdminService {
 
     await this.database.db.transaction(async (tx) => {
       let from = report.status as ReportStatus;
-      const [lockedReport] = await tx.select({ status: reports.status }).from(reports).where(eq(reports.id, reportId)).for("update");
-      if (!lockedReport || lockedReport.status !== report.status) throw new ConflictException("Laporan sudah berubah. Muat ulang sebelum memeriksa kembali.");
+      const [lockedReport] = await tx.select().from(reports).where(eq(reports.id, reportId)).for("update");
+      if (!lockedReport || lockedReport.status !== report.status || lockedReport.updatedAt.getTime() !== report.updatedAt.getTime()) throw new ConflictException("Laporan sudah berubah. Muat ulang sebelum memeriksa kembali.");
       if (input.decision === "WITHDRAW") {
         await tx.update(reports).set({ status: "WITHDRAWN", updatedAt: new Date() }).where(eq(reports.id, reportId));
         await tx.update(reportEvidence).set({ isPublicApproved: false }).where(eq(reportEvidence.reportId, reportId));
@@ -353,14 +399,14 @@ export class AdminService {
         }
         if (report.entityId) {
           const reportIdentifierRows = await tx
-            .select({ identifierId: reportIdentifiers.identifierId })
+            .select({ identifierId: reportIdentifiers.identifierId, entityId: reportIdentifiers.entityId })
             .from(reportIdentifiers)
             .where(eq(reportIdentifiers.reportId, reportId));
           for (const [index, row] of reportIdentifierRows.entries()) {
             await tx
               .insert(entityIdentifiers)
               .values({
-                entityId: report.entityId,
+                entityId: row.entityId ?? report.entityId,
                 identifierId: row.identifierId,
                 isPrimary: index === 0,
               })
