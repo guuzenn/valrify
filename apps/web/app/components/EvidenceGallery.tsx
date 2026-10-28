@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowIcon } from "./ArrowIcon";
 import { useEffect, useState } from "react";
 import { browserApiUrl } from "../../lib/browser-api";
 
@@ -34,7 +35,7 @@ export function EvidenceGallery({
     <p className="panel-index">BUKTI YANG SUDAH DISETUJUI ADMIN</p>
     <div>
       {evidence.length > 0 && <button className="tactical-button" type="button" onClick={() => setSelected(evidence[0]!)}>LIHAT BUKTI GAMBAR ({evidence.length})</button>}
-      {evidenceUrl && <a className="button-secondary" href={evidenceUrl} target="_blank" rel="noreferrer">BUKA POST BUKTI ↗</a>}
+      {evidenceUrl && <a className="button-secondary" href={evidenceUrl} target="_blank" rel="noreferrer">BUKA POST BUKTI <ArrowIcon/></a>}
     </div>
     {selected && <div className="evidence-modal" role="dialog" aria-modal="true" aria-label="Bukti gambar" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
       <div className="evidence-modal-card">

@@ -1,3 +1,4 @@
+import { ArrowIcon } from "../components/ArrowIcon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer, Header } from "../components/SiteChrome";
@@ -18,6 +19,6 @@ export default function ContactPage() {
     <section><h2>Ingin melihat, mengubah, atau menghapus datamu?</h2><p>Kirim penjelasan tentang data yang dimaksud dan apa yang kamu minta ke <a href="mailto:support@valrify.app">support@valrify.app</a>. Jangan bagikan email akun, dokumen identitas, atau bukti yang hanya untuk admin di posting publik.</p></section>
     <section><h2>Menemukan bug atau masalah keamanan?</h2><p>Catat halaman yang bermasalah, langkah yang kamu lakukan, hasil yang seharusnya muncul, dan perangkat atau browser yang dipakai. Jika menyertakan screenshot, tutup email, data login, dan informasi pribadi.</p><p>Jika ada kebocoran data atau celah keamanan, laporkan secara privat ke <a href="mailto:support@valrify.app">support@valrify.app</a>. Jangan bagikan cara memanfaatkannya atau data yang bocor ke publik.</p></section>
     <section><h2>Pastikan kontaknya resmi</h2><p>Domain resmi Valrify adalah <strong>valrify.app</strong> dan alamat kontaknya <a href="mailto:support@valrify.app">support@valrify.app</a>. Kontak lain yang belum tercantum di halaman ini belum dipastikan milik admin Valrify.</p><p>Admin tidak meminta password, OTP, recovery code, atau biaya agar laporan ditampilkan. Valrify tidak menjalankan rekber dan tidak meminta deposit transaksi.</p></section>
-    <div className="info-actions"><Link className="tactical-button" href="/submit">KIRIM LAPORAN SCAM</Link><Link href="/privasi">Baca kebijakan privasi <span aria-hidden="true">→</span></Link></div>
+    <div className="info-actions"><Link className="tactical-button" href="/submit">KIRIM LAPORAN SCAM</Link><Link href="/privasi">Baca kebijakan privasi <span aria-hidden="true"><ArrowIcon direction="right"/></span></Link></div>
   </main><Footer/></>;
 }

@@ -1,3 +1,4 @@
+import { ArrowIcon } from "../components/ArrowIcon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer, Header } from "../components/SiteChrome";
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 function Policy({ label, title, children, href, tone = "riot" }: { label: string; title: string; children: React.ReactNode; href?: string; tone?: "riot" | "google" | "community" }) {
-  return <aside className={`policy-callout ${tone}`}><div><span>{label}</span><strong>{title}</strong><p>{children}</p></div>{href && <a href={href} target="_blank" rel="noreferrer">BACA SUMBER RESMI <span aria-hidden="true">↗</span></a>}</aside>;
+  return <aside className={`policy-callout ${tone}`}><div><span>{label}</span><strong>{title}</strong><p>{children}</p></div>{href && <a href={href} target="_blank" rel="noreferrer">BACA SUMBER RESMI <span aria-hidden="true"><ArrowIcon/></span></a>}</aside>;
 }
 
 const flow = ["Cek seller dan rekber", "Transfer ke rekber", "Seller kasih data akun", "Cek dan amankan akun", "Minta dana dicairkan"];
@@ -48,9 +49,9 @@ export default function AccountSafetyPage() {
 
     <GuideSection id="sebelum-transfer" number="02" label="SEBELUM TRANSFER" title="CEK SELLER DAN REKBER." description="Jangan transfer sebelum seller, rekber, dan nomor yang dipakai sudah kamu pastikan.">
       <div className="red-flag-list">
-        <article><span>01</span><div><h3>CEK RIWAYAT SELLER</h3><p>Cari nama, nomor, rekening, username, dan nama lain yang pernah dipakai seller di Valrify dan grup Facebook.</p><Link href="/search">CEK DI VALRIFY <span aria-hidden="true">↗</span></Link></div></article>
+        <article><span>01</span><div><h3>CEK RIWAYAT SELLER</h3><p>Cari nama, nomor, rekening, username, dan nama lain yang pernah dipakai seller di Valrify dan grup Facebook.</p><Link href="/search">CEK DI VALRIFY <span aria-hidden="true"><ArrowIcon/></span></Link></div></article>
         <article><span>02</span><div><h3>MINTA BUKTI PEMBELIAN</h3><p>Kalau seller mengaku akun itu hasil beli, minta bukti belinya. Jika katanya dari store, hubungi akun resmi store dan tanyakan apakah akun itu benar pernah dijual di sana.</p></div></article>
-        <article><span>03</span><div><h3>PASTIKAN REKBERNYA ASLI</h3><p>Kalau kamu tidak kenal rekbernya, tanyakan di grup komunitas. Cocokkan nomor dengan nomor resmi rekber. Jangan percaya nomor alternatif yang hanya dikirim seller.</p><Link href="/rekber">PANDUAN MEMILIH REKBER <span aria-hidden="true">↗</span></Link></div></article>
+        <article><span>03</span><div><h3>PASTIKAN REKBERNYA ASLI</h3><p>Kalau kamu tidak kenal rekbernya, tanyakan di grup komunitas. Cocokkan nomor dengan nomor resmi rekber. Jangan percaya nomor alternatif yang hanya dikirim seller.</p><Link href="/rekber">PANDUAN MEMILIH REKBER <span aria-hidden="true"><ArrowIcon/></span></Link></div></article>
         <article><span>04</span><div><h3>TRANSFER KE REKBER</h3><p>Transfer dana ke rekening resmi rekber, bukan ke seller. Setelah dana diterima rekber, seller baru memberikan data akun untuk diperiksa.</p></div></article>
       </div>
     </GuideSection>
@@ -58,8 +59,8 @@ export default function AccountSafetyPage() {
     <GuideSection id="cek-akun" number="03" label="SETELAH MENERIMA AKUN" title="LOGIN DAN PERIKSA." description="Dana masih dipegang rekber. Jangan minta dana dicairkan sebelum semua pemeriksaan selesai.">
       <div className="safety-check-grid">
         <article><span>01</span><h3>CEK DI DALAM GAME</h3><p>Buka <strong>Collection</strong> lalu cocokkan semua skin dengan penjelasan seller. Jangan hanya percaya screenshot atau rekaman.</p><ul><li>Cek apakah nomor Premier sudah verified. Ini hanya untuk akses Premier, bukan bukti akun aman.</li><li>Opsional: cek rank, saldo VP, dan penalti. Sebagian penalti baru terlihat saat mencoba masuk Competitive.</li></ul></article>
-        <article><span>02</span><h3>CEK DI WEB RIOT</h3><p>Masuk ke web resmi Riot untuk melihat region akun. Jangan ganti email atau password dulu sebelum riwayat akun selesai diperiksa.</p><a href="https://account.riotgames.com/" target="_blank" rel="noreferrer">BUKA RIOT ACCOUNT <span aria-hidden="true">↗</span></a></article>
-        <article><span>03</span><h3>BUKA MY TICKETS</h3><p>Buka Riot Support lalu pilih <strong>My Tickets</strong>. Cari tiket pemulihan akun dan cocokkan username di tiket dengan username login akun.</p><a href="https://support-valorant.riotgames.com/hc/en-us/requests" target="_blank" rel="noreferrer">BUKA RIOT TICKETS <span aria-hidden="true">↗</span></a></article>
+        <article><span>02</span><h3>CEK DI WEB RIOT</h3><p>Masuk ke web resmi Riot untuk melihat region akun. Jangan ganti email atau password dulu sebelum riwayat akun selesai diperiksa.</p><a href="https://account.riotgames.com/" target="_blank" rel="noreferrer">BUKA RIOT ACCOUNT <span aria-hidden="true"><ArrowIcon/></span></a></article>
+        <article><span>03</span><h3>BUKA MY TICKETS</h3><p>Buka Riot Support lalu pilih <strong>My Tickets</strong>. Cari tiket pemulihan akun dan cocokkan username di tiket dengan username login akun.</p><a href="https://support-valorant.riotgames.com/hc/en-us/requests" target="_blank" rel="noreferrer">BUKA RIOT TICKETS <span aria-hidden="true"><ArrowIcon/></span></a></article>
       </div>
       <div className="safety-note-grid">
         <Policy label="CATATAN ADMIN VALRIFY" title="Tiket pemulihan adalah tanda untuk lebih berhati-hati." tone="community">Kalau username cocok, tanyakan kapan dan kenapa akun pernah dipulihkan. Pemulihan berulang bisa menjadi tanda riwayat akun bermasalah. Namun, tiket pemulihan tidak otomatis berarti seller akan melakukan hackback.</Policy>
@@ -85,6 +86,6 @@ export default function AccountSafetyPage() {
       <div className="fe-security-check"><div><span>JIKA TAKE FE</span><h3>AMANKAN EMAILNYA.</h3><p>Kalau Google masih meminta verifikasi seller, minta seller membantu selagi dana masih dipegang rekber.</p></div><ol><li>Ganti password email.</li><li>Ganti email pemulihan dan nomor telepon.</li><li>Cek 2FA, passkey, kontak pemulihan, dan aplikasi yang masih terhubung.</li><li>Logout dari perangkat lama.</li><li>Jika perlu, gunakan HOLD sampai data pemulihan lama tidak muncul lagi.</li></ol></div>
     </GuideSection>
 
-    <section className="safety-finish"><p className="eyebrow">// KALAU ADA YANG ANEH</p><h2>JANGAN LANJUT DULU.</h2><p>Kalau cerita seller berubah, nomor rekber berbeda, data akun tidak sesuai, atau kamu ditekan untuk cepat mencairkan dana, berhenti dan cek ulang.</p><Link className="tactical-button" href="/search">CEK DI VALRIFY ↗</Link></section>
+    <section className="safety-finish"><p className="eyebrow">// KALAU ADA YANG ANEH</p><h2>JANGAN LANJUT DULU.</h2><p>Kalau cerita seller berubah, nomor rekber berbeda, data akun tidak sesuai, atau kamu ditekan untuk cepat mencairkan dana, berhenti dan cek ulang.</p><Link className="tactical-button" href="/search">CEK DI VALRIFY <ArrowIcon/></Link></section>
   </main><Footer/></>;
 }

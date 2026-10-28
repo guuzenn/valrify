@@ -1,5 +1,8 @@
 "use client";
 
+import { ArrowIcon } from "../components/ArrowIcon";
+
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -77,14 +80,14 @@ export default function LoginPage() {
       <p>Kalau mau memakai akun lain, keluar dari akun ini dulu.</p>
       <div className="session-actions">
         <button className="button-secondary" type="button" onClick={logout}>KELUAR</button>
-        <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/account"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA HALAMAN ADMIN":"BUKA AKUN SAYA"} ↗</Link>
+        <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/account"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA HALAMAN ADMIN":"BUKA AKUN SAYA"} <ArrowIcon/></Link>
       </div>
     </section>:<form className="auth-card auth-flow-card" onSubmit={login}>
       <p className="panel-index">// MASUK</p><h2>SELAMAT DATANG KEMBALI.</h2>
       <label>Email<input type="email" name="email" required autoComplete="email"/></label>
       <label>Password<input type="password" name="password" required autoComplete="current-password"/></label>
       <Link className="auth-text-link" href="/forgot-password">Lupa password?</Link>
-      <button className="tactical-button">MASUK ↗</button>
+      <button className="tactical-button">MASUK <ArrowIcon/></button>
       <a className="button-secondary google-sign-in" href="/api/auth/google"><img src="/google.svg" width={20} height={20} alt=""/>Lanjutkan dengan Google</a>
       <Link className="auth-text-link" href="/register">Belum punya akun? Daftar</Link>
       <Link className="auth-text-link" href="/verify-email">Belum menerima email verifikasi?</Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowIcon } from "./ArrowIcon";
 import { useEffect, useState } from "react";
 import { browserApiUrl } from "../../lib/browser-api";
 
@@ -48,7 +49,7 @@ export function AdminEvidenceViewer({ evidence, kind = "report" }: { evidence: A
           <span><strong>{item.fileName}</strong><small>{fileSize(item.size)} · BUKA PREVIEW</small></span>
         </button> : <a key={item.id} href={href} target="_blank" rel="noreferrer">
           <span className="admin-file-icon">FILE</span>
-          <span><strong>{item.fileName}</strong><small>{fileSize(item.size)} · BUKA FILE ↗</small></span>
+          <span><strong>{item.fileName}</strong><small>{fileSize(item.size)} · BUKA FILE <ArrowIcon/></small></span>
         </a>;
       })}
     </div>

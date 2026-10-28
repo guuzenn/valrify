@@ -47,7 +47,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         <article><span>01</span><div><strong>COCOKKAN DATA LAIN</strong><p>Cari juga nama pemilik rekening, nomor telepon, atau username lain milik pihak yang sama.</p></div></article>
         <article><span>02</span><div><strong>CEK SEBELUM TRANSFER</strong><p>Ikuti pemeriksaan akun dan identitas sebelum mengirim uang.</p></div></article>
       </div>
-      <div className="search-state-actions"><Link href="/cara-aman" className="tactical-button">BACA CARA AMAN <span aria-hidden="true"><ArrowIcon/></span></Link><Link href="/submit" className="search-secondary-link">LAPORKAN KASUS <span aria-hidden="true">→</span></Link></div>
+      <div className="search-state-actions"><Link href="/cara-aman" className="tactical-button">BACA CARA AMAN <span aria-hidden="true"><ArrowIcon/></span></Link><Link href="/submit" className="search-secondary-link">LAPORKAN KASUS <span aria-hidden="true"><ArrowIcon direction="right"/></span></Link></div>
     </section>}
 
     {state === "found" && <section className="results" aria-live="polite">

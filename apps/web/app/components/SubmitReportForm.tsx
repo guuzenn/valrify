@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowIcon } from "./ArrowIcon";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { browserApi, browserApiUrl } from "../../lib/browser-api";
@@ -237,7 +238,7 @@ export function SubmitReportForm() {
         <label>Screenshot chat / transfer / bukti lain<input type="file" name="evidence" accept="image/png,image/jpeg,image/webp,application/pdf" multiple/></label>
         <p className="field-note">Isi minimal salah satu: link posting atau unggah file. Maks. 5 file, 5 MB per file. Semua file hanya bisa dilihat admin. Gambar baru akan ditampilkan jika aman dibagikan.</p>
       </fieldset>
-      <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : "KIRIM SCAM REPORT ↗"}</button>
+      <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : <>KIRIM SCAM REPORT <ArrowIcon/></>}</button>
     </form>
   </>;
 }

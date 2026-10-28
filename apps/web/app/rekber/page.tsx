@@ -1,3 +1,4 @@
+import { ArrowIcon } from "../components/ArrowIcon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer, Header } from "../components/SiteChrome";
@@ -25,6 +26,6 @@ export default function MiddlemanPage() {
       <li>Jangan lanjutkan jika diminta deposit, jaminan uang yang katanya akan dikembalikan, atau top up tambahan di luar harga dan fee yang disepakati.</li>
       <li>Dana baru dicairkan setelah pembeli selesai memeriksa dan mengamankan akun, lalu memberikan konfirmasi.</li>
     </ul><p>Cari juga nomor atau akun terkait di Valrify. Hasil tanpa laporan berarti belum ada data yang ditemukan, bukan jaminan rekber atau transaksi tersebut aman.</p></section>
-    <div className="info-actions"><Link className="tactical-button" href="/search">CEK DATA DI VALRIFY ↗</Link><Link href="/cara-aman">Baca panduan transaksi <span aria-hidden="true">→</span></Link></div>
+    <div className="info-actions"><Link className="tactical-button" href="/search">CEK DATA DI VALRIFY <ArrowIcon/></Link><Link href="/cara-aman">Baca panduan transaksi <span aria-hidden="true"><ArrowIcon direction="right"/></span></Link></div>
   </main><Footer/></>;
 }

@@ -1,5 +1,8 @@
 "use client";
 
+import { ArrowIcon } from "../../components/ArrowIcon";
+
+
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { browserApi } from "../../../lib/browser-api";
@@ -20,7 +23,7 @@ function Reports({ reports }: { reports: ReportDetail[] }) {
 
 function AuthorRow({ author }: { author: Author }) {
   const role = ({ USER: "PENGGUNA", VERIFIED_MIDDLEMAN: "REKBER TERVERIFIKASI", MODERATOR: "MODERATOR", ADMIN: "ADMIN" } as Record<string, string>)[author.role] ?? author.role;
-  return <div className="community-admin-author"><div className="community-mini-avatar">{author.displayName.slice(0, 1).toUpperCase()}</div><div><strong>{author.displayName}</strong><span>{author.username ? `@${author.username}` : "Tanpa username"} · {role}</span></div>{author.username && <Link href={`/u/${author.username}`} target="_blank">BUKA PROFIL ↗</Link>}</div>;
+  return <div className="community-admin-author"><div className="community-mini-avatar">{author.displayName.slice(0, 1).toUpperCase()}</div><div><strong>{author.displayName}</strong><span>{author.username ? `@${author.username}` : "Tanpa username"} · {role}</span></div>{author.username && <Link href={`/u/${author.username}`} target="_blank">BUKA PROFIL <ArrowIcon/></Link>}</div>;
 }
 
 export default function CommunityModerationPage() {
@@ -45,7 +48,7 @@ export default function CommunityModerationPage() {
   const activeItems = tab === "posts" ? posts ?? [] : comments ?? [];
 
   return <main className="page shell community-admin-page">
-    <div className="community-admin-bar"><Link href="/admin/reports">← PANEL ADMIN</Link><Link href="/community" target="_blank">BUKA COMMUNITY ↗</Link><button type="button" disabled={refreshing} onClick={() => void load()}>{refreshing ? "MEMUAT..." : "MUAT ULANG"}</button></div>
+    <div className="community-admin-bar"><Link href="/admin/reports"><ArrowIcon direction="left"/> PANEL ADMIN</Link><Link href="/community" target="_blank">BUKA COMMUNITY <ArrowIcon/></Link><button type="button" disabled={refreshing} onClick={() => void load()}>{refreshing ? "MEMUAT..." : "MUAT ULANG"}</button></div>
     <section className="community-admin-hero"><div><p className="eyebrow">// LAPORAN COMMUNITY</p><h1>ANTREAN<br/>LAPORAN.</h1><p>Periksa laporan post dan komentar tanpa menampilkan identitas pelapor. Satu keputusan akan menyelesaikan semua laporan pada konten yang sama.</p></div><div><strong>{total}</strong><span>KONTEN PERLU DICEK</span></div></section>
     {error ? <div className="admin-access-error"><span>AKSES TERBATAS</span><h2>ANTREAN TIDAK DAPAT DIBUKA.</h2><p>{error}</p><Link href="/login" className="tactical-button">MASUK SEBAGAI ADMIN</Link></div> : loading ? <div className="admin-loading"><span/><p>MEMUAT LAPORAN COMMUNITY...</p></div> : <>
       <div className="community-admin-tabs"><button type="button" aria-selected={tab === "posts"} onClick={() => setTab("posts")}>POST DILAPORKAN <strong>{posts.length}</strong></button><button type="button" aria-selected={tab === "comments"} onClick={() => setTab("comments")}>KOMENTAR DILAPORKAN <strong>{comments.length}</strong></button></div>

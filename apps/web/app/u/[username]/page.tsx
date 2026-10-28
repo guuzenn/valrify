@@ -1,3 +1,4 @@
+import { ArrowIcon } from "../../components/ArrowIcon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -50,15 +51,15 @@ export default async function PublicProfilePage({ params }: PageProps) {
         {member.reports.map((report) => <article className="public-member-card report" key={report.publicId}>
           <div className="public-member-card-type"><span>SCAM REPORT</span><time>{formatDate(report.publishedAt)}</time></div>
           <h3><Link href={`/case/${report.publicId}`}>{report.title}</Link></h3>
-          <Link className="public-member-entity" href={`/entity/${report.entitySlug}`}><span>PROFIL TERKAIT</span><strong>{report.entityName}</strong><b aria-hidden="true">→</b></Link>
+          <Link className="public-member-entity" href={`/entity/${report.entitySlug}`}><span>PROFIL TERKAIT</span><strong>{report.entityName}</strong><b aria-hidden="true"><ArrowIcon direction="right"/></b></Link>
           <p>{report.publicSummary}</p>
-          <div className="public-member-card-footer"><Link href={`/case/${report.publicId}`}>BACA LAPORAN →</Link></div>
+          <div className="public-member-card-footer"><Link href={`/case/${report.publicId}`}>BACA LAPORAN <ArrowIcon direction="right"/></Link></div>
         </article>)}
         {member.testimonials.map((item) => <article className="public-member-card testimonial" key={item.id}>
           <div className="public-member-card-type"><span>TESTI TRANSAKSI</span><time>{formatDate(item.transactionDate)}</time></div>
           <h3><Link href={`/entity/${item.entitySlug}`}>{item.entityName}</Link></h3>
           <p>{item.note}</p>
-          <div className="public-member-card-footer"><span><small>NOMINAL TRANSAKSI</small><strong>{formatRupiah(item.amount)}</strong></span><Link href={`/entity/${item.entitySlug}`}>BUKA PROFIL →</Link></div>
+          <div className="public-member-card-footer"><span><small>NOMINAL TRANSAKSI</small><strong>{formatRupiah(item.amount)}</strong></span><Link href={`/entity/${item.entitySlug}`}>BUKA PROFIL <ArrowIcon direction="right"/></Link></div>
         </article>)}
       </div>}
     </section>

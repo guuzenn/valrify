@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowIcon } from "./ArrowIcon";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { browserApi, browserApiUrl } from "../../lib/browser-api";
@@ -147,7 +148,7 @@ export function ConfirmationForm({
           </p>
         )}
         <button className="tactical-button" disabled={state.loading}>
-          {state.loading ? "MENGIRIM..." : "KIRIM TESTI ↗"}
+          {state.loading ? "MENGIRIM..." : <>KIRIM TESTI <ArrowIcon/></>}
         </button>
       </form>
     </>

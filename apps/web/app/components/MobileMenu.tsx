@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowIcon } from "./ArrowIcon";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SessionNav } from "./SessionNav";
@@ -35,7 +36,7 @@ export function MobileMenu() {
           <Link href="/cara-aman"><small>02</small> CARA AMANIN</Link>
           <Link href="/rekber"><small>03</small> REKOMENDASI REKBER</Link>
           <SessionNav />
-          <Link href="/submit" className="mobile-menu-report">LAPOR SCAM <span aria-hidden="true">↗</span></Link>
+          <Link href="/submit" className="mobile-menu-report">LAPOR SCAM <span aria-hidden="true"><ArrowIcon/></span></Link>
         </nav>
     </dialog>}
   </div>;

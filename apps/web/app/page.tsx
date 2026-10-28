@@ -74,12 +74,12 @@ export default async function Home() {
         <div className="shell home-threats-inner">
           <div className="home-threats-heading">
             <div><p className="eyebrow">{"// MODUS YANG SERING TERJADI"}</p><h2 id="home-threats-title">JANGAN CUMA<br /><span>CEK AKUNNYA.</span></h2></div>
-            <div><p>Periksa alur pembayaran, identitas rekber, dan riwayat kepemilikan akun sebelum ada uang yang berpindah.</p><Link href="/cara-aman">BUKA PANDUAN LENGKAP <span aria-hidden="true">→</span></Link></div>
+            <div><p>Periksa alur pembayaran, identitas rekber, dan riwayat kepemilikan akun sebelum ada uang yang berpindah.</p><Link href="/cara-aman">BUKA PANDUAN LENGKAP <span aria-hidden="true"><ArrowIcon direction="right"/></span></Link></div>
           </div>
           <div className="home-threats-grid">
             <article><span>01 / PEMBAYARAN</span><h3>JANGAN TRANSFER SEBELUM DATA COCOK.</h3><p>Cari nomor rekening, e-wallet, telepon, dan nama yang diberikan. Perbedaan kecil tetap perlu ditanyakan sebelum lanjut.</p><Link href="/search">CEK DATA <span aria-hidden="true"><ArrowIcon/></span></Link></article>
-            <article><span>02 / REKBER PALSU</span><h3>PASTIKAN KONTAK REKBERNYA ASLI.</h3><p>Waspadai nomor lain, grup tiruan, dan permintaan deposit tambahan. Cari nomor resmi rekber sendiri, jangan hanya percaya kontak yang dikirim seller.</p><Link href="/cara-aman#sebelum-transfer">BACA CHECKLIST <span aria-hidden="true">→</span></Link></article>
-            <article><span>03 / HACKBACK</span><h3>RIWAYAT AKUN TETAP PENTING.</h3><p>Email dan password terbaru belum membuktikan kepemilikan asli. Periksa riwayat recovery, FE, serta bukti asal akun sebelum dana dicairkan.</p><Link href="/cara-aman#cek-akun">CARA PERIKSA <span aria-hidden="true">→</span></Link></article>
+            <article><span>02 / REKBER PALSU</span><h3>PASTIKAN KONTAK REKBERNYA ASLI.</h3><p>Waspadai nomor lain, grup tiruan, dan permintaan deposit tambahan. Cari nomor resmi rekber sendiri, jangan hanya percaya kontak yang dikirim seller.</p><Link href="/cara-aman">BACA CHECKLIST <span aria-hidden="true"><ArrowIcon direction="right"/></span></Link></article>
+            <article><span>03 / HACKBACK</span><h3>RIWAYAT AKUN TETAP PENTING.</h3><p>Email dan password terbaru belum membuktikan kepemilikan asli. Periksa riwayat recovery, FE, serta bukti asal akun sebelum dana dicairkan.</p><Link href="/cara-aman">CARA PERIKSA <span aria-hidden="true"><ArrowIcon direction="right"/></span></Link></article>
           </div>
           <aside className="home-threats-alert"><strong>SUDAH TERLANJUR KENA?</strong><p>Simpan chat, bukti transfer, link profil, dan kronologi. Kirim scam report agar admin dapat memeriksa keterkaitan datanya.</p><Link href="/submit">LAPOR SCAM <span aria-hidden="true"><ArrowIcon/></span></Link></aside>
         </div>
