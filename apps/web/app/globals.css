@@ -521,3 +521,6 @@ body:has(.admin-chrome){
   .community-post-card .community-post-actions button,.community-comment-actions>button,.community-comment-delete-confirm button,.community-comment-form>footer>button,.notifications-summary>button,.admin-commandbar button{min-width:44px;min-height:44px;font-size:12px}
   .community-post-actions{flex-wrap:wrap}
 }
+
+.search-form-error{grid-column:1/-1;border-left:3px solid var(--red);background:#51202b;color:#fff;padding:12px 14px;margin:10px 0 0;font-size:13px;line-height:1.5}
+.hero-search input[aria-invalid='true']{border-color:var(--red);box-shadow:inset 4px 0 0 var(--red)}

@@ -1,3 +1,5 @@
+import { ArrowIcon } from "./components/ArrowIcon";
+import { SearchForm } from "./components/SearchForm";
 import Link from "next/link";
 import { formatIndonesianDate, labelIdentifierType } from "@valrify/domain";
 import { MobileMenu } from "./components/MobileMenu";
@@ -31,13 +33,13 @@ export default async function Home() {
         </div>
         <div className="search-panel" id="cek">
           <p className="panel-index">01 / CARI NOMOR ATAU AKUN</p>
-          <form action="/search" className="hero-search">
+          <SearchForm className="hero-search">
             <label htmlFor="q">MASUKKAN DATA YANG MAU DICEK</label>
             <div className="search-row">
               <input id="q" name="q" required autoComplete="off" placeholder="Nomor, rekening, Discord, Facebook, username Riot..." />
-              <button type="submit">CEK SEKARANG <span aria-hidden="true">↗</span></button>
+              <button type="submit">CEK SEKARANG <span aria-hidden="true"><ArrowIcon/></span></button>
             </div>
-          </form>
+          </SearchForm>
           <p className="privacy-note"><span aria-hidden="true">◆</span> Nomor dan akun dari laporan yang sudah dicek admin ditampilkan lengkap supaya mudah kamu cocokkan.</p>
         </div>
       </section>
@@ -59,11 +61,11 @@ export default async function Home() {
           {recentCases.map((report) => <article className="recent-card" data-role={report.uploadedBy.role} key={report.publicId}>
             <div className="recent-card-meta"><span>{report.publicId}</span><time dateTime={report.transactionDate ?? undefined}>KEJADIAN · {formatIndonesianDate(report.transactionDate)}</time></div>
             <h3><Link href={`/case/${report.publicId}`}>{report.title}</Link></h3>
-            <Link className="recent-entity-link" href={`/entity/${report.slug}`}><span>NAMA SELLER</span><strong>{report.entityName}</strong><b aria-hidden="true">↗</b></Link>
+            <Link className="recent-entity-link" href={`/entity/${report.slug}`}><span>NAMA SELLER</span><strong>{report.entityName}</strong><b aria-hidden="true"><ArrowIcon/></b></Link>
             {report.primaryIdentifier && <div className="recent-identifier"><span>{labelIdentifierType(report.primaryIdentifier.type)}</span><strong>{report.primaryIdentifier.displayValue}</strong></div>}
             <p>{report.publicSummary}</p>
             <div className="uploader-inline" data-role={report.uploadedBy.role}><span className="uploader-copy"><span>DIKIRIM OLEH</span><strong>{report.uploadedBy.displayName}</strong></span><em>{report.uploadedBy.roleLabel}</em></div>
-            <div className="recent-card-footer"><span><small>TANGGAL KEJADIAN</small><strong>{formatIndonesianDate(report.transactionDate)}</strong></span><Link href={`/case/${report.publicId}`}>BACA LAPORAN <span aria-hidden="true">↗</span></Link></div>
+            <div className="recent-card-footer"><span><small>TANGGAL KEJADIAN</small><strong>{formatIndonesianDate(report.transactionDate)}</strong></span><Link href={`/case/${report.publicId}`}>BACA LAPORAN <span aria-hidden="true"><ArrowIcon/></span></Link></div>
           </article>)}
         </div>}
       </section>
@@ -75,11 +77,11 @@ export default async function Home() {
             <div><p>Periksa alur pembayaran, identitas rekber, dan riwayat kepemilikan akun sebelum ada uang yang berpindah.</p><Link href="/cara-aman">BUKA PANDUAN LENGKAP <span aria-hidden="true">→</span></Link></div>
           </div>
           <div className="home-threats-grid">
-            <article><span>01 / PEMBAYARAN</span><h3>JANGAN TRANSFER SEBELUM DATA COCOK.</h3><p>Cari nomor rekening, e-wallet, telepon, dan nama yang diberikan. Perbedaan kecil tetap perlu ditanyakan sebelum lanjut.</p><Link href="/search">CEK DATA <span aria-hidden="true">↗</span></Link></article>
+            <article><span>01 / PEMBAYARAN</span><h3>JANGAN TRANSFER SEBELUM DATA COCOK.</h3><p>Cari nomor rekening, e-wallet, telepon, dan nama yang diberikan. Perbedaan kecil tetap perlu ditanyakan sebelum lanjut.</p><Link href="/search">CEK DATA <span aria-hidden="true"><ArrowIcon/></span></Link></article>
             <article><span>02 / REKBER PALSU</span><h3>PASTIKAN KONTAK REKBERNYA ASLI.</h3><p>Waspadai nomor lain, grup tiruan, dan permintaan deposit tambahan. Cari nomor resmi rekber sendiri, jangan hanya percaya kontak yang dikirim seller.</p><Link href="/cara-aman#sebelum-transfer">BACA CHECKLIST <span aria-hidden="true">→</span></Link></article>
             <article><span>03 / HACKBACK</span><h3>RIWAYAT AKUN TETAP PENTING.</h3><p>Email dan password terbaru belum membuktikan kepemilikan asli. Periksa riwayat recovery, FE, serta bukti asal akun sebelum dana dicairkan.</p><Link href="/cara-aman#cek-akun">CARA PERIKSA <span aria-hidden="true">→</span></Link></article>
           </div>
-          <aside className="home-threats-alert"><strong>SUDAH TERLANJUR KENA?</strong><p>Simpan chat, bukti transfer, link profil, dan kronologi. Kirim scam report agar admin dapat memeriksa keterkaitan datanya.</p><Link href="/submit">LAPOR SCAM <span aria-hidden="true">↗</span></Link></aside>
+          <aside className="home-threats-alert"><strong>SUDAH TERLANJUR KENA?</strong><p>Simpan chat, bukti transfer, link profil, dan kronologi. Kirim scam report agar admin dapat memeriksa keterkaitan datanya.</p><Link href="/submit">LAPOR SCAM <span aria-hidden="true"><ArrowIcon/></span></Link></aside>
         </div>
       </section>
 

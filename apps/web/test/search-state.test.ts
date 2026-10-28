@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getSearchViewState, parseSearchQuery, SEARCH_QUERY_MAX_LENGTH } from "../app/search/search-state.js";
+import { getSearchSubmitError, getSearchViewState, parseSearchQuery, SEARCH_QUERY_MAX_LENGTH } from "../app/search/search-state.js";
+
+test("search submission uses Indonesian errors and rejects whitespace-only input", () => {
+  assert.equal(getSearchSubmitError("   "), "Masukkan nama, nomor, atau akun yang ingin dicek.");
+  assert.match(getSearchSubmitError(" a "), /minimal dua karakter/);
+  assert.match(getSearchSubmitError("x".repeat(81)), /maksimal 80 karakter/);
+  assert.equal(getSearchSubmitError("  ArkaNusa  "), "");
+});
 
 test("search stays idle before a query is submitted", () => {
   const search = parseSearchQuery("   ");

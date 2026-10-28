@@ -26,3 +26,9 @@ export function getSearchViewState(search: SearchQuery, resultCount: number): Se
   if (search.kind !== "valid") return search.kind;
   return resultCount > 0 ? "found" : "empty";
 }
+
+export function getSearchSubmitError(rawQuery: string): string {
+  const search = parseSearchQuery(rawQuery);
+  if (search.kind === "idle") return "Masukkan nama, nomor, atau akun yang ingin dicek.";
+  return search.kind === "invalid" ? search.message : "";
+}
