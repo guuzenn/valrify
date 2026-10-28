@@ -1,5 +1,7 @@
 "use client";
 
+import { Select } from "./Select";
+
 import { ArrowIcon } from "./ArrowIcon";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -212,7 +214,7 @@ export function SubmitReportForm() {
           <div className="identifier-builder-heading"><div><strong>DATA YANG KAMU PUNYA</strong><p>Tambahkan semua nomor, rekening, atau akun yang dipakai orang ini. Kalau ada yang sudah dikenal Valrify, laporan akan masuk ke profil yang sama.</p></div><span>{submittedIdentifierCount}/8</span></div>
           {identifierRows.map((row, index) => <div className="identifier-entry" key={row.id}>
             <div className="form-grid">
-              <label>Jenis data<select value={row.type} onChange={(event) => updateIdentifier(row.id, { type: event.target.value, provider: "", relatedName: "", secondaryValue: "" })}>{types.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+              <label>Jenis data<Select label="Jenis data" value={row.type} onValueChange={value => updateIdentifier(row.id, { type: value, provider: "", relatedName: "", secondaryValue: "" })}>{types.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select></label>
               <label>{mainFieldLabel(row.type)}<input value={row.value} inputMode={["BANK_ACCOUNT", "EWALLET", "PHONE"].includes(row.type) ? "numeric" : undefined} onChange={(event) => updateIdentifier(row.id, { value: event.target.value })} required minLength={2} maxLength={160}/></label>
             </div>
             {(row.type === "BANK_ACCOUNT" || row.type === "EWALLET") && <div className="form-grid composite-fields">
