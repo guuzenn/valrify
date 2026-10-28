@@ -25,6 +25,7 @@ export function getRisk(publishedReports:number){if(publishedReports>=2)return{l
 const transitions:Record<ReportStatus,ReportStatus[]>={SUBMITTED:["UNDER_REVIEW","REJECTED","WITHDRAWN"],UNDER_REVIEW:["NEEDS_INFO","VERIFIED","REJECTED"],NEEDS_INFO:["UNDER_REVIEW","REJECTED","WITHDRAWN"],VERIFIED:["PUBLISHED","REJECTED"],REJECTED:[],WITHDRAWN:[],PUBLISHED:["WITHDRAWN"]};
 export const canTransition=(from:ReportStatus,to:ReportStatus)=>transitions[from].includes(to);
 export const canModerate=(role:Role)=>role==="MODERATOR"||role==="ADMIN";
+export const canReviewReport=(role:Role,isOwn:boolean)=>role==="ADMIN"||(role==="MODERATOR"&&!isOwn)||(role==="VERIFIED_MIDDLEMAN"&&isOwn);
 export const canManageRoles=(role:Role)=>role==="ADMIN";
 export function publicUploaderAttribution(displayName:string,role:Role){if(role==="ADMIN")return{displayName,role,roleLabel:"Admin",isTrustedRole:true};if(role==="MODERATOR")return{displayName,role,roleLabel:"Moderator",isTrustedRole:true};if(role==="VERIFIED_MIDDLEMAN")return{displayName,role,roleLabel:"Verified Middleman",isTrustedRole:true};return{displayName:"Anggota komunitas",role:"USER" as const,roleLabel:"Community",isTrustedRole:false};}
 export const formatRupiah=(value:number)=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(value);

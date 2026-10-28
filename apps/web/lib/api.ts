@@ -14,6 +14,8 @@ export const searchPublic=(query:string)=>api<SearchResult[]>(`/search?q=${encod
 export const getEntity=(slug:string)=>api<EntityResult>(`/entities/${encodeURIComponent(slug)}`);
 export const getPublicCase=(publicId:string)=>api<CaseResult>(`/reports/public/${encodeURIComponent(publicId)}`);
 export const getRecentCases=()=>api<RecentCase[]>("/reports/recent").then((value)=>value??[]);
+export type DirectoryMiddleman = { id: number; displayName: string; description: string; profileUrl: string; contactUrl: string; feeInfo: string; isSponsored: boolean };
+export const getMiddlemen=()=>api<DirectoryMiddleman[]>("/middlemen");
 export const getPublicMember=(username:string)=>api<PublicMember>(`/community/users/${encodeURIComponent(username)}`);
 export const getCommunityPosts=(sort:"latest"|"popular"="latest")=>api<CommunityPost[]>(`/community/posts?sort=${sort}`).then((value)=>value??[]);
 export const getCommunityPost=(postId:number)=>api<CommunityPost>(`/community/posts/${postId}`);

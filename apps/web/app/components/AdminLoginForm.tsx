@@ -21,13 +21,13 @@ export function AdminLoginForm({ entry }: { entry: string }) {
 
   useEffect(() => {
     browserApi<{ user: { role: string } }>("/auth/me").then(({ user }) => {
-      if (user.role === "ADMIN" || user.role === "MODERATOR") router.replace("/admin/reports");
+      if (user.role === "ADMIN" || user.role === "MODERATOR") router.replace("/admin");
     }).catch(() => {});
   }, [router]);
 
   function enterPanel() {
     notifyAuthSessionChanged();
-    router.replace("/admin/reports");
+    router.replace("/admin");
     router.refresh();
   }
 

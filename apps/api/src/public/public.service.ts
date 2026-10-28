@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, count, desc, eq, ilike, inArray, isNotNull, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNotNull, or, sql } from "drizzle-orm";
 import {
   publicIdentifierValue,
   publicUploaderAttribution,
@@ -10,6 +10,7 @@ import {
 import { DatabaseService } from "../database/database.service";
 import {
   entities,
+  middlemanDirectory,
   communityCommentLikes,
   communityComments,
   communityPostLikes,
@@ -41,6 +42,9 @@ const aliasTypes = new Set(["PERSON_NAME", "BANK_ACCOUNT_NAME", "EWALLET_ACCOUNT
 
 @Injectable()
 export class PublicService {
+  middlemen() {
+    return this.database.db.select({ id: middlemanDirectory.id, displayName: middlemanDirectory.displayName, description: middlemanDirectory.description, profileUrl: middlemanDirectory.profileUrl, contactUrl: middlemanDirectory.contactUrl, feeInfo: middlemanDirectory.feeInfo, isSponsored: middlemanDirectory.isSponsored }).from(middlemanDirectory).where(eq(middlemanDirectory.isPublished, true)).orderBy(asc(middlemanDirectory.sortOrder), asc(middlemanDirectory.id));
+  }
   constructor(
     private readonly database: DatabaseService,
     private readonly storage: EvidenceStorage,

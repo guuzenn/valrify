@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canModerate, canTransition } from "@valrify/domain";
+import { canModerate, canReviewReport, canTransition } from "@valrify/domain";
 import {
   confirmationSchema,
   emailRequestSchema,
@@ -20,6 +20,13 @@ import {
   R2StorageConfig,
   readR2StorageConfig,
 } from "../src/storage/r2-evidence-storage.service";
+
+test("report moderation scopes middlemen to their own reports and moderators to other reports", () => {
+  for (const role of ["ADMIN", "MODERATOR", "USER", "VERIFIED_MIDDLEMAN"] as const) {
+    assert.equal(canReviewReport(role, true), role === "ADMIN" || role === "VERIFIED_MIDDLEMAN");
+    assert.equal(canReviewReport(role, false), role === "ADMIN" || role === "MODERATOR");
+  }
+});
 
 test("moderation roles and publish lifecycle", () => {
   assert.equal(canModerate("USER"), false);

@@ -80,7 +80,7 @@ export class AdminController {
   @Get("evidence/:id")
   async evidence(@Param("id") id: string, @Res() response: Response) {
     const result = await this.admin.evidence(Number(id));
-    this.sendPrivateEvidence(response, result);
+    sendPrivateEvidence(response, result);
   }
 
   @Get("transaction-confirmation-evidence/:id")
@@ -89,21 +89,21 @@ export class AdminController {
     @Res() response: Response,
   ) {
     const result = await this.admin.confirmationEvidence(Number(id));
-    this.sendPrivateEvidence(response, result);
+    sendPrivateEvidence(response, result);
   }
+}
 
-  private sendPrivateEvidence(
-    response: Response,
-    result: { meta: { mimeType: string; fileName: string }; bytes: Buffer },
-  ) {
-    response.setHeader("content-type", result.meta.mimeType);
-    response.setHeader(
-      "content-disposition",
-      result.meta.mimeType === "application/pdf" ? 'attachment; filename="evidence.pdf"' : 'inline; filename="evidence"',
-    );
-    response.setHeader("cache-control", "private, no-store");
-    response.setHeader("content-security-policy", "sandbox; default-src 'none'");
-    response.setHeader("x-content-type-options", "nosniff");
-    response.send(result.bytes);
-  }
+export function sendPrivateEvidence(
+  response: Response,
+  result: { meta: { mimeType: string; fileName: string }; bytes: Buffer },
+) {
+  response.setHeader("content-type", result.meta.mimeType);
+  response.setHeader(
+    "content-disposition",
+    result.meta.mimeType === "application/pdf" ? 'attachment; filename="evidence.pdf"' : 'inline; filename="evidence"',
+  );
+  response.setHeader("cache-control", "private, no-store");
+  response.setHeader("content-security-policy", "sandbox; default-src 'none'");
+  response.setHeader("x-content-type-options", "nosniff");
+  response.send(result.bytes);
 }

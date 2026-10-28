@@ -21,5 +21,5 @@ export function SessionNav() {
     };
   }, []);
   const isAdmin=user?.role==="ADMIN"||user?.role==="MODERATOR";
-  return <>{isAdmin&&<Link href="/admin/reports">ADMIN</Link>}<Link href={user?"/account":"/login"} className={user?"nav-session active":"nav-session"}>{user?"AKUN":"MASUK"}</Link></>;
+  return <>{isAdmin&&<Link href="/admin">ADMIN</Link>}<Link href={user?"/account":"/login"} className={user?"nav-session active":"nav-session"}>{user?"AKUN":"MASUK"}</Link></>;
 }

@@ -1,6 +1,19 @@
 import { sql } from "drizzle-orm";
 import { index, integer, bigint, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, boolean, type AnyPgColumn } from "drizzle-orm/pg-core";
 export const roleEnum=pgEnum("user_role",["USER","VERIFIED_MIDDLEMAN","MODERATOR","ADMIN"]);
+export const middlemanDirectory=pgTable("middleman_directory",{
+  id:serial("id").primaryKey(),
+  displayName:text("display_name").notNull(),
+  description:text("description").notNull(),
+  profileUrl:text("profile_url").notNull(),
+  contactUrl:text("contact_url").notNull(),
+  feeInfo:text("fee_info").notNull().default(""),
+  sortOrder:integer("sort_order").notNull().default(0),
+  isPublished:boolean("is_published").notNull().default(false),
+  isSponsored:boolean("is_sponsored").notNull().default(false),
+  createdAt:timestamp("created_at",{withTimezone:true}).notNull().defaultNow(),
+  updatedAt:timestamp("updated_at",{withTimezone:true}).notNull().defaultNow(),
+},t=>[index("middleman_directory_public_order_idx").on(t.isPublished,t.sortOrder,t.id)]);
 export const authSessions = pgTable("auth_sessions", { id: text("id").primaryKey(), userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }), createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(), expiresAt: timestamp("expires_at", { withTimezone: true }).notNull() }, (t) => [index("auth_sessions_user_idx").on(t.userId), index("auth_sessions_expiry_idx").on(t.expiresAt)]);
 export const adminMfa = pgTable("admin_mfa", {
   userId: text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),

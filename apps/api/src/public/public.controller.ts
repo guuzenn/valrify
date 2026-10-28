@@ -16,6 +16,9 @@ import { PublicService } from "./public.service";
 export class PublicController {
   constructor(private readonly service: PublicService) {}
 
+  @Get("middlemen")
+  middlemen() { return this.service.middlemen(); }
+
   @Get("search")
   @Throttle({ default: RATE_LIMITS.search })
   search(@Query("q") query = "") {

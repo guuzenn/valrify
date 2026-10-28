@@ -114,7 +114,7 @@ Pada deployment yang masih memblokir admin di Nginx, pertahankan blokir hingga A
 | Admin | `admin@valrify.local` | `DemoPass!2026` |
 | Pengguna | `tester@valrify.local` | `DemoPass!2026` |
 
-Gunakan akun pengguna untuk mengirim laporan atau testi, kemudian gunakan akun admin untuk mencoba alur pemeriksaan. Contoh kata kunci pencarian tersedia melalui data seed, seperti `ArkaNusa Demo`, `arkanusa.demo`, dan `ArkaDemo#VALRIFY`.
+Gunakan akun pengguna untuk mencoba alur antrean moderasi. ADMIN boleh menerbitkan laporan sendiri dari panel; VERIFIED_MIDDLEMAN hanya dapat mengelola kirimannya sendiri melalui Akun Saya ? Kelola Laporan Saya. Contoh kata kunci pencarian tersedia melalui data seed, seperti `ArkaNusa Demo`, `arkanusa.demo`, dan `ArkaDemo#VALRIFY`.
 
 ## Perintah pengembangan
 
@@ -137,15 +137,35 @@ Backup lokal disimpan di `.data/backups/` dan tidak masuk Git. Jalankan `pnpm db
 
 Perintah ini khusus database development pada Docker Compose lokal, tidak membaca `DATABASE_URL` production. Backup hanya mencakup database dan metadata bukti; file evidence lokal/R2 perlu backup terpisah. Salinan di disk yang sama belum melindungi dari kerusakan perangkat.
 
+### Dashboard admin
+
+Login admin/MFA sekarang membuka `/admin` dengan sidebar dan ringkasan operasional. Menu yang tersedia:
+
+| Halaman | Fungsi | Akses |
+| --- | --- | --- |
+| `/admin` | Ringkasan laporan, pengguna, Community, dan direktori | ADMIN, MODERATOR |
+| `/admin/users` | Pencarian, filter role, detail kontribusi, perubahan role | ADMIN |
+| `/admin/reports` | Antrean pemeriksaan dan laporan publik | ADMIN, MODERATOR |
+| `/admin/community` | Moderasi post dan komentar | ADMIN, MODERATOR |
+| `/admin/directory` | Draft, publikasi, urutan, kontak, dan label sponsor rekber | ADMIN |
+| `/admin/activity` | Audit perubahan role, direktori, dan keputusan moderasi | ADMIN |
+| `/admin/security` | Informasi MFA dan pengelolaan sesi akun sendiri | ADMIN, MODERATOR |
+
+Perubahan role memerlukan alasan dan konfirmasi. Email harus terverifikasi untuk mendapat role selain USER; ADMIN/MODERATOR juga harus sudah memasang password agar dapat login melalui password dan MFA. Berikan tautan login admin secara privat kepada operator baru. Seluruh sesi dan challenge login pengguna yang rolenya diubah dicabut. Akun yang sedang dipakai tidak dapat mengubah rolenya sendiri; role admin terakhir dilindungi dengan penguncian transaksi. Password, secret MFA, dan recovery code tidak ditampilkan pada daftar pengguna.
+
+Direktori rekber memakai tabel `middleman_directory` (migration `0017`). Profil baru disimpan sebagai draft kecuali admin memilih untuk menampilkannya. Sponsor diberi label pada halaman publik; penempatan direktori tidak mengubah role akun atau memberikan hak publikasi laporan. Mengubah profil tampil menjadi draft menyembunyikannya dari publik. Riwayat perubahan tetap tersimpan dalam `moderation_actions`.
+
+Tes integrasi pengelolaan admin membuat database lokal disposable untuk memeriksa kasus admin terakhir dan perubahan role bersamaan. Role PostgreSQL pengujian membutuhkan izin `CREATEDB`; konfigurasi Docker development dan CI sudah mendukungnya. Database fixture dihapus setelah tes.
+
 ### Mengoreksi laporan sebelum publikasi
 
 Di antrean `/admin/reports`, buka detail lalu pilih **UBAH DATA LAPORAN**. Moderator/admin dapat mengoreksi kategori, kronologi privat, tanggal kejadian, link bukti, serta nama dan nomor/akun setiap pihak yang dilaporkan. Gunakan **TAMBAH PIHAK TERPISAH** untuk pengarah dan rekber yang berbeda; satu laporan mendukung empat pihak dengan total delapan identifier. Pihak pertama menjadi profil utama dan dapat diganti lewat **JADIKAN UTAMA**. Setiap pihak memiliki profil terpisah yang terhubung melalui halaman kasus setelah publikasi.
 
-Alasan koreksi wajib diisi. Data sebelum/sesudah perubahan tersimpan dalam audit privat. Simpan atau batalkan koreksi sebelum moderasi; sesi admin dengan data lama wajib memuat ulang. Admin tidak dapat mengoreksi kirimannya sendiri, dan fitur ini hanya berlaku sebelum laporan dipublikasikan. File bukti privat tetap dipertahankan; approval bukti publik tetap merupakan langkah terpisah.
+Alasan koreksi wajib diisi. Data sebelum/sesudah perubahan tersimpan dalam audit privat. Simpan atau batalkan koreksi sebelum moderasi; sesi admin dengan data lama wajib memuat ulang. ADMIN boleh mengoreksi kirimannya sendiri; MODERATOR hanya kiriman akun lain. Rekber terverifikasi dapat mengoreksi dan menerbitkan kirimannya sendiri melalui `/account/reports`, tanpa akses panel admin. Koreksi hanya berlaku sebelum laporan dipublikasikan. File bukti privat tetap dipertahankan; approval bukti publik tetap merupakan langkah terpisah.
 
 ### Menarik laporan publik
 
-Di `/admin/reports`, buka tab **SUDAH TAMPIL**, pilih laporan, lalu **TARIK LAPORAN**. Alasan minimal 10 karakter dan konfirmasi kedua wajib diisi. Moderator/admin tidak dapat menarik kirimannya sendiri. Laporan berubah menjadi `WITHDRAWN`; halaman kasus dan bukti publik tidak dapat dibuka, identifier tanpa dukungan laporan published lain disembunyikan, dan hitungan laporan diperbarui. Data sumber, bukti privat, serta alasan penarikan tetap tersimpan untuk audit. Pelapor dapat melihat alasan di Akun Saya. Panel belum menyediakan pembatalan penarikan atau publikasi ulang.
+Di `/admin/reports`, buka tab **SUDAH TAMPIL**, pilih laporan, lalu **TARIK LAPORAN**. Alasan minimal 10 karakter dan konfirmasi kedua wajib diisi. ADMIN boleh menarik kirimannya sendiri; MODERATOR hanya kiriman akun lain. Rekber terverifikasi dapat menarik kirimannya sendiri dari Kelola Laporan Saya. Laporan berubah menjadi `WITHDRAWN`; halaman kasus dan bukti publik tidak dapat dibuka, identifier tanpa dukungan laporan published lain disembunyikan, dan hitungan laporan diperbarui. Data sumber, bukti privat, serta alasan penarikan tetap tersimpan untuk audit. Pelapor dapat melihat alasan di Akun Saya. Panel belum menyediakan pembatalan penarikan atau publikasi ulang.
 
 ## Struktur repositori
 

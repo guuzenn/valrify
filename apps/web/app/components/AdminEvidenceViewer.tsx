@@ -18,9 +18,8 @@ function fileSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function AdminEvidenceViewer({ evidence, kind = "report" }: { evidence: AdminEvidence[]; kind?: "report" | "confirmation" }) {
+export function AdminEvidenceViewer({ evidence, kind = "report", basePath = kind === "report" ? "/admin/evidence" : "/admin/transaction-confirmation-evidence" }: { evidence: AdminEvidence[]; kind?: "report" | "confirmation"; basePath?: string }) {
   const [selected, setSelected] = useState<AdminEvidence | null>(null);
-  const basePath = kind === "report" ? "/admin/evidence" : "/admin/transaction-confirmation-evidence";
 
   useEffect(() => {
     if (!selected) return;
@@ -55,10 +54,10 @@ export function AdminEvidenceViewer({ evidence, kind = "report" }: { evidence: A
     </div>
     {selected && <div className="admin-evidence-modal" role="dialog" aria-modal="true" aria-label={`Pratinjau ${selected.fileName}`} onClick={() => setSelected(null)}>
       <div className="admin-evidence-modal-card" onClick={(event) => event.stopPropagation()}>
-        <div><span>// BUKTI UNTUK ADMIN</span><strong>{selected.fileName}</strong><button type="button" aria-label="Tutup pratinjau" onClick={() => setSelected(null)}>×</button></div>
+        <div><span>// BUKTI PRIVAT</span><strong>{selected.fileName}</strong><button type="button" aria-label="Tutup pratinjau" onClick={() => setSelected(null)}>×</button></div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={`${browserApiUrl}${basePath}/${selected.id}`} alt={`Bukti ${selected.fileName}`} />
-        <small>Hanya untuk pemeriksaan admin. Jangan bagikan sebelum memastikan tidak ada data pribadi di dalamnya.</small>
+        <small>Jangan bagikan sebelum memastikan tidak ada data pribadi di dalamnya.</small>
       </div>
     </div>}
   </>;

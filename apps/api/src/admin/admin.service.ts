@@ -1,11 +1,12 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { and, asc, desc, eq, gte, inArray, ne, sql } from "drizzle-orm";
-import { normalizeIdentifier, titleReportCategory, type ReportStatus } from "@valrify/domain";
+import { canReviewReport, normalizeIdentifier, titleReportCategory, type ReportStatus } from "@valrify/domain";
 import type {
   CommunityPostReviewInput,
   ReviewInput,
@@ -87,6 +88,7 @@ export class AdminService {
           .from(moderationActions)
           .innerJoin(users, eq(users.id, moderationActions.actorId))
           .leftJoin(reports, eq(reports.id, moderationActions.reportId))
+          .where(sql`${moderationActions.action} not in ('USER_ROLE_CHANGED', 'DIRECTORY_CREATED', 'DIRECTORY_UPDATED')`)
           .orderBy(desc(moderationActions.createdAt))
           .limit(8),
       ]);
@@ -99,7 +101,7 @@ export class AdminService {
     };
   }
 
-  async queue(status: "PENDING" | "PUBLISHED" = "PENDING") {
+  async queue(status: "PENDING" | "PUBLISHED" = "PENDING", reporterId?: string) {
     const rows = await this.database.db
       .select({
         id: reports.id,
@@ -119,14 +121,15 @@ export class AdminService {
       .from(reports)
       .innerJoin(users, eq(users.id, reports.reporterId))
       .leftJoin(entities, eq(entities.id, reports.entityId))
-      .where(
+      .where(and(
+        reporterId ? eq(reports.reporterId, reporterId) : undefined,
         status === "PUBLISHED" ? eq(reports.status, "PUBLISHED") : inArray(reports.status, [
           "SUBMITTED",
           "UNDER_REVIEW",
           "NEEDS_INFO",
           "VERIFIED",
         ]),
-      )
+      ))
       .orderBy(asc(reports.createdAt));
 
     return Promise.all(
@@ -282,7 +285,8 @@ export class AdminService {
     return this.database.db.transaction(async tx => {
       const [report] = await tx.select().from(reports).where(eq(reports.id, reportId)).for("update");
       if (!report) throw new NotFoundException("Laporan tidak ditemukan.");
-      if (report.reporterId === actorId) throw new BadRequestException("Admin tidak dapat mengubah laporan yang dikirim sendiri.");
+      const actor = await tx.query.users.findFirst({ where: eq(users.id, actorId), columns: { role: true } });
+      if (!actor || !canReviewReport(actor.role, report.reporterId === actorId)) throw new ForbiddenException("Akses koreksi ditolak. Rekber terverifikasi hanya boleh mengoreksi kirimannya sendiri; moderator hanya boleh mengoreksi kiriman pengguna lain.");
       if (!["SUBMITTED", "UNDER_REVIEW", "NEEDS_INFO", "VERIFIED"].includes(report.status)) throw new BadRequestException("Hanya laporan yang belum dipublikasikan dapat diedit.");
       if (report.updatedAt.getTime() !== new Date(input.updatedAt).getTime()) throw new ConflictException("Laporan sudah berubah. Muat ulang sebelum menyimpan.");
       const previousParties = await tx.select().from(reportParties).where(eq(reportParties.reportId, reportId));
@@ -315,11 +319,8 @@ export class AdminService {
     });
     if (!report) throw new NotFoundException("Laporan tidak ditemukan.");
     if (input.updatedAt && new Date(input.updatedAt).getTime() !== report.updatedAt.getTime()) throw new ConflictException("Laporan sudah diubah. Muat ulang sebelum memeriksa kembali.");
-    if (report.reporterId === actorId) {
-      throw new BadRequestException(
-        "Admin tidak dapat memeriksa laporan yang dikirim sendiri. Gunakan akun tester untuk mengirim.",
-      );
-    }
+    const actor = await this.database.db.query.users.findFirst({ where: eq(users.id, actorId), columns: { role: true } });
+    if (!actor || !canReviewReport(actor.role, report.reporterId === actorId)) throw new ForbiddenException("Akses pemeriksaan ditolak. Rekber terverifikasi hanya boleh memeriksa kirimannya sendiri; moderator tidak boleh memeriksa laporan yang dikirim sendiri.");
     if (input.decision === "WITHDRAW" ? report.status !== "PUBLISHED" : !["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(report.status)) {
       throw new BadRequestException("Status laporan tidak dapat diubah.");
     }
@@ -442,11 +443,17 @@ export class AdminService {
     return { ok: true };
   }
 
-  async evidence(id: number) {
+  async assertReportOwner(reportId: number, actorId: string) {
+    const report = await this.database.db.query.reports.findFirst({ where: and(eq(reports.id, reportId), eq(reports.reporterId, actorId)), columns: { id: true } });
+    if (!report) throw new NotFoundException("Laporan tidak ditemukan.");
+  }
+
+  async evidence(id: number, reporterId?: string) {
     const meta = await this.database.db.query.reportEvidence.findFirst({
       where: eq(reportEvidence.id, id),
     });
     if (!meta) throw new NotFoundException("Bukti tidak ditemukan.");
+    if (reporterId) await this.assertReportOwner(meta.reportId, reporterId);
     return { meta, bytes: await this.storage.get(meta.storageKey) };
   }
 

@@ -1,85 +1,45 @@
 "use client";
 
-import { Select } from "../../components/Select";
-
-import { ArrowIcon } from "../../components/ArrowIcon";
-
-
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { labelIdentifierType, labelReportCategory, labelReportPartyRole } from "@valrify/domain";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { browserApi } from "../../../lib/browser-api";
-import { AdminEvidenceViewer } from "../../components/AdminEvidenceViewer";
-import { ReviewActions } from "../../components/ReviewActions";
-import { ReportEditor, type EditableReport } from "../../components/ReportEditor";
+import { AdminFeedback, AdminPageHeader } from "../../components/AdminUi";
+import { Select } from "../../components/Select";
+import { ReportReview, type ReviewRow } from "../../components/ReportReview";
 
-type Evidence = { id: number; fileName: string; mimeType: string; size: number; evidenceType?: string; caption?: string; isPublicApproved?: boolean };
-type ReviewRow = EditableReport & { id: number; publicId: string; title: string; chronology: string; transactionType: string; transactionDate: string | null; createdAt: string; status: string; evidenceUrl: string | null; entityName: string | null; reporterName: string; identifiers: Array<{ type: string; displayValue: string }>; evidence: Evidence[] };
-type Overview = { reports: { total: number; pending: number; published: number; rejected: number }; community: { pendingPosts: number; pendingComments: number }; reviewedLast24Hours: number; recentActions: Array<{ id: number; action: string; rationale: string; createdAt: string; actorName: string; reportPublicId: string | null; reportTitle: string | null; confirmationId: number | null; communityPostId: number | null; communityCommentId: number | null }> };
-type Tab = "reports" | "published" | "activity";
-
-const statusLabels: Record<string, string> = { SUBMITTED: "BARU MASUK", UNDER_REVIEW: "SEDANG DICEK", NEEDS_INFO: "BUTUH DATA", VERIFIED: "SIAP DITAMPILKAN", PUBLISHED: "SUDAH DITAMPILKAN" };
-const actionLabels: Record<string, string> = { REPORT_PUBLISHED: "LAPORAN DITAMPILKAN", REPORT_REJECTED: "LAPORAN DITOLAK", REPORT_WITHDRAWN: "LAPORAN DITARIK", REPORT_EDITED: "DATA LAPORAN DIKOREKSI", TRANSACTION_CONFIRMATION_APPROVED: "TESTI DITAMPILKAN", TRANSACTION_CONFIRMATION_REJECTED: "TESTI DITOLAK", COMMUNITY_POST_REMOVED: "POST COMMUNITY DIHAPUS", COMMUNITY_REPORTS_DISMISSED: "LAPORAN POST DITUTUP", COMMUNITY_COMMENT_REMOVED: "KOMENTAR DIHAPUS", COMMUNITY_COMMENT_REPORTS_DISMISSED: "LAPORAN KOMENTAR DITUTUP" };
-
-function formatDate(value: string | null, withTime = false) {
-  if (!value) return "Tidak dicantumkan";
-  return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", ...(withTime ? { timeStyle: "short" as const } : {}), timeZone: "Asia/Jakarta" }).format(new Date(value));
+type Queue = "PENDING" | "PUBLISHED";
+export default function ReviewPage() {
+  return <Suspense fallback={<main className="operations-page"><p role="status">Memuat laporan...</p></main>}><ReportQueue/></Suspense>;
 }
 
-function normalize(value: string) { return value.toLocaleLowerCase("id-ID").trim(); }
-
-export default function ReviewPage() {
-  const [reports, setReports] = useState<ReviewRow[] | null>(null);
-  const [publishedReports, setPublishedReports] = useState<ReviewRow[]>([]);
-  const [overview, setOverview] = useState<Overview | null>(null);
-  const [tab, setTab] = useState<Tab>("reports");
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("ALL");
-  const [error, setError] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-
+function ReportQueue() {
+  const params = useSearchParams(), router = useRouter();
+  const tab: Queue = params.get("status") === "PUBLISHED" ? "PUBLISHED" : "PENDING";
+  const setTab = (value: Queue) => router.replace(`/admin/reports?status=${value}`, { scroll: false });
+  const [data, setData] = useState<{ rows: ReviewRow[]; tab: Queue } | null>(null);
+  const rows = data?.tab === tab ? data.rows : null;
+  const [query, setQuery] = useState(""), [status, setStatus] = useState("ALL");
+  const [error, setError] = useState(""), [refreshing, setRefreshing] = useState(false);
+  const request = useRef(0);
   const load = useCallback(async () => {
+    const current = ++request.current;
     setError(""); setRefreshing(true);
-    try {
-      const [reportRows, publishedRows, overviewData] = await Promise.all([browserApi<ReviewRow[]>("/admin/reports"), browserApi<ReviewRow[]>("/admin/reports?status=PUBLISHED"), browserApi<Overview>("/admin/overview")]);
-      setReports(reportRows); setPublishedReports(publishedRows); setOverview(overviewData); setLastUpdated(new Date());
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Gagal memuat panel admin."); }
-    finally { setRefreshing(false); }
-  }, []);
-
+    try { const result = await browserApi<ReviewRow[]>("/admin/reports?status=" + tab); if (current === request.current) setData({ rows: result, tab }); }
+    catch (reason) { if (current === request.current) setError(reason instanceof Error ? reason.message : "Laporan gagal dimuat."); }
+    finally { if (current === request.current) setRefreshing(false); }
+  }, [tab]);
   useEffect(() => { void load(); }, [load]);
-
-  const filteredReports = useMemo(() => {
-    const needle = normalize(query);
-    return (tab === "published" ? publishedReports : reports ?? []).filter((report) => {
-      if (tab !== "published" && status !== "ALL" && report.status !== status) return false;
-      if (!needle) return true;
-      return [report.publicId, report.title, report.entityName ?? "", report.reporterName, ...report.identifiers.map((item) => item.displayValue)].some((value) => normalize(value).includes(needle));
-    });
-  }, [query, reports, publishedReports, status, tab]);
-  const pendingTotal = (reports?.length ?? 0) + (overview?.community.pendingPosts ?? 0) + (overview?.community.pendingComments ?? 0);
-  const loading = reports === null || overview === null;
-
-  return <main className="page shell admin-panel">
-    <div className="admin-commandbar"><div><span className="admin-live-dot"/> PANEL ADMIN VALRIFY</div><div><Link href="/admin/community">LAPORAN COMMUNITY</Link><Link href="/" target="_blank">BUKA SITUS <ArrowIcon/></Link><button type="button" disabled={refreshing} onClick={() => void load()}>{refreshing ? "MEMUAT..." : "MUAT ULANG"}</button></div></div>
-    <section className="admin-hero"><div><p className="eyebrow">// PANEL ADMIN</p><h1 className="page-title">PUSAT<br/>PEMERIKSAAN.</h1></div><div><strong>{pendingTotal}</strong><span>ITEM PERLU TINDAKAN</span><small>{lastUpdated ? `Terakhir diperbarui ${formatDate(lastUpdated.toISOString(), true)}` : "Menghubungkan ke server..."}</small></div></section>
-
-    {error ? <div className="admin-access-error"><span>AKSES TERBATAS</span><h2>PANEL TIDAK DAPAT DIBUKA.</h2><p>{error}</p><Link href="/login" className="tactical-button">MASUK SEBAGAI ADMIN</Link></div> : loading ? <div className="admin-loading"><span/><p>MENYIAPKAN WORKSPACE ADMIN...</p></div> : <>
-      <section className="admin-stat-grid" aria-label="Ringkasan pemeriksaan">
-        <article className="urgent"><span>PERLU TINDAKAN</span><strong>{pendingTotal}</strong><small>{overview.community.pendingPosts} post · {overview.community.pendingComments} komentar</small></article><article><span>LAPORAN PENIPUAN</span><strong>{overview.reports.pending}</strong><small>{overview.reports.published} sudah ditampilkan</small></article><article><span>SELESAI 24 JAM</span><strong>{overview.reviewedLast24Hours}</strong><small>{overview.reports.rejected} laporan ditolak total</small></article>
-      </section>
-      <section className="admin-workspace">
-        <div className="admin-tabs admin-report-tabs" role="tablist" aria-label="Jenis antrean"><button type="button" role="tab" aria-selected={tab === "reports"} onClick={() => setTab("reports")}><span>SCAM REPORT</span><strong>{reports.length}</strong></button><button type="button" role="tab" aria-selected={tab === "published"} onClick={() => setTab("published")}><span>SUDAH TAMPIL</span><strong>{publishedReports.length}</strong></button><button type="button" role="tab" aria-selected={tab === "activity"} onClick={() => setTab("activity")}><span>AKTIVITAS TERBARU</span><strong>{overview.recentActions.length}</strong></button></div>
-        {tab !== "activity" && <div className="admin-toolbar"><label><span>CARI LAPORAN</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ID laporan, seller, rekening, atau pengirim..."/></label>{tab === "reports" && <label><span>STATUS</span><Select label="Status laporan" value={status} onValueChange={setStatus}><option value="ALL">SEMUA STATUS</option><option value="SUBMITTED">BARU MASUK</option><option value="UNDER_REVIEW">SEDANG DICEK</option><option value="NEEDS_INFO">BUTUH DATA</option><option value="VERIFIED">SIAP DITAMPILKAN</option></Select></label>}</div>}
-
-        {tab !== "activity" && <section className="admin-queue" aria-label="Daftar scam report"><div className="admin-queue-heading"><div><span>{tab === "published" ? "// LAPORAN PUBLIK" : "// ANTREAN SCAM REPORT"}</span><h2>{filteredReports.length} ITEM DITEMUKAN</h2></div><p>{tab === "published" ? "Tarik laporan yang keliru dengan alasan. Data dan riwayat pemeriksaan tetap tersimpan." : "Buka laporan, cocokkan cerita dengan bukti, lalu tulis ringkasan publik yang netral."}</p></div>{filteredReports.length === 0 ? <div className="admin-zero"><strong>DAFTAR INI KOSONG.</strong><p>Coba ubah kata pencarian atau filter status.</p></div> : <div className="admin-review-list">{filteredReports.map((report) => <details className="admin-review-item" key={report.id}>
-          <summary><div className="admin-review-index"><span>{report.publicId}</span><small>{statusLabels[report.status] ?? report.status}</small></div><div className="admin-review-subject"><small>{labelReportCategory(report.transactionType)}</small><strong>{report.title}</strong><span>{report.entityName ?? "Profil belum tersedia"} · oleh {report.reporterName}</span></div><div className="admin-review-value"><span>{formatDate(report.createdAt)}</span></div><span className="admin-expand" aria-hidden="true">+</span></summary>
-          <div className="admin-review-body"><div className="admin-fact-grid"><article><span>SELLER / PROFIL</span><strong>{report.entityName ?? "Belum tersedia"}</strong></article><article><span>TANGGAL KEJADIAN</span><strong>{formatDate(report.transactionDate)}</strong></article><article><span>BUKTI</span><strong>{report.evidence.length} FILE{report.evidenceUrl ? " + LINK" : ""}</strong></article><article><span>MASUK ANTREAN</span><strong>{formatDate(report.createdAt, true)}</strong></article></div><div className="admin-review-columns"><div><section className="admin-private-copy"><span>CERITA LENGKAP · HANYA UNTUK ADMIN</span><p>{report.chronology}</p></section><section className="admin-identifier-block"><span>DATA YANG PERLU DICOCOKKAN</span>{report.parties.map((party, partyIndex) => <section className="admin-party-identifiers" key={party.entityId ?? partyIndex}><h3>{party.entityName}</h3><p>{labelReportPartyRole(party.role)}{partyIndex === 0 ? " / PROFIL UTAMA" : ""}</p>{party.identifiers.map((identifier, index) => <div key={index}><small>{labelIdentifierType(identifier.type)}{identifier.provider ? ` / ${identifier.provider}` : ""}</small><strong>{identifier.value}</strong></div>)}</section>)}</section></div><div><section className="admin-evidence-block"><div><span>BUKTI UNTUK DIPERIKSA</span>{report.evidenceUrl && <a href={report.evidenceUrl} target="_blank" rel="noreferrer">BUKA POSTING BUKTI <ArrowIcon/></a>}</div><AdminEvidenceViewer evidence={report.evidence}/></section></div></div>{report.status === "PUBLISHED" ? <ReviewActions key={report.updatedAt} reportId={report.id} updatedAt={report.updatedAt} published={report.status === "PUBLISHED"} evidence={report.evidence.map((item) => ({ ...item, isPublicApproved: Boolean(item.isPublicApproved) }))} evidenceUrl={report.evidenceUrl} onDone={() => void load()}/> : <ReportEditor key={report.updatedAt} report={report} onSaved={load}><ReviewActions key={report.updatedAt} reportId={report.id} updatedAt={report.updatedAt} published={report.status === "PUBLISHED"} evidence={report.evidence.map((item) => ({ ...item, isPublicApproved: Boolean(item.isPublicApproved) }))} evidenceUrl={report.evidenceUrl} onDone={() => void load()}/></ReportEditor>}</div>
-        </details>)}</div>}</section>}
-
-        {tab === "activity" && <section className="admin-queue" aria-label="Keputusan admin terbaru"><div className="admin-queue-heading"><div><span>// RIWAYAT KEPUTUSAN</span><h2>AKTIVITAS TERBARU</h2></div><p>Catatan lengkap tetap tersimpan di database. Bagian ini menampilkan delapan keputusan terakhir.</p></div>{overview.recentActions.length === 0 ? <div className="admin-zero"><strong>BELUM ADA AKTIVITAS.</strong></div> : <ol className="admin-activity-list">{overview.recentActions.map((action) => <li key={action.id}><span className={action.action.includes("REJECTED") || action.action.includes("REMOVED") || action.action.includes("WITHDRAWN") ? "rejected" : "published"}>{actionLabels[action.action] ?? action.action}</span><div><strong>{action.reportPublicId ? `${action.reportPublicId} · ${action.reportTitle}` : action.communityPostId ? `COMMUNITY POST #${action.communityPostId}` : action.communityCommentId ? `KOMENTAR #${action.communityCommentId}` : `TESTI #${action.confirmationId}`}</strong><p>{action.rationale}</p></div><div><strong>{action.actorName}</strong><time dateTime={action.createdAt}>{formatDate(action.createdAt, true)}</time></div></li>)}</ol>}</section>}
-      </section>
-    </>}
+  const filtered = useMemo(() => {
+    const needle = query.toLocaleLowerCase("id-ID").trim();
+    return (rows ?? []).filter(report => (tab !== "PENDING" || status === "ALL" || report.status === status) && (!needle || [report.publicId, report.title, report.entityName ?? "", report.reporterName, ...report.identifiers.map(item => item.displayValue)].some(value => value.toLocaleLowerCase("id-ID").includes(needle))));
+  }, [rows, query, status, tab]);
+  return <main className="operations-page admin-panel">
+    <AdminPageHeader label="Moderasi laporan" title="LAPORAN." description="Cocokkan pihak terlapor dengan bukti, koreksi data, lalu tentukan publikasinya."><button type="button" disabled={refreshing} onClick={() => void load()}>{refreshing ? "MEMUAT..." : "MUAT ULANG"}</button></AdminPageHeader>
+    <AdminFeedback message={error}/>
+    <section className="admin-workspace"><div className="admin-tabs admin-report-tabs" role="tablist" aria-label="Status laporan"><button type="button" role="tab" aria-selected={tab === "PENDING"} onClick={() => setTab("PENDING")}>PERLU TINDAKAN</button><button type="button" role="tab" aria-selected={tab === "PUBLISHED"} onClick={() => setTab("PUBLISHED")}>SUDAH TAMPIL</button></div>
+      <div className="operations-filters"><label>Cari laporan<input value={query} onChange={event => setQuery(event.target.value)} placeholder="ID laporan, nama, nomor, atau pengirim"/></label>{tab === "PENDING" && <label>Status<Select label="Status laporan" value={status} onValueChange={setStatus}><option value="ALL">Semua status</option><option value="SUBMITTED">Baru masuk</option><option value="UNDER_REVIEW">Sedang dicek</option><option value="NEEDS_INFO">Butuh data</option><option value="VERIFIED">Siap ditampilkan</option></Select></label>}</div>
+      {refreshing && <p className="operations-empty" role="status">Memuat laporan...</p>}
+      {rows && <section className="admin-queue" aria-label="Daftar scam report"><div className="admin-queue-heading"><div><span>// {tab === "PUBLISHED" ? "LAPORAN PUBLIK" : "ANTREAN PEMERIKSAAN"}</span><h2>{filtered.length} LAPORAN</h2></div><p>{tab === "PUBLISHED" ? "Tarik laporan yang keliru dengan alasan. Data sumber dan audit tetap tersimpan." : "Ringkasan netral, catatan keputusan, serta bukti publik wajib diperiksa sebelum diterbitkan."}</p></div>{!filtered.length ? <div className="admin-zero"><strong>DAFTAR INI KOSONG.</strong><p>Coba ubah pencarian atau filter.</p></div> : <div className="admin-review-list">{filtered.map(report => <ReportReview key={report.id} report={report} onSaved={load}/>)}</div>}</section>}
+    </section>
   </main>;
 }

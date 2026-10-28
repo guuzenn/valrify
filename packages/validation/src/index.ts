@@ -1,9 +1,28 @@
 import { z } from "zod";
-import { identifierTypes, normalizeIdentifier, reportCategories, reportPartyRoles } from "@valrify/domain";
+import { identifierTypes, normalizeIdentifier, reportCategories, reportPartyRoles, roles } from "@valrify/domain";
 
 const newPasswordSchema = z.string().min(10, "Password minimal 10 karakter.").max(72, "Password terlalu panjang.").refine((value) => new TextEncoder().encode(value).length <= 72, "Password terlalu panjang. Gunakan password yang lebih pendek.");
 
 const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);
+
+export const adminUserQuerySchema = z.object({ q: z.string().trim().max(100).default(""), role: z.enum(roles).optional(), page: z.coerce.number().int().min(1).max(100000).default(1) });
+export const adminRoleSchema = z.object({ role: z.enum(roles), expectedRole: z.enum(roles), rationale: z.string().trim().min(10, "Alasan perubahan minimal 10 karakter.").max(1000) });
+const directoryUrl = z.string().trim().max(500).url("Isi link HTTPS yang valid.").refine(value => { try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password; } catch { return false; } }, "Gunakan link HTTPS tanpa username/password.");
+export const middlemanDirectorySchema = z.object({
+  displayName: z.string().trim().min(2, "Nama rekber minimal 2 karakter.").max(120),
+  description: z.string().trim().min(20, "Deskripsi minimal 20 karakter.").max(1000),
+  profileUrl: directoryUrl,
+  contactUrl: directoryUrl,
+  feeInfo: z.string().trim().max(200).default(""),
+  sortOrder: z.number().int().min(0).max(9999).default(0),
+  isPublished: z.boolean().default(false),
+  isSponsored: z.boolean().default(false),
+  rationale: z.string().trim().min(10, "Alasan perubahan minimal 10 karakter.").max(1000),
+});
+export const middlemanDirectoryEditSchema = middlemanDirectorySchema.extend({ updatedAt: z.iso.datetime() });
+export const adminActivityQuerySchema = z.object({ page: z.coerce.number().int().min(1).max(100000).default(1) });
+export type AdminRoleInput = z.infer<typeof adminRoleSchema>;
+export type MiddlemanDirectoryInput = z.infer<typeof middlemanDirectorySchema>;
 const usernameSchema = z.string().trim().toLowerCase().min(3, "Username minimal 3 karakter.").max(24, "Username maksimal 24 karakter.").regex(/^[a-z0-9_]+$/, "Gunakan huruf kecil, angka, atau underscore.").refine((value) => !reservedUsernames.has(value), "Username ini tidak dapat digunakan.");
 
 export const registerSchema = z.object({
@@ -135,8 +154,8 @@ export type ReportEditInput = z.infer<typeof reportEditSchema>;
 export const reviewSchema = z.object({
   updatedAt: z.iso.datetime().optional(),
   decision: z.enum(["PUBLISH", "REJECT", "WITHDRAW"]),
-  summary: z.string().trim().max(2000).default(""),
-  rationale: z.string().trim().min(10).max(2000),
+  summary: z.string().trim().max(2000, "Ringkasan publik maksimal 2.000 karakter.").default(""),
+  rationale: z.string().trim().min(10, "Catatan keputusan minimal 10 karakter.").max(2000, "Catatan keputusan maksimal 2.000 karakter."),
   publicEvidenceIds: z.array(z.number().int().positive()).max(5).default([]),
 }).superRefine((value, context) => {
   if (value.decision === "PUBLISH" && value.summary.length < 30) {

@@ -11,7 +11,7 @@ import { IndonesianBanks, IndonesianEwallets, SearchableProvider } from "./Submi
 export type EditableReport = { id: number; updatedAt: string; chronology: string; transactionType: string; transactionDate: string | null; evidenceUrl: string | null; parties: ReportEditInput["parties"] };
 type Draft = Omit<ReportEditInput, "updatedAt" | "rationale">;
 
-export function ReportEditor({ report, onSaved, children }: { report: EditableReport; onSaved: () => Promise<void>; children: ReactNode }) {
+export function ReportEditor({ report, onSaved, children, endpointBase = "/admin" }: { report: EditableReport; onSaved: () => Promise<void>; children: ReactNode; endpointBase?: string }) {
   const initial: Draft = { chronology: report.chronology, category: reportCategories.includes(report.transactionType as Draft["category"]) ? report.transactionType as Draft["category"] : "OTHER", transactionDate: report.transactionDate?.slice(0, 10) ?? "", evidenceUrl: report.evidenceUrl ?? "", parties: report.parties };
   const [draft, setDraft] = useState(initial);
   const [editing, setEditing] = useState(false);
@@ -30,7 +30,7 @@ export function ReportEditor({ report, onSaved, children }: { report: EditableRe
     if (!parsed.success) { setMessage(parsed.error.issues.map(issue => issue.message).join(" ")); return; }
     setSaving(true); setMessage("");
     try {
-      await browserApi(`/admin/reports/${report.id}`, { method: "PATCH", body: JSON.stringify(parsed.data) });
+      await browserApi(`${endpointBase}/reports/${report.id}`, { method: "PATCH", body: JSON.stringify(parsed.data) });
       await onSaved();
       setEditing(false); setMessage("Data laporan berhasil disimpan. Periksa kembali sebelum publikasi.");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Data laporan gagal disimpan."); }
@@ -38,7 +38,7 @@ export function ReportEditor({ report, onSaved, children }: { report: EditableRe
   }
 
   return <section className="report-editor">
-    <div className="report-editor-heading"><div><strong>DATA LAPORAN</strong><p>Koreksi sesuai bukti sebelum ditampilkan. Setiap perubahan disimpan dalam riwayat admin.</p></div>{!editing && <button type="button" onClick={() => { setDraft(initial); setEditing(true); setMessage(""); }}>UBAH DATA LAPORAN</button>}</div>
+    <div className="report-editor-heading"><div><strong>DATA LAPORAN</strong><p>Koreksi sesuai bukti sebelum ditampilkan. Setiap perubahan disimpan dalam riwayat perubahan.</p></div>{!editing && <button type="button" onClick={() => { setDraft(initial); setEditing(true); setMessage(""); }}>UBAH DATA LAPORAN</button>}</div>
     {editing && <form onSubmit={event => void save(event)} noValidate>
       <fieldset disabled={saving}>
         <div className="report-editor-grid"><label>Kategori<Select label="Kategori" value={draft.category} onValueChange={value => setDraft({ ...draft, category: value as Draft["category"] })}>{reportCategories.map(category => <option key={category} value={category}>{labelReportCategory(category)}</option>)}</Select></label><label>Tanggal kejadian<input type="date" value={draft.transactionDate} onChange={event => setDraft({ ...draft, transactionDate: event.target.value })}/></label></div>

@@ -197,7 +197,10 @@ export function SubmitReportForm() {
 
   if (user === undefined) return <div className="actor-bar">MEMERIKSA AKUN...</div>;
   if (!user) return <div className="empty-state"><span>AKUN</span><h2>MASUK UNTUK MELAPOR.</h2><p>Kamu perlu akun supaya laporan tidak mudah dipalsukan atau dikirim sebagai spam.</p><Link href="/login" className="tactical-button">MASUK KE AKUN</Link></div>;
-  if (state.publicId) return <div className="success-state"><p className="eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>Admin akan mengecek laporanmu. Laporan belum tampil untuk umum.</p><Link className="tactical-button" href="/">KEMBALI KE BERANDA</Link></div>;
+  if (state.publicId) {
+    const canPublish = user?.role === "ADMIN" || user?.role === "VERIFIED_MIDDLEMAN";
+    return <div className="success-state"><p className="eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>{canPublish ? "Laporan tersimpan dan belum tampil untuk umum. Lengkapi ringkasan dan pilih bukti publik untuk menerbitkannya." : "Admin akan mengecek laporanmu. Laporan belum tampil untuk umum."}</p><Link className="tactical-button" href={canPublish ? "/account/reports" : "/account"}>{canPublish ? "KELOLA & TAMPILKAN LAPORAN" : "LIHAT RIWAYAT LAPORAN"}</Link></div>;
+  }
 
   return <>
     <div className="actor-bar">MASUK SEBAGAI <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div>
@@ -238,7 +241,7 @@ export function SubmitReportForm() {
         <legend>04 / SERTAKAN BUKTI (WAJIB)</legend>
         <label>Link posting bukti (Facebook atau sumber lain)<input type="url" name="evidenceUrl" placeholder="https://www.facebook.com/groups/.../posts/..." maxLength={500}/><small className="field-note">Kalau kasus ini sudah kamu posting di grup Facebook, tempel linknya di sini. Ini sangat membantu admin mencocokkan cerita dan bukti.</small></label>
         <label>Screenshot chat / transfer / bukti lain<input type="file" name="evidence" accept="image/png,image/jpeg,image/webp,application/pdf" multiple/></label>
-        <p className="field-note">Isi minimal salah satu: link posting atau unggah file. Maks. 5 file, 5 MB per file. Semua file hanya bisa dilihat admin. Gambar baru akan ditampilkan jika aman dibagikan.</p>
+        <p className="field-note">Isi minimal salah satu: link posting atau unggah file. Maks. 5 file, 5 MB per file. File bersifat privat sampai gambar dipilih untuk publikasi oleh admin atau rekber terverifikasi yang mengirim laporan.</p>
       </fieldset>
       <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : <>KIRIM SCAM REPORT <ArrowIcon/></>}</button>
     </form>
