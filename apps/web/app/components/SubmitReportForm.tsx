@@ -1,6 +1,6 @@
 "use client";
 
-import { Select } from "./Select";
+import { DropdownChevron, Select } from "./Select";
 import { ReportJsonImport } from "./ReportJsonImport";
 
 import { ArrowIcon } from "./ArrowIcon";
@@ -67,8 +67,9 @@ export function SearchableProvider({ id, value, onChange, options, placeholder }
     return () => document.removeEventListener("pointerdown", close);
   }, []);
 
-  return <div className="provider-combobox" ref={rootRef}>
+  return <div className="provider-combobox styled-select" ref={rootRef} data-open={open}>
     <input
+      className="select-trigger"
       id={id}
       role="combobox"
       aria-autocomplete="list"
@@ -77,8 +78,10 @@ export function SearchableProvider({ id, value, onChange, options, placeholder }
       aria-activedescendant={open && filtered[activeIndex] ? `${id}-option-${activeIndex}` : undefined}
       value={value}
       onFocus={() => { setOpen(true); setActiveIndex(0); }}
+      onBlur={event => { if (!rootRef.current?.contains(event.relatedTarget as Node)) setOpen(false); }}
       onKeyDown={(event) => {
-        if (event.key === "Escape") setOpen(false);
+        if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); setOpen(false); }
+        if (event.key === "Tab") setOpen(false);
         if (event.key === "ArrowDown") { event.preventDefault(); setOpen(true); setActiveIndex((index) => Math.min(index + 1, Math.max(filtered.length - 1, 0))); }
         if (event.key === "ArrowUp") { event.preventDefault(); setActiveIndex((index) => Math.max(index - 1, 0)); }
         if (event.key === "Enter" && open && filtered[activeIndex]) { event.preventDefault(); onChange(filtered[activeIndex]); setOpen(false); }
@@ -88,15 +91,17 @@ export function SearchableProvider({ id, value, onChange, options, placeholder }
       maxLength={40}
       autoComplete="off"
     />
-    <span className="provider-combobox-icon" aria-hidden="true">⌄</span>
-    {open && <div className="provider-options" id={`${id}-options`} role="listbox">
+    <span className="provider-combobox-icon" aria-hidden="true"><DropdownChevron/></span>
+    {open && <div className="provider-options select-menu" id={`${id}-options`} role="listbox">
       {filtered.length > 0 ? filtered.map((option, index) => <button
         id={`${id}-option-${index}`}
         type="button"
         role="option"
-        aria-selected={index === activeIndex}
+        aria-selected={option === value}
+        data-active={index === activeIndex}
         key={option}
         onPointerEnter={() => setActiveIndex(index)}
+        onPointerDown={event => event.preventDefault()}
         onClick={() => { onChange(option); setOpen(false); }}
       >{option}</button>) : <p>Tidak ada di daftar—nama yang kamu ketik tetap bisa dipakai.</p>}
     </div>}

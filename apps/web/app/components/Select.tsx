@@ -2,6 +2,10 @@
 
 import { Children, isValidElement, useEffect, useId, useRef, useState, type ReactNode } from "react";
 
+export function DropdownChevron() {
+  return <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg>;
+}
+
 export function Select({ label, value, onValueChange, children, disabled = false }: { label: string; value: string; onValueChange: (value: string) => void; children: ReactNode; disabled?: boolean }) {
   const options = Children.toArray(children).filter(isValidElement<{ value: string; children: ReactNode; disabled?: boolean }>).map(option => ({ value: String(option.props.value), label: String(option.props.children), disabled: Boolean(option.props.disabled) }));
   const selected = options.findIndex(option => option.value === value);
@@ -48,7 +52,7 @@ export function Select({ label, value, onValueChange, children, disabled = false
         const match = options.findIndex(option => !option.disabled && option.label.toLocaleLowerCase("id-ID").startsWith(text.toLocaleLowerCase("id-ID")));
         if (match >= 0) { event.preventDefault(); setActive(match); if (!open) choose(match); }
       }
-    }}><span>{options[selected]?.label ?? "Pilih opsi"}</span><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></button>
+    }}><span>{options[selected]?.label ?? "Pilih opsi"}</span><DropdownChevron/></button>
     {open && <div className="select-menu" id={`${id}-list`} role="listbox" aria-label={label}>{options.map((option, index) => <div key={option.value} id={`${id}-${index}`} role="option" aria-selected={option.value === value} aria-disabled={option.disabled || undefined} data-active={active === index} onPointerDown={event => event.preventDefault()} onPointerEnter={() => { if (!option.disabled) setActive(index); }} onClick={event => { event.preventDefault(); choose(index); }}><span>{option.label}</span>{option.value === value && <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m4 10 4 4 8-8"/></svg>}</div>)}</div>}
   </div>;
 }

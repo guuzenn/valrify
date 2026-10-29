@@ -194,6 +194,14 @@ body :is(.page,.home-page,.operations-content,.mobile-menu-panel) .section-label
  font-family:var(--font-body);font-size:13px;font-weight:700;line-height:1.5;letter-spacing:.1em;text-transform:uppercase;
 }
 body .section-label :is(strong,b) { font:inherit; }
+.provider-combobox { position:relative; }
+.provider-combobox.styled-select>.select-trigger { padding-right:44px; }
+.provider-combobox-icon { position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--ink);pointer-events:none; }
+.provider-combobox[data-open="true"] .provider-combobox-icon svg { transform:rotate(180deg); }
+.provider-options.select-menu>button { width:100%;border:0;background:transparent;color:var(--ink);text-align:left; }
+.provider-options.select-menu>button[data-active="true"] { background:#ece8e1; }
+.provider-options.select-menu>button[aria-selected="true"] { background:#fbe3e5;color:var(--red-text); }
+.provider-options.select-menu>p { margin:0;padding:12px;color:var(--muted);font:400 14px/1.6 var(--font-body); }
 
 /* Reading surfaces keep decoration separate from identity and status. */
 .page .profile-head .page-title::after,.page .case-heading .page-title::after { display:none; }
