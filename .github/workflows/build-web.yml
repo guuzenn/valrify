@@ -82,8 +82,9 @@ jobs:
             fi
             sleep 1
           done
-          grep -q 'KENALI REKBERNYA.' "$RUNNER_TEMP/rekber.html"
-          grep -q 'MAU NAMA REKBERMU MUNCUL DI SINI?' "$RUNNER_TEMP/rekber.html"
+          grep -Fq 'CARI REKBER?' "$RUNNER_TEMP/rekber.html"
+          grep -Fq 'CEK KONTAK RESMINYA.' "$RUNNER_TEMP/rekber.html"
+          grep -Fq 'MAU NAMA REKBERMU MUNCUL DI SINI?' "$RUNNER_TEMP/rekber.html"
           curl --fail --silent --show-error http://127.0.0.1:3100/auth-texture.svg -o /dev/null
           css_path=$(node -e 'const html=require("node:fs").readFileSync(process.env.RUNNER_TEMP+"/rekber.html","utf8"); const css=html.match(/href="([^" ]+\.css[^" ]*)"/); if(!css)process.exit(1); process.stdout.write(css[1].replaceAll("&amp;","&"));')
           curl --fail --silent --show-error "http://127.0.0.1:3100$css_path" -o /dev/null
