@@ -9,10 +9,12 @@ export const dynamic = "force-dynamic";
 
 function ReportCard({ report }: { report: RecentCase }) {
   return <article className="landing-report-card">
+    <div className="landing-report-meta"><span>Laporan komunitas</span><span>{report.publicId}</span></div>
+    <time dateTime={report.transactionDate ?? undefined}>{report.transactionDate ? `Kejadian ${formatIndonesianDate(report.transactionDate)}` : "Tanggal tidak dicantumkan"}</time>
     <h3>{report.entityName}</h3>
     <p>{report.title}</p>
-    <time dateTime={report.transactionDate ?? undefined}>{report.transactionDate ? `Kejadian ${formatIndonesianDate(report.transactionDate)}` : "Tanggal tidak dicantumkan"}</time>
-    <Link href={`/case/${report.publicId}`}>Baca laporan <ArrowIcon/></Link>
+
+    <Link href={`/case/${report.publicId}`}>Baca laporan <span className="landing-report-arrow"><ArrowIcon/></span></Link>
   </article>;
 }
 

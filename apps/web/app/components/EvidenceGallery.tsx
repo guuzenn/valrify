@@ -26,10 +26,10 @@ export function EvidenceGallery({
     `${browserApiUrl}/reports/public/${encodeURIComponent(publicId)}/evidence/${id}`;
 
   return <section className="evidence-actions" aria-label="Bukti laporan scam">
-    <p className="panel-index">BUKTI YANG DIBAGIKAN</p>
+    <h2>Bukti laporan</h2><p className="evidence-help">Buka bukti yang dibagikan untuk mencocokkan cerita dan akun terkait.</p>
     <div>
-      {evidence.length > 0 && <button className="tactical-button" type="button" onClick={() => setSelected(evidence[0]!)}>LIHAT BUKTI GAMBAR ({evidence.length})</button>}
-      {evidenceUrl && <a className="button-secondary" href={evidenceUrl} target="_blank" rel="noreferrer">BUKA POST BUKTI <ArrowIcon/></a>}
+      {evidence.length > 0 && <button className="tactical-button" type="button" onClick={() => setSelected(evidence[0]!)}>Lihat bukti gambar ({evidence.length})</button>}
+      {evidenceUrl && <a className={evidence.length ? "button-secondary" : "tactical-button"} href={evidenceUrl} target="_blank" rel="noreferrer">Buka posting bukti <ArrowIcon/></a>}
     </div>
     {selected && <TaskDialog open onClose={() => setSelected(null)} title="Bukti yang dibagikan">
       <div className="evidence-modal-card">
