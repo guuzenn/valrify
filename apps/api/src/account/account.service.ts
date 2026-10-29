@@ -9,8 +9,6 @@ import {
   reportEvidence,
   reports,
   reportStatusHistory,
-  transactionConfirmationEvidence,
-  transactionConfirmations,
   users,
 } from "../database/schema";
 
@@ -32,7 +30,7 @@ export class AccountService {
     });
     if (!user) throw new NotFoundException("Akun tidak ditemukan.");
 
-    const [reportRows, confirmationRows, postCountRows, commentCountRows] = await Promise.all([
+    const [reportRows, postCountRows, commentCountRows] = await Promise.all([
       this.database.db
         .select({
           id: reports.id,
@@ -52,24 +50,6 @@ export class AccountService {
         .leftJoin(entities, eq(entities.id, reports.entityId))
         .where(eq(reports.reporterId, userId))
         .orderBy(desc(reports.createdAt)),
-      this.database.db
-        .select({
-          id: transactionConfirmations.id,
-          status: transactionConfirmations.status,
-          transactionDate: transactionConfirmations.transactionDate,
-          amount: transactionConfirmations.amount,
-          note: transactionConfirmations.note,
-          moderationNote: transactionConfirmations.moderationNote,
-          createdAt: transactionConfirmations.createdAt,
-          reviewedAt: transactionConfirmations.reviewedAt,
-          entityName: entities.displayName,
-          entitySlug: entities.slug,
-          evidenceCount: sql<number>`(select count(*)::int from ${transactionConfirmationEvidence} where ${transactionConfirmationEvidence.confirmationId} = ${transactionConfirmations.id})`,
-        })
-        .from(transactionConfirmations)
-        .innerJoin(entities, eq(entities.id, transactionConfirmations.entityId))
-        .where(eq(transactionConfirmations.userId, userId))
-        .orderBy(desc(transactionConfirmations.createdAt)),
       this.database.db
         .select({ value: sql<number>`count(*)::int` })
         .from(communityPosts)
@@ -109,13 +89,10 @@ export class AccountService {
         reports: ownReports.length,
         reportsPending: ownReports.filter((item) => ["SUBMITTED", "UNDER_REVIEW", "NEEDS_INFO", "VERIFIED"].includes(item.status)).length,
         reportsPublished: ownReports.filter((item) => item.status === "PUBLISHED").length,
-        confirmations: confirmationRows.length,
-        confirmationsApproved: confirmationRows.filter((item) => item.status === "APPROVED").length,
         posts: postCountRows[0]?.value ?? 0,
         comments: commentCountRows[0]?.value ?? 0,
       },
       reports: ownReports,
-      confirmations: confirmationRows,
     };
   }
 

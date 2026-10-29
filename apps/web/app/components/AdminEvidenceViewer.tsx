@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowIcon } from "./ArrowIcon";
-import { useEffect, useState } from "react";
+import { TaskDialog } from "./TaskDialog";
+import { useState } from "react";
 import { browserApiUrl } from "../../lib/browser-api";
 
 type AdminEvidence = {
@@ -21,19 +22,7 @@ function fileSize(bytes: number) {
 export function AdminEvidenceViewer({ evidence, kind = "report", basePath = kind === "report" ? "/admin/evidence" : "/admin/transaction-confirmation-evidence" }: { evidence: AdminEvidence[]; kind?: "report" | "confirmation"; basePath?: string }) {
   const [selected, setSelected] = useState<AdminEvidence | null>(null);
 
-  useEffect(() => {
-    if (!selected) return;
-    const previousOverflow = document.body.style.overflow;
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelected(null);
-    };
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", close);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", close);
-    };
-  }, [selected]);
+
 
   if (evidence.length === 0) return <p className="admin-evidence-empty">Tidak ada file bukti yang diunggah.</p>;
 
@@ -52,13 +41,13 @@ export function AdminEvidenceViewer({ evidence, kind = "report", basePath = kind
         </a>;
       })}
     </div>
-    {selected && <div className="admin-evidence-modal" role="dialog" aria-modal="true" aria-label={`Pratinjau ${selected.fileName}`} onClick={() => setSelected(null)}>
+    {selected && <TaskDialog open onClose={() => setSelected(null)} title="Bukti privat">
       <div className="admin-evidence-modal-card" onClick={(event) => event.stopPropagation()}>
-        <div><span>// BUKTI PRIVAT</span><strong>{selected.fileName}</strong><button type="button" aria-label="Tutup pratinjau" onClick={() => setSelected(null)}>×</button></div>
+        <div><span className="section-label">// BUKTI PRIVAT</span><strong>{selected.fileName}</strong><button type="button" aria-label="Tutup pratinjau" onClick={() => setSelected(null)}>×</button></div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={`${browserApiUrl}${basePath}/${selected.id}`} alt={`Bukti ${selected.fileName}`} />
         <small>Jangan bagikan sebelum memastikan tidak ada data pribadi di dalamnya.</small>
       </div>
-    </div>}
+    </TaskDialog>}
   </>;
 }

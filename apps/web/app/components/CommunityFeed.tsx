@@ -116,9 +116,9 @@ export function CommunityFeed({ initialPosts }: { initialPosts: CommunityPost[] 
 
   return <><div className="community-layout">
     <aside className="community-sidebar">
-      <div><span>// COMMUNITY</span><h1>NGOBROL<br/><b>BARENG.</b></h1><p>Bagikan pengalaman, tips transaksi, atau diskusi seputar jual beli akun Valorant.</p></div>
+      <div><span className="section-label">// COMMUNITY</span><h1>NGOBROL<br/><b>BARENG.</b></h1><p>Bagikan pengalaman, tips transaksi, atau diskusi seputar jual beli akun Valorant.</p></div>
       <form action="/community/search" className="community-quick-search"><label htmlFor="community-quick-q">CARI DI COMMUNITY</label><div><input id="community-quick-q" name="q" minLength={2} maxLength={80} required placeholder="Post atau username..."/><button type="submit" aria-label="Cari di Community"><ArrowIcon direction="right"/></button></div></form>
-      <div className="community-rules"><strong>SEBELUM POSTING</strong><p>Jangan bagikan data pribadi atau membuat tuduhan baru di sini. Untuk melaporkan scam, gunakan form laporan dan sertakan bukti.</p><Link href="/submit">LAPOR SCAM <ArrowIcon direction="right"/></Link></div>
+      <div className="community-rules"><strong>SEBELUM POSTING</strong><p>Jangan bagikan data pribadi atau membuat tuduhan baru di sini. Untuk melaporkan scam, gunakan form laporan dan sertakan bukti.</p><Link href="/submit">Laporkan <ArrowIcon direction="right"/></Link></div>
     </aside>
     <section className="community-main">
       {!sessionReady ? <div className="community-session-loading">MEMERIKSA SESI...</div> : !user ? <div className="community-login-callout"><div><strong>IKUT OBROLAN KOMUNITAS.</strong><p>Masuk untuk menulis post. Semua orang tetap dapat membaca feed ini.</p></div><Link href="/login">MASUK <ArrowIcon direction="right"/></Link></div> : !username ? <div className="community-login-callout username"><div><strong>BUAT USERNAME DULU.</strong><p>Post komunitas memakai identitas publik, bukan email akunmu.</p></div><Link href="/account">ATUR DI AKUN SAYA <ArrowIcon direction="right"/></Link></div> : <form className="community-composer" onSubmit={(event) => void publish(event)}>

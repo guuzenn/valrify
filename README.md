@@ -22,7 +22,7 @@ Prinsip utama Valrify:
 
 * Pencarian profil berdasarkan nama, Riot ID, username, nomor telepon, rekening, dan identitas terkait lainnya
 * Laporan transaksi dengan unggahan bukti dan alur pemeriksaan admin
-* Halaman profil yang merangkum laporan serta testi transaksi
+* Halaman profil yang merangkum laporan serta nomor dan akun terkait
 * Akun pengguna dengan verifikasi email, riwayat kiriman, dan notifikasi
 * Community feed untuk berbagi pengalaman dan tips transaksi
 * Moderasi konten, kontrol akses berbasis peran, dan pencatatan keputusan admin
@@ -31,7 +31,7 @@ Prinsip utama Valrify:
 
 ## Status proyek
 
-Valrify sedang berada dalam tahap beta aktif. Alur utama pencarian, laporan, pemeriksaan admin, profil reputasi, testi transaksi, autentikasi, dan komunitas sudah tersedia. Masukan, pengujian, serta kontribusi dari komunitas sangat diterima.
+Valrify sedang berada dalam tahap beta aktif. Alur utama pencarian, laporan, pemeriksaan admin, profil, autentikasi, dan direktori rekber sudah tersedia. Fitur testi dihentikan; data lama disimpan sebagai arsip dan tidak ditampilkan. Masukan, pengujian, serta kontribusi dari komunitas sangat diterima.
 
 Data yang dibuat melalui proses seed sepenuhnya fiktif dan hanya digunakan untuk demonstrasi.
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Select } from "./Select";
+import { ReportJsonImport } from "./ReportJsonImport";
 
 import { ArrowIcon } from "./ArrowIcon";
 import Link from "next/link";
@@ -123,6 +124,7 @@ function mainFieldLabel(type: string) {
 }
 
 export function SubmitReportForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [state, setState] = useState<{ loading: boolean; error?: string; publicId?: string }>({ loading: false });
   const [nextIdentifierId, setNextIdentifierId] = useState(2);
@@ -199,13 +201,23 @@ export function SubmitReportForm() {
   if (!user) return <div className="empty-state"><span>AKUN</span><h2>MASUK UNTUK MELAPOR.</h2><p>Kamu perlu akun supaya laporan tidak mudah dipalsukan atau dikirim sebagai spam.</p><Link href="/login" className="tactical-button">MASUK KE AKUN</Link></div>;
   if (state.publicId) {
     const canPublish = user?.role === "ADMIN" || user?.role === "VERIFIED_MIDDLEMAN";
-    return <div className="success-state"><p className="eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>{canPublish ? "Laporan tersimpan dan belum tampil untuk umum. Lengkapi ringkasan dan pilih bukti publik untuk menerbitkannya." : "Admin akan mengecek laporanmu. Laporan belum tampil untuk umum."}</p><Link className="tactical-button" href={canPublish ? "/account/reports" : "/account"}>{canPublish ? "KELOLA & TAMPILKAN LAPORAN" : "LIHAT RIWAYAT LAPORAN"}</Link></div>;
+    return <div className="success-state"><p className="section-label eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>{canPublish ? "Laporan tersimpan dan belum tampil untuk umum. Lengkapi ringkasan dan pilih bukti publik untuk menerbitkannya." : "Admin akan mengecek laporanmu. Laporan belum tampil untuk umum."}</p><Link className="tactical-button" href={canPublish ? "/account/reports" : "/account"}>{canPublish ? "KELOLA & TAMPILKAN LAPORAN" : "LIHAT RIWAYAT LAPORAN"}</Link></div>;
   }
 
   return <>
     <div className="actor-bar">MASUK SEBAGAI <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div>
-    <form className="report-form" onSubmit={submit} noValidate>
+    <form ref={formRef} className="report-form" onSubmit={submit} noValidate>
       {state.error && <p className="form-error form-error-banner" role="alert">{state.error}</p>}
+      <ReportJsonImport disabled={state.loading} onImport={data => {
+        const form = formRef.current!;
+        for (const name of ["category", "entityName", "chronology", "transactionDate", "evidenceUrl"] as const) {
+          const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | RadioNodeList;
+          field.value = data[name];
+        }
+        setIdentifierRows(data.identifiers.map((row, index) => ({ ...row, id: index + 1 })));
+        setNextIdentifierId(data.identifiers.length + 1);
+        setState({ loading: false });
+      }}/>
       <fieldset>
         <legend>01 / APA YANG TERJADI?</legend>
         <div className="report-category-grid">{reportCategories.map(([value, label, description], index) => <label key={value} className="report-category-option"><input type="radio" name="category" value={value} defaultChecked={index === 0}/><span><strong>{label}</strong><small>{description}</small></span></label>)}</div>
@@ -243,7 +255,7 @@ export function SubmitReportForm() {
         <label>Screenshot chat / transfer / bukti lain<input type="file" name="evidence" accept="image/png,image/jpeg,image/webp,application/pdf" multiple/></label>
         <p className="field-note">Isi minimal salah satu: link posting atau unggah file. Maks. 5 file, 5 MB per file. File bersifat privat sampai gambar dipilih untuk publikasi oleh admin atau rekber terverifikasi yang mengirim laporan.</p>
       </fieldset>
-      <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : <>KIRIM SCAM REPORT <ArrowIcon/></>}</button>
+      <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : <>Kirim laporan <ArrowIcon/></>}</button>
     </form>
   </>;
 }

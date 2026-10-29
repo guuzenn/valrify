@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
   }
 
   return <><Header compact/><main className="page shell narrow auth-flow-page">
-    <p className="eyebrow">// KEAMANAN AKUN</p><h1 className="page-title">LUPA PASSWORD.</h1>
+    <p className="section-label eyebrow">// KEAMANAN AKUN</p><h1 className="page-title">LUPA PASSWORD.</h1>
     <p className="page-intro">Masukkan email akunmu. Jika terdaftar, kami akan mengirim tautan yang berlaku selama satu jam.</p>
     <form className="auth-card auth-flow-card" onSubmit={submit}><label>Email<input type="email" name="email" required autoComplete="email"/></label><Turnstile action="forgot-password" resetKey={captchaReset} onToken={setTurnstileToken}/><button className="tactical-button" disabled={sending || !turnstileToken}>{sending ? "MENGIRIM..." : "KIRIM TAUTAN RESET"}</button><Link className="auth-text-link" href="/login">Kembali ke halaman masuk</Link></form>
     {message&&<p className="success-message" role="status">{message}</p>}{error&&<p className="form-error" role="alert">{error}</p>}

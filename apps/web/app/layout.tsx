@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./ui-consistency.css";
 
 export async function generateMetadata():Promise<Metadata>{
   const origin = new URL(process.env.PUBLIC_APP_URL ?? (process.env.NODE_ENV === "production" ? "https://valrify.app" : "http://localhost:3000")).origin;const title="Valrify — Cek Sebelum Transaksi";const description="Cek riwayat penjual atau pembeli akun Valorant sebelum transaksi.";

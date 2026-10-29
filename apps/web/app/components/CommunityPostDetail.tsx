@@ -93,7 +93,7 @@ export function CommunityPostDetail({ initialPost, initialComments }: { initialP
 
   return <>
     <section className="community-post-detail-heading">
-      <div><span>// POST #{post.id}</span><h1>DISKUSI<br/><b>KOMUNITAS.</b></h1></div>
+      <div><span className="section-label">// POST #{post.id}</span><h1>DISKUSI<br/><b>KOMUNITAS.</b></h1></div>
       <aside><strong>BUKAN SCAM REPORT.</strong><p>Isi post adalah obrolan anggota dan tidak otomatis dianggap sebagai laporan yang sudah diperiksa admin.</p><Link href="/community">LIHAT POST LAINNYA <ArrowIcon direction="right"/></Link></aside>
     </section>
 

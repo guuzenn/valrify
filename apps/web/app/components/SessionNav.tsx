@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavigationLink as Link } from "./NavigationLink";
 import { useEffect, useState } from "react";
 import { authSessionChangedEvent, browserApi } from "../../lib/browser-api";
 
@@ -21,5 +21,5 @@ export function SessionNav() {
     };
   }, []);
   const isAdmin=user?.role==="ADMIN"||user?.role==="MODERATOR";
-  return <>{isAdmin&&<Link href="/admin">ADMIN</Link>}<Link href={user?"/account":"/login"} className={user?"nav-session active":"nav-session"}>{user?"AKUN":"MASUK"}</Link></>;
+  return <>{isAdmin&&<Link href="/admin">Admin</Link>}<Link href={user?"/account":"/login"} className={user?"nav-session active":"nav-session"}>{user?"Akun saya":"Masuk"}</Link></>;
 }

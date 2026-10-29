@@ -8,7 +8,7 @@ export const adminActionLabels: Record<string, string> = { USER_ROLE_CHANGED: "R
 export const adminDate = (value: string) => new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }).format(new Date(value));
 
 export function AdminPageHeader({ label, title, description, children }: { label: string; title: string; description: string; children?: ReactNode }) {
-  return <header className="operations-page-header"><div><p className="eyebrow">// {label}</p><h1>{title}</h1><p>{description}</p></div>{children && <div className="operations-header-actions">{children}</div>}</header>;
+  return <header className="operations-page-header"><div><p className="section-label eyebrow">// {label}</p><h1>{title}</h1><p>{description}</p></div>{children && <div className="operations-header-actions">{children}</div>}</header>;
 }
 
 export function AdminFeedback({ message, error = true }: { message: string; error?: boolean }) {

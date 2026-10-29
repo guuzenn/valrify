@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return <><Header compact backLabel="Kembali ke beranda"/><main className="page shell narrow info-page">
-    <div className="info-hero"><p className="eyebrow">// ADMIN VALRIFY</p>
+    <div className="info-hero"><p className="section-label eyebrow">// ADMIN VALRIFY</p>
     <h1 className="page-title">KONTAK &<br/>KOREKSI DATA.</h1>
     <p className="page-intro">Valrify dikelola oleh reyv. Selama beta, semua laporan diperiksa langsung oleh satu admin.</p></div>
     <aside className="info-notice"><strong>Email resmi Valrify</strong><p>Untuk pertanyaan, koreksi data, atau laporan masalah, kirim email ke <a href="mailto:support@valrify.app"><u>support@valrify.app</u></a>. Pesan akan diperiksa langsung oleh admin.</p></aside>

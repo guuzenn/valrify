@@ -78,7 +78,7 @@ export function ConfirmationForm({
   if (state.submitted) {
     return (
       <div className="success-state">
-        <p className="eyebrow">// TESTI TERKIRIM</p>
+        <p className="section-label eyebrow">// TESTI TERKIRIM</p>
         <h2>SUDAH TAMPIL.</h2>
         <p>
           Testimu langsung muncul di profil transaksi ini.

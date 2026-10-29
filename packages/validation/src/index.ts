@@ -119,6 +119,34 @@ export const reportSchema = z.object({
 
 export const reportQueueSchema = z.enum(["PENDING", "PUBLISHED"]).default("PENDING");
 
+export const reportFormImportSchema = z.strictObject({
+  category: z.enum(["PAYMENT_FRAUD", "FAKE_MIDDLEMAN", "HACKBACK", "ACCOUNT_MISMATCH", "OTHER"]),
+  entityName: z.string().trim().min(2).max(80),
+  chronology: z.string().trim().min(30).max(5000),
+  transactionDate: z.union([z.iso.date(), z.literal("")]).default(""),
+  evidenceUrl: z.union([z.url().max(500).refine(value => /^https?:\/\//i.test(value)), z.literal("")]).default(""),
+  identifiers: z.array(z.strictObject({
+    type: z.enum(["BANK_ACCOUNT", "EWALLET", "PHONE", "RIOT_ID", "DISCORD", "FACEBOOK_NAME", "PERSON_NAME", "OTHER"]),
+    value: z.string().trim().min(2).max(160),
+    provider: z.string().trim().max(40).default(""),
+    relatedName: z.string().trim().max(160).default(""),
+    secondaryValue: z.string().trim().max(160).default(""),
+  })).min(1).max(8),
+}).superRefine((data, ctx) => {
+  let count = data.identifiers.length;
+  data.identifiers.forEach((row, index) => {
+    const issue = (field: string, message: string) => ctx.addIssue({ code: "custom", path: ["identifiers", index, field], message });
+    const payment = row.type === "BANK_ACCOUNT" || row.type === "EWALLET";
+    const secondary = row.type === "RIOT_ID" || row.type === "FACEBOOK_NAME";
+    if (payment && row.provider.length < 2) issue("provider", "Isi nama bank atau e-wallet.");
+    if (row.relatedName && (!payment || row.relatedName.length < 2)) issue("relatedName", "Nama pemilik minimal dua karakter dan hanya untuk rekening/e-wallet.");
+    if (row.secondaryValue && (!secondary || row.secondaryValue.length < 2)) issue("secondaryValue", "Data tambahan hanya untuk Riot atau Facebook, minimal dua karakter.");
+    if (row.type === "FACEBOOK_NAME" && row.secondaryValue && !/^https?:\/\//i.test(row.secondaryValue)) issue("secondaryValue", "Link Facebook harus menggunakan http atau https.");
+    if (payment && row.relatedName || secondary && row.secondaryValue) count++;
+  });
+  if (count > 8) ctx.addIssue({ code: "custom", path: ["identifiers"], message: "Maksimal delapan data termasuk nama atau link tambahan." });
+});
+
 export const reportEditSchema = z.object({
   updatedAt: z.iso.datetime(),
   chronology: z.string().trim().min(30, "Kronologi minimal 30 karakter.").max(5000, "Kronologi maksimal 5.000 karakter."),

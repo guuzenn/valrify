@@ -71,21 +71,21 @@ export function AdminLoginForm({ entry }: { entry: string }) {
 
   return <section className="auth-card auth-flow-card admin-login-card" aria-live="polite">
     {step === "password" ? <form onSubmit={login}>
-      <p className="panel-index">// LOGIN ADMIN</p><h2>PASSWORD, LALU AUTHENTICATOR.</h2>
+      <p className="section-label panel-index">// LOGIN ADMIN</p><h2>PASSWORD, LALU AUTHENTICATOR.</h2>
       <p>Akses admin dan moderator memakai password serta verifikasi dua langkah.</p>
       <label>Email<input type="email" name="email" autoComplete="username" required/></label>
       <label>Password<input type="password" name="password" autoComplete="current-password" required/></label>
       <button className="tactical-button" disabled={busy}>{busy ? "MEMERIKSA..." : "LANJUTKAN"}</button>
       <Link className="auth-text-link" href="/forgot-password">Lupa password?</Link>
     </form> : step === "recovery-codes" ? <div className="mfa-recovery">
-      <p className="panel-index">// MFA AKTIF</p><h2>SIMPAN RECOVERY CODE.</h2>
+      <p className="section-label panel-index">// MFA AKTIF</p><h2>SIMPAN RECOVERY CODE.</h2>
       <p>Kode ini hanya ditampilkan sekali. Simpan di password manager. Setiap kode hanya bisa digunakan sekali bersama password untuk memasang authenticator baru jika HP hilang.</p>
       <p>Memasang authenticator baru mengganti seluruh recovery code lama. Jangan bagikan kode ini.</p>
       <pre aria-label="Recovery codes">{codes.join("\n")}</pre>
       <label className="mfa-saved"><input type="checkbox" checked={saved} onChange={event => setSaved(event.target.checked)}/>Saya sudah menyimpan recovery code di tempat aman.</label>
       <button className="tactical-button" disabled={!saved} onClick={enterPanel}>BUKA PANEL ADMIN</button>
     </div> : <form key={`${step}-${recovery}`} onSubmit={verify}>
-      <p className="panel-index">// VERIFIKASI DUA LANGKAH</p>
+      <p className="section-label panel-index">// VERIFIKASI DUA LANGKAH</p>
       <h2>{step === "setup" ? "PASANG AUTHENTICATOR." : recovery ? "GUNAKAN RECOVERY CODE." : "MASUKKAN KODE."}</h2>
       {step === "setup" ? setup ? <>
         <p>Scan QR dengan aplikasi authenticator di HP. Jika tidak bisa scan, masukkan setup key secara manual.</p>

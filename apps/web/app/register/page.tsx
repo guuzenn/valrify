@@ -45,16 +45,16 @@ export default function RegisterPage() {
   }
 
   return <><Header compact/><main className="page shell narrow auth-flow-page">
-    <p className="eyebrow">// AKUN VALRIFY</p><h1 className="page-title">BUAT AKUN BARU.</h1>
+    <p className="section-label eyebrow">// AKUN VALRIFY</p><h1 className="page-title">BUAT AKUN BARU.</h1>
     {checking ? <div className="actor-bar auth-loading">MEMERIKSA AKUN...</div> : registration ? <section className="auth-result-card" role="status">
-      <p className="panel-index">// AKUN BERHASIL DIBUAT</p>
+      <p className="section-label panel-index">// AKUN BERHASIL DIBUAT</p>
       <h2>{registration.verified ? "AKUN SUDAH AKTIF." : registration.emailSent ? "CEK EMAILMU." : "EMAIL BELUM TERKIRIM."}</h2>
       <p>{message}</p>
       {!registration.verified && <p>Alamat pendaftaran: <strong>{registration.email}</strong>. {registration.emailSent ? "Buka tautan verifikasi untuk mengaktifkan akun. Periksa folder Spam jika email belum terlihat." : "Akunmu sudah tersimpan. Coba kirim ulang verifikasi; tidak perlu mendaftar lagi."}</p>}
       <Link className="tactical-button" href="/login">KE HALAMAN MASUK</Link>
       {!registration.verified && <Link className="auth-text-link" href="/verify-email">Kirim ulang email verifikasi</Link>}
     </section> : <form className="auth-card auth-flow-card" onSubmit={register}>
-      <p className="panel-index">// DAFTAR</p><h2>MULAI KONTRIBUSIMU.</h2>
+      <p className="section-label panel-index">// DAFTAR</p><h2>MULAI KONTRIBUSIMU.</h2>
       <label>Username<input name="username" required minLength={3} maxLength={24} pattern="[a-zA-Z0-9_]+" autoComplete="username" autoCapitalize="none" spellCheck={false} aria-describedby="username-help"/></label>
       <small id="username-help" className="field-note">3–24 karakter: huruf, angka, atau underscore. Profilmu tersedia di /u/username.</small>
       <label>Email<input type="email" name="email" required autoComplete="email"/></label>

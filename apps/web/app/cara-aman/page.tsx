@@ -37,19 +37,20 @@ const secureSteps = [
 
 export default function AccountSafetyPage() {
   return <><Header compact backHref="/" backLabel="Kembali ke beranda"/><main className="page shell safety-page">
-    <section className="safety-hero"><div><p className="eyebrow">// PANDUAN ADMIN VALRIFY</p><h1 className="page-title">DANA MASUK.<br/>CEK AKUN.<br/>BARU CAIR.</h1></div><p>Panduan sederhana untuk mengurangi risiko saat membeli akun. Tidak ada cara yang bisa menjamin akun bebas hackback.</p></section>
+    <section className="safety-hero"><div><p className="section-label eyebrow">// PANDUAN ADMIN VALRIFY</p><h1 className="page-title">CEK DULU.<br/>BARU LANJUT TRANSAKSI.</h1></div><p>Panduan sederhana untuk mengurangi risiko saat membeli akun. Tidak ada cara yang bisa menjamin akun bebas hackback.</p></section>
     <Policy label="ATURAN RESMI RIOT" title="Jual beli dan transfer akun dilarang oleh Riot." href="https://www.riotgames.com/en/terms-of-service">Riot melarang akun dan data login dijual, dibagikan, atau dipindahkan. Halaman ini hanya membantu mengurangi risiko bagi orang yang tetap memilih bertransaksi. Ini bukan jaminan aman dan bukan panduan resmi dari Riot.</Policy>
 
-    <GuideSection id="istilah" number="01" label="KENALI ISTILAH" title="BIAR NGGAK BINGUNG." description="Baca bagian ini dulu. Istilah berikut sering dipakai dalam jual beli akun Valorant.">
-      <div className="glossary-grid">{terms.map(([term, meaning]) => <article key={term}><strong>{term}</strong><p>{meaning}</p></article>)}</div>
-      <p className="safety-copy"><strong>Take FE tidak otomatis aman. No FE juga tidak otomatis berbahaya.</strong> Keamanan tetap bergantung pada riwayat akun, kejujuran seller, dan hasil pemeriksaan.</p>
-    </GuideSection>
 
-    <section className="trade-flow" aria-labelledby="flow-title"><div><p className="panel-index">ALUR TRANSAKSI</p><h2 id="flow-title">URUTANNYA BEGINI.</h2></div><ol>{flow.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span><strong>{item}</strong></li>)}</ol></section>
 
+    <section className="trade-flow" aria-labelledby="flow-title"><div><p className="panel-index">ALUR TRANSAKSI</p><h2 id="flow-title">URUTANNYA BEGINI.</h2></div><ol>{flow.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span><a href={index < 3 ? "#sebelum-transfer" : index === 3 ? "#cek-akun" : "#pencairan"}>{item}</a></li>)}</ol></section>
+
+    <aside className="safety-warning" aria-labelledby="fe-warning-title"><span>Perlu diingat</span><h2 id="fe-warning-title">Take FE tidak otomatis aman. No FE juga tidak otomatis berbahaya.</h2><p>Keamanan tetap bergantung pada riwayat akun, kejujuran seller, dan hasil pemeriksaan.</p></aside>
+    <details className="reading-disclosure" id="istilah"><summary>Belum paham istilahnya?</summary>      <div className="glossary-grid">{terms.map(([term, meaning]) => <article key={term}><strong>{term}</strong><p>{meaning}</p></article>)}</div>
+
+</details>
     <GuideSection id="sebelum-transfer" number="02" label="SEBELUM TRANSFER" title="CEK SELLER DAN REKBER." description="Jangan transfer sebelum seller, rekber, dan nomor yang dipakai sudah kamu pastikan.">
       <div className="red-flag-list">
-        <article><span>01</span><div><h3>CEK RIWAYAT SELLER</h3><p>Cari nama, nomor, rekening, username, dan nama lain yang pernah dipakai seller di Valrify dan grup Facebook.</p><Link href="/search">CEK DI VALRIFY <span aria-hidden="true"><ArrowIcon/></span></Link></div></article>
+        <article><span>01</span><div><h3>CEK RIWAYAT SELLER</h3><p>Cari nama, nomor, rekening, username, dan nama lain yang pernah dipakai seller di Valrify dan grup Facebook.</p><Link href="/search">Cek akun <span aria-hidden="true"><ArrowIcon/></span></Link></div></article>
         <article><span>02</span><div><h3>MINTA BUKTI PEMBELIAN</h3><p>Kalau seller mengaku akun itu hasil beli, minta bukti belinya. Jika katanya dari store, hubungi akun resmi store dan tanyakan apakah akun itu benar pernah dijual di sana.</p></div></article>
         <article><span>03</span><div><h3>PASTIKAN REKBERNYA ASLI</h3><p>Kalau kamu tidak kenal rekbernya, tanyakan di grup komunitas. Cocokkan nomor dengan nomor resmi rekber. Jangan percaya nomor alternatif yang hanya dikirim seller.</p><Link href="/rekber">PANDUAN MEMILIH REKBER <span aria-hidden="true"><ArrowIcon/></span></Link></div></article>
         <article><span>04</span><div><h3>TRANSFER KE REKBER</h3><p>Transfer dana ke rekening resmi rekber, bukan ke seller. Setelah dana diterima rekber, seller baru memberikan data akun untuk diperiksa.</p></div></article>
@@ -71,21 +72,22 @@ export default function AccountSafetyPage() {
 
     <GuideSection id="amankan" number="04" label="AMANKAN AKUN" title="AMANKAN SEMUANYA." description="Lakukan langkah ini saat dana masih dipegang rekber. Setelah selesai, baru minta rekber mencairkan dana ke seller." priority>
       <ol className="handover-steps">{secureSteps.map(([title, description], index) => <li key={title}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{title}</strong><p>{description}</p></div></li>)}</ol>
-      <div><Policy label="KEAMANAN RESMI RIOT" title="Pasang kembali MFA milik pembeli." href="https://support-valorant.riotgames.com/hc/en-us/articles/46410758641811">Setelah MFA seller dilepas, segera pasang MFA baru. Gunakan Riot Mobile atau aplikasi authenticator yang hanya bisa dibuka oleh pembeli.</Policy><div className="release-check"><span>LANGKAH TERAKHIR</span><strong>MINTA REKBER CAIRKAN DANA.</strong><p>Sebelum pencairan, minta rekber mengecek lagi apakah nama dan rekening seller sesuai dengan identitas yang diberikan.</p></div></div>
+      <div><Policy label="KEAMANAN RESMI RIOT" title="Pasang kembali MFA milik pembeli." href="https://support-valorant.riotgames.com/hc/en-us/articles/46410758641811">Setelah MFA seller dilepas, segera pasang MFA baru. Gunakan Riot Mobile atau aplikasi authenticator yang hanya bisa dibuka oleh pembeli.</Policy></div>
     </GuideSection>
 
     <GuideSection id="fe" number="05" label="FIRST EMAIL" title="KALAU TAKE FE." description="Bagian ini hanya perlu dilakukan jika seller menyerahkan akses penuh First Email kepada pembeli. Mengganti email Riot tidak mengubah riwayat FE akun tersebut." optional>
-      <div className="fe-examples">
+      <details className="reading-disclosure"><summary>Contoh email FE</summary><div className="fe-examples">
         <article><span>TIPE 01</span><h3>YOUR RIOT ACCOUNT HAS BEEN CREATED</h3><p>Sering muncul jika akun dibuat lewat Google atau Facebook. Username tidak selalu terlihat, jadi bukti ini lebih mudah dimanipulasi memakai akun baru.</p></article>
         <article><span>TIPE 02</span><h3>WELCOME TO RIOT GAMES</h3><p>Biasanya ada username. Cocokkan username, alamat pengirim, tanggal, dan isi emailnya.</p></article>
         <article><span>TIPE 03</span><h3>THE FIELDS OF JUSTICE AWAIT</h3><p>Bisa muncul jika akun lebih dulu dipakai untuk League of Legends atau Wild Rift. Biasanya username juga terlihat.</p></article>
       </div>
-      <div className="identity-warning"><strong>AWAS HURUF MIRIP.</strong><p>Perhatikan huruf <code>I</code> besar dan <code>l</code> kecil. Bentuknya mirip dan sering dipakai untuk membuat username palsu terlihat sama.</p></div>
+      </details><div className="identity-warning"><strong>AWAS HURUF MIRIP.</strong><p>Perhatikan huruf <code>I</code> besar dan <code>l</code> kecil. Bentuknya mirip dan sering dipakai untuk membuat username palsu terlihat sama.</p></div>
       <p className="safety-copy">Pemilik FE mungkin tahu data untuk pemulihan akun, seperti tanggal akun dibuat, email pendaftaran, dan bukti top up. Karena itu, bukti FE tetap harus dicocokkan dengan akun dan riwayat seller.</p>
       <Policy label="KEBIJAKAN RESMI GOOGLE" title="Data pemulihan lama bisa masih dipakai selama 7 hari." href="https://support.google.com/accounts/answer/183723?hl=id" tone="google">Setelah nomor, email pemulihan, atau cara verifikasi diganti, Google mungkin masih mengirim kode ke data lama selama 7 hari. Nomor baru juga bisa membutuhkan waktu sampai 7 hari untuk aktif. Tujuh hari adalah waktu tunggu, bukan jaminan akun pasti aman.</Policy>
       <div className="fe-security-check"><div><span>JIKA TAKE FE</span><h3>AMANKAN EMAILNYA.</h3><p>Kalau Google masih meminta verifikasi seller, minta seller membantu selagi dana masih dipegang rekber.</p></div><ol><li>Ganti password email.</li><li>Ganti email pemulihan dan nomor telepon.</li><li>Cek 2FA, passkey, kontak pemulihan, dan aplikasi yang masih terhubung.</li><li>Logout dari perangkat lama.</li><li>Jika perlu, gunakan HOLD sampai data pemulihan lama tidak muncul lagi.</li></ol></div>
     </GuideSection>
 
-    <section className="safety-finish"><p className="eyebrow">// KALAU ADA YANG ANEH</p><h2>JANGAN LANJUT DULU.</h2><p>Kalau cerita seller berubah, nomor rekber berbeda, data akun tidak sesuai, atau kamu ditekan untuk cepat mencairkan dana, berhenti dan cek ulang.</p><Link className="tactical-button" href="/search">CEK DI VALRIFY <ArrowIcon/></Link></section>
+    <section id="pencairan"><div className="release-check"><span>LANGKAH TERAKHIR</span><strong>MINTA REKBER CAIRKAN DANA.</strong><p>Sebelum pencairan, minta rekber mengecek lagi apakah nama dan rekening seller sesuai dengan identitas yang diberikan.</p></div></section>
+    <section className="safety-finish"><p className="section-label eyebrow">// KALAU ADA YANG ANEH</p><h2>JANGAN LANJUT DULU.</h2><p>Kalau cerita seller berubah, nomor rekber berbeda, data akun tidak sesuai, atau kamu ditekan untuk cepat mencairkan dana, berhenti dan cek ulang.</p><Link className="tactical-button" href="/search">Cek akun <ArrowIcon/></Link></section>
   </main><Footer/></>;
 }

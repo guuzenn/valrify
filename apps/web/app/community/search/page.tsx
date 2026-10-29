@@ -35,7 +35,7 @@ export default async function CommunitySearchPage({ searchParams }: { searchPara
 
   return <><Header compact backHref="/community" backLabel="Kembali ke Community"/><main className="page shell community-search-page">
     <section className="community-search-hero">
-      <div><span>// COMMUNITY SEARCH</span><h1>CARI<br/><b>OBROLAN.</b></h1><p>Temukan post dari isi pembahasannya, atau cari anggota lewat nama dan username.</p></div>
+      <div><span className="section-label">// COMMUNITY SEARCH</span><h1>CARI<br/><b>OBROLAN.</b></h1><p>Temukan post dari isi pembahasannya, atau cari anggota lewat nama dan username.</p></div>
       <aside><strong>PENCARIAN TERPISAH.</strong><p>Hasil di sini hanya aktivitas Community. Untuk mengecek rekening, nomor, atau data penipu, tetap gunakan menu Cek.</p><Link href="/search">CEK DATA PENIPU <ArrowIcon direction="right"/></Link></aside>
     </section>
 

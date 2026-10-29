@@ -5,7 +5,6 @@ import { AccountModule } from "./account/account.module";
 import { AdminModule } from "./admin/admin.module";
 import { AuthModule } from "./auth/auth.module";
 import { CommunityModule } from "./community/community.module";
-import { ConfirmationsModule } from "./confirmations/confirmations.module";
 import { DatabaseModule } from "./database/database.module";
 import { HealthController } from "./health.controller";
 import { NotificationsModule } from "./notifications/notifications.module";
@@ -23,7 +22,6 @@ import { ReportsModule } from "./reports/reports.module";
     NotificationsModule,
     PublicModule,
     ReportsModule,
-    ConfirmationsModule,
     AdminModule,
   ],
   controllers: [HealthController],

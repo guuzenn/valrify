@@ -72,10 +72,10 @@ export default function LoginPage() {
   }
 
   return <><Header compact/><main className="page shell narrow auth-flow-page">
-    <p className="eyebrow">// AKUN VALRIFY</p>
+    <p className="section-label eyebrow">// AKUN VALRIFY</p>
     <h1 className="page-title">MASUK KE AKUN.</h1>
     {user===undefined?<div className="actor-bar auth-loading">MEMERIKSA AKUN...</div>:user?<section className="session-card">
-      <p className="panel-index">// KAMU SUDAH MASUK</p>
+      <p className="section-label panel-index">// KAMU SUDAH MASUK</p>
       <div className="session-identity"><div><span>MASUK SEBAGAI</span><h2>{user.displayName}</h2><p>{user.email}</p></div><strong>{roleLabel(user.role)}</strong></div>
       <p>Kalau mau memakai akun lain, keluar dari akun ini dulu.</p>
       <div className="session-actions">
@@ -83,7 +83,7 @@ export default function LoginPage() {
         <Link className="tactical-button" href={user.role==="ADMIN"||user.role==="MODERATOR"?"/admin/reports":"/account"}>{user.role==="ADMIN"||user.role==="MODERATOR"?"BUKA HALAMAN ADMIN":"BUKA AKUN SAYA"} <ArrowIcon/></Link>
       </div>
     </section>:<form className="auth-card auth-flow-card" onSubmit={login}>
-      <p className="panel-index">// MASUK</p><h2>SELAMAT DATANG KEMBALI.</h2>
+      <p className="section-label panel-index">// MASUK</p><h2>SELAMAT DATANG KEMBALI.</h2>
       <label>Email<input type="email" name="email" required autoComplete="email"/></label>
       <label>Password<input type="password" name="password" required autoComplete="current-password"/></label>
       <Link className="auth-text-link" href="/forgot-password">Lupa password?</Link>

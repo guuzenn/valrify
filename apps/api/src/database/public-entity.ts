@@ -1,12 +1,11 @@
 import { sql, type SQLWrapper } from "drizzle-orm";
-import { entities, identifiers, reportIdentifiers, reportParties, reports, transactionConfirmations } from "./schema";
+import { entities, identifiers, reportIdentifiers, reportParties, reports } from "./schema";
 
 export const reportInvolvesEntity = (entityId: number | SQLWrapper) => sql`(${reports.entityId} = ${entityId} or exists (select 1 from ${reportParties} rp where rp.report_id = ${reports.id} and rp.entity_id = ${entityId}))`;
 export const reportIdentifierForEntity = (entityId: number | SQLWrapper) => sql`coalesce(${reportIdentifiers.entityId}, ${reports.entityId}) = ${entityId}`;
 
 export const publicEntityCondition = sql`(
   exists (select 1 from ${reports} where ${reportInvolvesEntity(entities.id)} and ${reports.status} = 'PUBLISHED')
-  or exists (select 1 from ${transactionConfirmations} where ${transactionConfirmations.entityId} = ${entities.id} and ${transactionConfirmations.status} = 'APPROVED')
 )`;
 
 // Keep internal identity links, but hide withdrawn identifiers unless another published report supports them.

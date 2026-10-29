@@ -23,7 +23,7 @@ test("withdrawal hides cases, evidence and unsupported identifiers while preserv
   const withdraw = reviewSchema.parse({ decision: "WITHDRAW", rationale: "Identifier keliru dan perlu ditarik dari publik." });
   try {
     await database.db.insert(users).values([
-      { id: userId, email: `${userId}@valrify.local`, displayName: "Fixture reporter", emailVerifiedAt: new Date() },
+      { id: userId, username: userId, email: `${userId}@valrify.local`, displayName: "Fixture reporter", emailVerifiedAt: new Date() },
       { id: adminId, email: `${adminId}@valrify.local`, displayName: "Fixture admin", role: "ADMIN", emailVerifiedAt: new Date() },
     ]);
     const createdEntities = await database.db.insert(entities).values([
@@ -79,7 +79,13 @@ test("withdrawal hides cases, evidence and unsupported identifiers while preserv
     await admin.review(onlyReport!.id, adminId, withdraw);
     assert.equal(await publicService.entity(onlyEntity!.slug), null);
     await database.db.insert(transactionConfirmations).values({ userId, entityId: onlyEntity!.id, transactionDate: new Date(), status: "APPROVED" });
-    assert.deepEqual((await publicService.entity(onlyEntity!.slug))?.identifiers, []);
+    assert.equal(await publicService.entity(onlyEntity!.slug), null);
+    assert.equal((await database.db.select().from(transactionConfirmations).where(eq(transactionConfirmations.entityId, onlyEntity!.id))).length, 1, "Archived testimonials are preserved without making a profile public");
+    assert.ok(!("confirmations" in (await publicService.entity(sharedEntity!.slug))!));
+    const member = (await publicService.communityUser(userId))!;
+    assert.ok(member);
+    assert.ok(!("testimonials" in member));
+    assert.ok(!("testimonials" in member.stats));
     assert.deepEqual(await publicService.search(values[2]!), []);
     const history = await database.db.select().from(reportStatusHistory).where(eq(reportStatusHistory.reportId, removedReport!.id));
     assert.equal(history.filter((row) => row.toStatus === "WITHDRAWN").length, 1);
@@ -88,6 +94,7 @@ test("withdrawal hides cases, evidence and unsupported identifiers while preserv
     assert.equal(audit.find((row) => row.action === "REPORT_WITHDRAWN")?.rationale, withdraw.rationale);
     assert.equal((await admin.evidence(evidence[0]!.id)).meta.isPublicApproved, false);
     const own = await new AccountService(database).overview(userId);
+    assert.ok(!("confirmations" in own));
     assert.equal(own.reports.find((row) => row.id === removedReport!.id)?.moderatorNote, withdraw.rationale);
   } finally {
     if (reportIds.length) {

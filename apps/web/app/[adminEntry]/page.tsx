@@ -11,7 +11,7 @@ export default async function AdminLoginPage({ params }: { params: Promise<{ adm
   const configured = process.env.ADMIN_LOGIN_SLUG;
   if (!configured || !/^mgmt-[a-z0-9]{16,64}$/.test(configured) || adminEntry !== configured) notFound();
   return <><Header compact backLabel="Kembali ke beranda"/><main className="page shell narrow auth-flow-page">
-    <p className="eyebrow">// AKSES TERBATAS</p><h1 className="page-title">MASUK ADMIN.</h1>
+    <p className="section-label eyebrow">// AKSES TERBATAS</p><h1 className="page-title">MASUK ADMIN.</h1>
     <AdminLoginForm entry={adminEntry}/>
   </main><Footer/></>;
 }

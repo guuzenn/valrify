@@ -21,7 +21,6 @@ import {
   reportIdentifiers,
   reportParties,
   reports,
-  transactionConfirmations,
   users,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
@@ -56,7 +55,7 @@ export class PublicService {
     });
     if (!member?.username) return null;
     const isTrustedRole = ["ADMIN", "MODERATOR", "VERIFIED_MIDDLEMAN"].includes(member.role);
-    const [reportRows, confirmationRows, postRows] = await Promise.all([
+    const [reportRows, postRows] = await Promise.all([
       isTrustedRole
         ? this.database.db
             .select({
@@ -72,19 +71,6 @@ export class PublicService {
             .where(and(eq(reports.reporterId, member.id), eq(reports.status, "PUBLISHED")))
             .orderBy(desc(reports.publishedAt))
         : Promise.resolve([]),
-      this.database.db
-        .select({
-          id: transactionConfirmations.id,
-          transactionDate: transactionConfirmations.transactionDate,
-          amount: transactionConfirmations.amount,
-          note: transactionConfirmations.note,
-          entityName: entities.displayName,
-          entitySlug: entities.slug,
-        })
-        .from(transactionConfirmations)
-        .innerJoin(entities, eq(entities.id, transactionConfirmations.entityId))
-        .where(and(eq(transactionConfirmations.userId, member.id), eq(transactionConfirmations.status, "APPROVED")))
-        .orderBy(desc(transactionConfirmations.transactionDate)),
       this.database.db
         .select({ id: communityPosts.id, body: communityPosts.body, createdAt: communityPosts.createdAt, updatedAt: communityPosts.updatedAt })
         .from(communityPosts)
@@ -102,10 +88,8 @@ export class PublicService {
       stats: {
         posts: postRows.length,
         reports: reportRows.length,
-        testimonials: confirmationRows.length,
       },
       reports: reportRows,
-      testimonials: confirmationRows,
       posts: postRows,
     };
   }
@@ -308,7 +292,7 @@ export class PublicService {
 
     return Promise.all(
       uniqueMatches.map(async (row) => {
-        const [reportResult, confirmationResult, publishedIdentifierResult] = await Promise.all([
+        const [reportResult, publishedIdentifierResult] = await Promise.all([
           this.database.db
             .select({ value: count() })
             .from(reports)
@@ -316,15 +300,6 @@ export class PublicService {
               and(
                 reportInvolvesEntity(row.entityId),
                 eq(reports.status, "PUBLISHED"),
-              ),
-            ),
-          this.database.db
-            .select({ value: count() })
-            .from(transactionConfirmations)
-            .where(
-              and(
-                eq(transactionConfirmations.entityId, row.entityId),
-                eq(transactionConfirmations.status, "APPROVED"),
               ),
             ),
           row.identifierId === null || row.directlyPublished
@@ -352,7 +327,6 @@ export class PublicService {
             true,
           ),
           reportCount: reportResult[0]?.value ?? 0,
-          successfulTransactionCount: confirmationResult[0]?.value ?? 0,
         };
       }),
     );
@@ -428,7 +402,7 @@ export class PublicService {
     const [entity] = await this.database.db.select().from(entities).where(and(eq(entities.slug, slug), publicEntityCondition)).limit(1);
     if (!entity) return null;
 
-    const [identifierRows, publishedIdentifierRows, reportRows, confirmationRows] = await Promise.all([
+    const [identifierRows, publishedIdentifierRows, reportRows] = await Promise.all([
       this.database.db
         .select({
           id: identifiers.id,
@@ -465,21 +439,6 @@ export class PublicService {
           and(reportInvolvesEntity(entity.id), eq(reports.status, "PUBLISHED")),
         )
         .orderBy(desc(reports.publishedAt)),
-      this.database.db
-        .select({
-          id: transactionConfirmations.id,
-          transactionDate: transactionConfirmations.transactionDate,
-          amount: transactionConfirmations.amount,
-          note: transactionConfirmations.note,
-        })
-        .from(transactionConfirmations)
-        .where(
-          and(
-            eq(transactionConfirmations.entityId, entity.id),
-            eq(transactionConfirmations.status, "APPROVED"),
-          ),
-        )
-        .orderBy(desc(transactionConfirmations.transactionDate)),
     ]);
 
     const publishedIdentifierIds = new Set(
@@ -512,9 +471,7 @@ export class PublicService {
         ...report,
         uploadedBy: publicUploaderAttribution(uploaderDisplayName, uploaderRole as Role),
       })),
-      confirmations: confirmationRows,
       reportCount: reportRows.length,
-      successfulTransactionCount: confirmationRows.length,
     };
   }
 

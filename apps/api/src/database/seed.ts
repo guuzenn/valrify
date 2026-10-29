@@ -19,7 +19,6 @@ import {
   reportIdentifiers,
   reports,
   reportStatusHistory,
-  transactionConfirmations,
   users,
 } from "./schema";
 
@@ -350,15 +349,6 @@ async function seed() {
 
   const arkaEntity = (await db.select().from(entities).where(eq(entities.slug, "arkanusa-demo")))[0];
   if (arkaEntity) {
-    await db.insert(transactionConfirmations).values({
-      userId: "demo-reporter",
-      entityId: arkaEntity.id,
-      transactionDate: new Date("2026-07-20"),
-      amount: 300_000,
-      note: "Konfirmasi transaksi fiktif.",
-      status: "APPROVED",
-    }).onConflictDoNothing();
-
     const pendingReportValues = {
       reporterId: testerUser.id,
       entityId: arkaEntity.id,
@@ -387,26 +377,6 @@ async function seed() {
         await db.insert(reportIdentifiers).values({ reportId: pendingReport.id, identifierId: identifier.id }).onConflictDoNothing();
       }
     }
-  }
-
-  const senjaEntity = (await db.select().from(entities).where(eq(entities.slug, "senja-vault-demo")))[0];
-  if (senjaEntity) {
-    const demoConfirmation = {
-      userId: testerUser.id,
-      entityId: senjaEntity.id,
-      transactionDate: new Date("2026-08-21"),
-      amount: 540_000,
-      note: "Testi fiktif. Transaksi selesai melalui rekber dan data akun sudah diamankan oleh pembeli.",
-      status: "APPROVED",
-      moderationNote: "",
-      reviewedBy: null,
-      reviewedAt: null,
-      updatedAt: new Date(),
-    };
-    await db.insert(transactionConfirmations).values(demoConfirmation).onConflictDoUpdate({
-      target: [transactionConfirmations.userId, transactionConfirmations.entityId, transactionConfirmations.transactionDate],
-      set: demoConfirmation,
-    });
   }
 
   for (const post of [
@@ -474,7 +444,7 @@ async function seed() {
   }
 
   await pool.end();
-  console.log("Valrify fictional seed ready: public cases, one report for admin review, and one public testi");
+  console.log("Valrify fictional seed ready: public cases, one report for admin review, without testimonials");
 }
 
 seed().catch((error) => {
