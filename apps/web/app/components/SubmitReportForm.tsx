@@ -205,7 +205,7 @@ export function SubmitReportForm() {
   }
 
   return <>
-    <div className="actor-bar">MASUK SEBAGAI <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div>
+    <div className="actor-bar">Melapor sebagai <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div>
     <form ref={formRef} className="report-form" onSubmit={submit} noValidate>
       {state.error && <p className="form-error form-error-banner" role="alert">{state.error}</p>}
       <ReportJsonImport disabled={state.loading} onImport={data => {
@@ -219,14 +219,17 @@ export function SubmitReportForm() {
         setState({ loading: false });
       }}/>
       <fieldset>
-        <legend>01 / APA YANG TERJADI?</legend>
+        <legend><span>01</span> Apa yang terjadi?</legend>
+        <div className="report-section-body">
         <div className="report-category-grid">{reportCategories.map(([value, label, description], index) => <label key={value} className="report-category-option"><input type="radio" name="category" value={value} defaultChecked={index === 0}/><span><strong>{label}</strong><small>{description}</small></span></label>)}</div>
+        </div>
       </fieldset>
       <fieldset>
-        <legend>02 / SIAPA YANG DILAPORKAN?</legend>
+        <legend><span>02</span> Siapa yang dilaporkan?</legend>
+        <div className="report-section-body">
         <label>Nama orang / akun yang dilaporkan<input name="entityName" required minLength={2} maxLength={80}/><small className="field-note">Pakai nama yang paling dikenal. Nama asli atau nama Facebook bisa ditambahkan sebagai nama lain di bawah.</small></label>
         <div className="identifier-builder">
-          <div className="identifier-builder-heading"><div><strong>DATA YANG KAMU PUNYA</strong><p>Tambahkan semua nomor, rekening, atau akun yang dipakai orang ini. Kalau ada yang sudah dikenal Valrify, laporan akan masuk ke profil yang sama.</p></div><span>{submittedIdentifierCount}/8</span></div>
+          <div className="identifier-builder-heading"><div><strong>Nomor dan akun terkait</strong><p>Tambahkan nomor, rekening, atau akun milik pihak yang sama. Maksimal 8 data.</p></div><span>{submittedIdentifierCount}/8</span></div>
           {identifierRows.map((row, index) => <div className="identifier-entry" key={row.id}>
             <div className="form-grid">
               <label>Jenis data<Select label="Jenis data" value={row.type} onValueChange={value => updateIdentifier(row.id, { type: value, provider: "", relatedName: "", secondaryValue: "" })}>{types.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select></label>
@@ -239,21 +242,26 @@ export function SubmitReportForm() {
             {row.type === "RIOT_ID" && <div className="composite-fields"><label>Nickname / Riot ID (opsional)<input value={row.secondaryValue} onChange={(event) => updateIdentifier(row.id, { secondaryValue: event.target.value })} placeholder="Contoh: NamaGame#TAG" minLength={2} maxLength={160} disabled={submittedIdentifierCount >= 8 && !row.secondaryValue.trim()}/></label><small className="field-note">Jangan masukkan password, email login, atau kode OTP. Nickname bisa berubah, jadi sertakan rekening atau nomor lain jika tersedia.</small></div>}
             {row.type === "FACEBOOK_NAME" && <div className="composite-fields"><label>Link profil Facebook (opsional)<input type="url" value={row.secondaryValue} onChange={(event) => updateIdentifier(row.id, { secondaryValue: event.target.value })} placeholder="https://www.facebook.com/..." maxLength={160} disabled={submittedIdentifierCount >= 8 && !row.secondaryValue.trim()}/></label></div>}
             {row.type === "OTHER" && <label>Nama platform (opsional)<input value={row.provider} onChange={(event) => updateIdentifier(row.id, { provider: event.target.value })} placeholder="Contoh: Telegram, Instagram" maxLength={40}/></label>}
-            {identifierRows.length > 1 && <div className="identifier-entry-footer"><span/><button type="button" className="remove-data-button" onClick={() => setIdentifierRows((rows) => rows.filter((item) => item.id !== row.id))}>HAPUS DATA {index + 1}</button></div>}
+            {identifierRows.length > 1 && <div className="identifier-entry-footer"><span/><button type="button" className="remove-data-button" onClick={() => setIdentifierRows((rows) => rows.filter((item) => item.id !== row.id))}>Hapus data {index + 1}</button></div>}
           </div>)}
-          <button type="button" className="add-data-button" onClick={addIdentifier} disabled={submittedIdentifierCount >= 8}>+ TAMBAH NOMOR / AKUN LAIN</button>
+          <button type="button" className="add-data-button" onClick={addIdentifier} disabled={submittedIdentifierCount >= 8}>+ Tambah nomor / akun</button>
+        </div>
         </div>
       </fieldset>
       <fieldset>
-        <legend>03 / CERITAKAN KEJADIANNYA</legend>
-        <label>Ceritakan dari awal sampai akhir<textarea name="chronology" required minLength={30} maxLength={5000} rows={9} placeholder="Singkat saja: kapan deal, apa yang dijanjikan, dan masalah yang terjadi."/><small className="field-note">Minimal 30 karakter. Bukti foto akan membantu admin memeriksa ceritamu.</small></label>
-        <label>Tanggal kejadian<input type="date" name="transactionDate"/></label>
+        <legend><span>03</span> Cerita kejadian</legend>
+        <div className="report-section-body">
+        <label>Ceritakan dari awal sampai akhir<textarea name="chronology" required minLength={30} maxLength={5000} rows={6} placeholder="Singkat saja: kapan deal, apa yang dijanjikan, dan masalah yang terjadi."/><small className="field-note">Minimal 30 karakter. Bukti foto akan membantu admin memeriksa ceritamu.</small></label>
+        <label>Tanggal kejadian (opsional)<input type="date" name="transactionDate"/></label>
+        </div>
       </fieldset>
       <fieldset>
-        <legend>04 / SERTAKAN BUKTI (WAJIB)</legend>
+        <legend><span>04</span> Bukti pendukung</legend>
+        <div className="report-section-body">
         <label>Link posting bukti (Facebook atau sumber lain)<input type="url" name="evidenceUrl" placeholder="https://www.facebook.com/groups/.../posts/..." maxLength={500}/><small className="field-note">Kalau kasus ini sudah kamu posting di grup Facebook, tempel linknya di sini. Ini sangat membantu admin mencocokkan cerita dan bukti.</small></label>
         <label>Screenshot chat / transfer / bukti lain<input type="file" name="evidence" accept="image/png,image/jpeg,image/webp,application/pdf" multiple/></label>
         <p className="field-note">Isi minimal salah satu: link posting atau unggah file. Maks. 5 file, 5 MB per file. File bersifat privat sampai gambar dipilih untuk publikasi oleh admin atau rekber terverifikasi yang mengirim laporan.</p>
+        </div>
       </fieldset>
       <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : <>Kirim laporan <ArrowIcon/></>}</button>
     </form>
