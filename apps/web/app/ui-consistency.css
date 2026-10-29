@@ -99,7 +99,13 @@ main.page.submit-page { max-width:760px;width:calc(100% - 40px);padding:40px 0 6
 .report-form .add-data-button { color:var(--red-text);border-style:solid;background:transparent; }
 .report-form input[type="file"] { padding:12px;background:white; }
 .report-form input[type="file"]::file-selector-button { font:600 14px/1.4 var(--font-body);border:1px solid var(--border);padding:8px 12px;margin-right:12px;background:var(--canvas);color:var(--ink);cursor:pointer; }
-.submit-page .report-json-import { margin:0;justify-self:end; }
+.submit-page .report-json-import { margin:0;justify-self:stretch;display:grid;justify-items:end;gap:12px;min-width:0; }
+.submit-page .report-json-success { justify-self:stretch;margin:0;padding:14px 16px;background:#e2eee7;border-left:3px solid var(--positive);color:var(--ink);font-size:14px;line-height:1.6; }
+.identifier-json-reference>summary { cursor:pointer;min-height:44px;align-content:center;font-weight:600; }
+.identifier-json-reference p { font-size:14px;line-height:1.6;margin:12px 0; }
+.identifier-json-reference article { padding:20px 0;border-top:1px solid var(--border); }
+.identifier-json-reference h3 { font:700 18px/1.4 var(--font-body);margin:0; }
+.identifier-json-reference pre { max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--canvas);padding:16px;font-size:13px;line-height:1.6;margin-bottom:16px; }
 .submit-page .report-json-import>.button-secondary { min-height:44px;padding:10px 16px;font:600 14px/1.4 var(--font-body);border:1px solid var(--border);background:var(--white);cursor:pointer; }
 .submit-page .report-form>.tactical-button { min-height:52px;font-size:16px;clip-path:none;border-radius:3px; }
 @media(max-width:650px) {
@@ -115,6 +121,7 @@ main.page.submit-page { max-width:760px;width:calc(100% - 40px);padding:40px 0 6
 }
 .report-json-import { border:0;background:transparent;padding:0;margin:24px 0; }
 .report-json-body { padding:0;display:grid;gap:20px; }
+.report-json-body>* { min-width:0; }
 .task-dialog { width:min(720px,calc(100% - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:24px;border:1px solid var(--border);background:var(--white);color:var(--ink);overflow:auto; }
 .task-dialog::backdrop { background:rgb(15 25 35 / .78); }
 .task-dialog-heading { display:flex;justify-content:space-between;align-items:start;gap:20px;margin-bottom:24px; }

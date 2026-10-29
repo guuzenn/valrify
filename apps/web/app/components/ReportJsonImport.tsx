@@ -2,7 +2,7 @@
 
 import { TaskDialog } from "./TaskDialog";
 import { useState } from "react";
-import { parseReportJson, reportJsonTemplate } from "../../lib/report-json";
+import { identifierJsonExamples, parseReportJson, reportJsonTemplate } from "../../lib/report-json";
 
 export function ReportJsonImport({ onImport, disabled }: {
   onImport: (data: ReturnType<typeof parseReportJson>) => void;
@@ -13,10 +13,10 @@ export function ReportJsonImport({ onImport, disabled }: {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  async function copyTemplate() {
+  async function copyTemplate(value = reportJsonTemplate, message = "Template disalin. Ganti data contoh dengan data laporanmu.") {
     try {
-      await navigator.clipboard.writeText(reportJsonTemplate);
-      setError(""); setMessage("Template disalin. Ganti data contoh dengan data laporanmu.");
+      await navigator.clipboard.writeText(value);
+      setError(""); setMessage(message);
     } catch {
       setError("Template belum tersalin. Pilih teks pada preview, lalu salin secara manual.");
     }
@@ -31,8 +31,8 @@ export function ReportJsonImport({ onImport, disabled }: {
 
   return <div className="report-json-import">
     <button type="button" className="button-secondary" disabled={disabled} onClick={() => setOpen(true)}>Isi dari JSON</button>
-    {!open && message && <p role="status">{message}</p>}
-    <TaskDialog open={open} onClose={() => setOpen(false)} title="Isi form dari JSON">
+    {!open && message && <p className="report-json-success" role="status">{message}</p>}
+    <TaskDialog open={open} dismissOnBackdrop={false} onClose={() => setOpen(false)} title="Isi form dari JSON">
     <div className="report-json-body">
       <p className="field-note">Salin atau download template, ganti data contoh, lalu paste JSON di bawah. Impor mengganti isian teks dan nomor/akun pada form. File bukti yang sudah dipilih tetap tersimpan. Periksa form sebelum mengirim.</p>
       <details>
@@ -42,9 +42,15 @@ export function ReportJsonImport({ onImport, disabled }: {
         <p className="field-note">type: BANK_ACCOUNT, EWALLET, PHONE, RIOT_ID, DISCORD, FACEBOOK_NAME, PERSON_NAME, OTHER. provider wajib untuk rekening/e-wallet. relatedName untuk nama pemilik rekening/e-wallet; secondaryValue untuk nickname Riot atau link Facebook. Maksimal 8 data termasuk nama/link tambahan. JSON tidak memuat file bukti.</p>
       </details>
       <div className="report-json-actions">
-        <button type="button" className="add-data-button" onClick={copyTemplate}>SALIN TEMPLATE</button>
+        <button type="button" className="add-data-button" onClick={() => void copyTemplate()}>SALIN TEMPLATE</button>
         <button type="button" className="add-data-button" onClick={downloadTemplate}>DOWNLOAD JSON</button>
       </div>
+      <details className="identifier-json-reference">
+        <summary>Contoh semua jenis nomor / akun (8 jenis)</summary>
+        <p>Pilih contoh yang kamu perlukan, lalu masukkan objeknya ke array <code>identifiers</code> dalam template. Jangan tempel seluruh referensi sebagai laporan.</p>
+        <p>Maksimal 8 data setelah diuraikan. Nama pemilik rekening/e-wallet, nickname Riot, dan link Facebook masing-masing dihitung sebagai data tambahan bila diisi.</p>
+        {identifierJsonExamples.map(example => <article key={example.value.type}><h3>{example.label}</h3><p>{example.note}</p><pre><code>{JSON.stringify(example.value, null, 2)}</code></pre><button type="button" className="add-data-button" onClick={() => void copyTemplate(JSON.stringify(example.value, null, 2), `Contoh ${example.label} disalin. Tambahkan ke identifiers dalam template.`)}>Salin contoh {example.label}</button></article>)}
+      </details>
       <label>Paste JSON laporan<textarea aria-label="Paste JSON laporan" value={text} onChange={event => { setText(event.target.value); setError(""); setMessage(""); }} rows={9} maxLength={30001} spellCheck={false} placeholder="Tempel JSON yang sudah kamu isi di sini."/></label>
       {error && <p className="form-error" role="alert">{error}</p>}
       <p className="field-note" role="status">{message}</p>

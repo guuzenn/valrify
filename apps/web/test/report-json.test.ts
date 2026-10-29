@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseReportJson, reportJsonTemplate } from "../lib/report-json.js";
+import { identifierJsonExamples, parseReportJson, reportJsonTemplate } from "../lib/report-json.js";
+
+test("every supported identifier type has an individually valid example", () => {
+  assert.deepEqual(identifierJsonExamples.map(example => example.value.type).sort(), ["BANK_ACCOUNT", "EWALLET", "PHONE", "RIOT_ID", "DISCORD", "FACEBOOK_NAME", "PERSON_NAME", "OTHER"].sort());
+  for (const example of identifierJsonExamples) {
+    const data = { ...JSON.parse(reportJsonTemplate), identifiers: [example.value] };
+    assert.equal(parseReportJson(JSON.stringify(data)).identifiers[0]?.type, example.value.type);
+  }
+});
 
 test("template imports composite rows and defaults optional fields", () => {
   const data = parseReportJson(reportJsonTemplate);
