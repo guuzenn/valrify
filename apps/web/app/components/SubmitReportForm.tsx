@@ -2,11 +2,12 @@
 
 import { DropdownChevron, Select } from "./Select";
 import { ReportJsonImport } from "./ReportJsonImport";
+import { ReportLoginDialog } from "./ReportLoginDialog";
 
 import { ArrowIcon } from "./ArrowIcon";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { browserApi, browserApiUrl } from "../../lib/browser-api";
+import { authSessionChangedEvent, browserApi, browserApiUrl, notifyAuthSessionChanged } from "../../lib/browser-api";
 
 type User = { displayName: string; role: string };
 type IdentifierRow = { id: number; type: string; value: string; provider: string; relatedName: string; secondaryValue: string };
@@ -131,6 +132,8 @@ function mainFieldLabel(type: string) {
 export function SubmitReportForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginMessage, setLoginMessage] = useState("");
   const [state, setState] = useState<{ loading: boolean; error?: string; publicId?: string }>({ loading: false });
   const [nextIdentifierId, setNextIdentifierId] = useState(2);
   const [identifierRows, setIdentifierRows] = useState<IdentifierRow[]>([
@@ -142,9 +145,18 @@ export function SubmitReportForm() {
   );
 
   useEffect(() => {
-    browserApi<{ user: User }>("/auth/me")
-      .then((value) => setUser(value.user))
-      .catch(() => setUser(null));
+    const refresh = () => { void browserApi<{ user: User | null }>("/auth/me").then(value => {
+      setUser(value.user);
+      if (value.user) { setLoginOpen(false); }
+    }).catch(() => setUser(null)); };
+    const onFocus = () => { void browserApi<{ user: User | null }>("/auth/me").then(value => {
+      setUser(value.user);
+      if (value.user) { setLoginOpen(false); notifyAuthSessionChanged(); }
+    }).catch(() => setUser(null)); };
+    refresh();
+    window.addEventListener(authSessionChangedEvent, refresh);
+    window.addEventListener("focus", onFocus);
+    return () => { window.removeEventListener(authSessionChangedEvent, refresh); window.removeEventListener("focus", onFocus); };
   }, []);
 
   function updateIdentifier(id: number, patch: Partial<IdentifierRow>) {
@@ -186,12 +198,16 @@ export function SubmitReportForm() {
       if (!evidenceUrl && evidenceFiles.length === 0) {
         throw new Error("Isi link posting bukti atau unggah minimal satu file.");
       }
+      const session = await browserApi<{ user: User | null }>("/auth/me").catch(() => null);
+      setUser(session?.user ?? null);
+      if (!session?.user) { setState({ loading: false }); setLoginOpen(true); return; }
       const response = await fetch(`${browserApiUrl}/reports`, {
         method: "POST",
         body: formData,
         credentials: "include",
       });
       const result = await response.json() as { message?: string | string[]; publicId?: string };
+      if (response.status === 401) { setUser(null); setState({ loading: false }); setLoginOpen(true); return; }
       if (!response.ok) {
         throw new Error(Array.isArray(result.message) ? result.message.join(", ") : result.message ?? "Laporan gagal dikirim.");
       }
@@ -202,15 +218,14 @@ export function SubmitReportForm() {
     }
   }
 
-  if (user === undefined) return <div className="actor-bar">MEMERIKSA AKUN...</div>;
-  if (!user) return <div className="empty-state"><span>AKUN</span><h2>MASUK UNTUK MELAPOR.</h2><p>Kamu perlu akun supaya laporan tidak mudah dipalsukan atau dikirim sebagai spam.</p><Link href="/login" className="tactical-button">MASUK KE AKUN</Link></div>;
   if (state.publicId) {
     const canPublish = user?.role === "ADMIN" || user?.role === "VERIFIED_MIDDLEMAN";
     return <div className="success-state"><p className="section-label eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>{canPublish ? "Laporan tersimpan dan belum tampil untuk umum. Lengkapi ringkasan dan pilih bukti publik untuk menerbitkannya." : "Admin akan mengecek laporanmu. Laporan belum tampil untuk umum."}</p><Link className="tactical-button" href={canPublish ? "/account/reports" : "/account"}>{canPublish ? "KELOLA & TAMPILKAN LAPORAN" : "LIHAT RIWAYAT LAPORAN"}</Link></div>;
   }
 
   return <>
-    <div className="actor-bar">Melapor sebagai <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div>
+    {user ? <div className="actor-bar">Melapor sebagai <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div> : <p className="report-login-note">Kamu boleh isi form sekarang. Masuk diperlukan sebelum mengirim laporan.</p>}
+    {user && loginMessage && <p className="report-login-note" role="status">{loginMessage}</p>}
     <form ref={formRef} className="report-form" onSubmit={submit} noValidate>
       {state.error && <p className="form-error form-error-banner" role="alert">{state.error}</p>}
       <ReportJsonImport disabled={state.loading} onImport={data => {
@@ -270,5 +285,6 @@ export function SubmitReportForm() {
       </fieldset>
       <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : <>Kirim laporan <ArrowIcon/></>}</button>
     </form>
+    {loginOpen && <ReportLoginDialog onClose={() => setLoginOpen(false)} onSignedIn={account => { setUser(account); setLoginOpen(false); setLoginMessage("Sudah masuk. Isian dan bukti tetap ada. Periksa kembali, lalu kirim laporan."); }}/>}
   </>;
 }

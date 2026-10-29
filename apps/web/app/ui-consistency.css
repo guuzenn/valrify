@@ -107,6 +107,15 @@ main.page.submit-page { max-width:760px;width:calc(100% - 40px);padding:40px 0 6
 .identifier-json-reference h3 { font:700 18px/1.4 var(--font-body);margin:0; }
 .identifier-json-reference pre { max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--canvas);padding:16px;font-size:13px;line-height:1.6;margin-bottom:16px; }
 .submit-page .report-json-import>.button-secondary { min-height:44px;padding:10px 16px;font:600 14px/1.4 var(--font-body);border:1px solid var(--border);background:var(--white);cursor:pointer; }
+.submit-page .report-login-note { margin:16px 0;font-size:14px;line-height:1.6;color:var(--ink); }
+.report-login-form { display:grid;gap:16px;margin:24px 0; }
+.report-login-form label { display:grid;gap:8px;font-size:16px;font-weight:600; }
+.report-login-form input { width:100%;min-width:0;padding:12px;border:1px solid var(--border);background:white;color:var(--ink);font-size:16px; }
+.report-login-alternatives { display:grid;gap:16px;border-top:1px solid var(--border);padding-top:24px; }
+.report-login-alternatives>div { display:flex;flex-wrap:wrap;gap:16px; }
+.report-login-alternatives a { font-size:14px;text-decoration:underline;text-underline-offset:4px; }
+.report-login-alternatives .button-secondary { padding:12px 16px;border:1px solid var(--border);background:transparent;text-align:center; }
+.report-login-alternatives p,.task-dialog>p { font-size:14px;line-height:1.6; }
 .submit-page .report-form>.tactical-button { min-height:52px;font-size:16px;clip-path:none;border-radius:3px; }
 @media(max-width:650px) {
  main.page.submit-page { width:calc(100% - 32px);padding:28px 0 48px; }
