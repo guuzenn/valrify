@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { browserApi } from "../../lib/browser-api";
 import { Turnstile } from "./Turnstile";
+import { Select } from "./Select";
 
 export function ContactForm() {
   const [token, setToken] = useState("");
@@ -10,6 +11,7 @@ export function ContactForm() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [topic, setTopic] = useState("Saran & pertanyaan");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,11 +21,12 @@ export function ContactForm() {
     setBusy(true); setError("");
     try {
       await browserApi("/contact", { method: "POST", body: JSON.stringify({
-        name: fields.get("name"), email: fields.get("email"), topic: fields.get("topic"),
+        name: fields.get("name"), email: fields.get("email"), topic,
         message: fields.get("message"), turnstileToken: token,
       }) });
       setSent(true);
       form.reset();
+      setTopic("Saran & pertanyaan");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Pesan belum terkirim. Coba lagi nanti.");
     } finally {
@@ -37,7 +40,7 @@ export function ContactForm() {
       <fieldset disabled={busy}>
         <label htmlFor="contact-name">Nama<input id="contact-name" name="name" autoComplete="name" required maxLength={100}/></label>
         <label htmlFor="contact-email">Email untuk balasan<input id="contact-email" name="email" type="email" autoComplete="email" required maxLength={254}/></label>
-        <label htmlFor="contact-topic">Topik<select id="contact-topic" name="topic" required><option>Saran &amp; pertanyaan</option><option>Koreksi laporan</option><option>Data pribadi</option><option>Masalah situs</option></select></label>
+        <label>Topik<Select label="Topik" value={topic} onValueChange={setTopic} disabled={busy}><option value="Saran & pertanyaan">Saran &amp; pertanyaan</option><option value="Koreksi laporan">Koreksi laporan</option><option value="Data pribadi">Data pribadi</option><option value="Masalah situs">Masalah situs</option></Select></label>
         <label htmlFor="contact-message">Pesan<textarea id="contact-message" name="message" required minLength={10} maxLength={5000} rows={7} aria-describedby="contact-message-help"/></label>
         <small id="contact-message-help">10–5.000 karakter. Untuk koreksi, sertakan tautan laporan yang dimaksud.</small>
         <Turnstile action="contact" resetKey={resetKey} onToken={setToken}/>

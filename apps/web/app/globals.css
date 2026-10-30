@@ -656,7 +656,8 @@ body:has(.admin-chrome){
 }
 
 /* Contact and privacy information pages */
-.contact-hero{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:60px;align-items:center;margin-bottom:60px}
+.contact-hero{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:32px;align-items:stretch;margin-bottom:60px}
+.contact-hero .info-hero{min-width:0;margin-bottom:0;display:flex;flex-direction:column;justify-content:center}
 .contact-page .page-title{font-size:clamp(40px,5.3vw,70px);line-height:1;overflow-wrap:normal}
 .contact-hero .page-intro{max-width:540px;margin-bottom:0}
 .contact-email{padding:32px;background:var(--ink);color:var(--white);border-top:4px solid var(--red)}
@@ -698,19 +699,19 @@ body:has(.admin-chrome){
 .privacy-layout .reading-toc a{padding:14px 0;border-top:1px solid var(--border);line-height:1.5}
 .privacy-layout .reading-toc a:hover{color:var(--red-text)}
 .privacy-content{min-width:0;max-width:760px}
-.privacy-content section{scroll-margin-top:28px;padding:30px 0}
-.privacy-content section:first-child{padding-top:22px}
+.privacy-content section{scroll-margin-top:28px;padding:30px 32px}
 .privacy-content section p{color:#3f4a45}
 @media(max-width:900px){.contact-hero{grid-template-columns:1fr;gap:32px;margin-bottom:40px}.contact-email{max-width:540px}.privacy-layout{grid-template-columns:210px minmax(0,1fr);gap:30px}.privacy-overview article{padding:20px}.contact-section-heading{display:block}}
-@media(max-width:600px){.contact-page,.privacy-page{padding-top:36px;padding-bottom:55px}.contact-page .page-title{font-size:clamp(30px,7.8vw,46px)}.contact-email{padding:24px}.contact-topic-grid,.contact-notes,.privacy-overview,.privacy-layout{grid-template-columns:minmax(0,1fr)}.contact-page a.contact-topic{padding:24px}.contact-notes{gap:12px}.contact-report{align-items:stretch;flex-direction:column}.privacy-overview{margin:28px 0 32px}.privacy-overview article+article{border-left:0;border-top:1px solid var(--border)}.privacy-layout .reading-toc{position:static}.privacy-layout{gap:28px}.privacy-content section h2{font-size:28px}.privacy-content section{scroll-margin-top:16px}}
+@media(max-width:600px){.contact-page,.privacy-page{padding-top:36px;padding-bottom:55px}.contact-page .page-title{font-size:clamp(30px,7.8vw,46px)}.contact-email{padding:24px}.contact-topic-grid,.contact-notes,.privacy-overview,.privacy-layout{grid-template-columns:minmax(0,1fr)}.contact-page a.contact-topic{padding:24px}.contact-notes{gap:12px}.contact-report{align-items:stretch;flex-direction:column}.privacy-overview{margin:28px 0 32px}.privacy-overview article+article{border-left:0;border-top:1px solid var(--border)}.privacy-layout .reading-toc{position:static}.privacy-layout{gap:28px}.privacy-content section h2{font-size:28px}.privacy-content section{scroll-margin-top:16px;padding:24px 20px}}
 .contact-form-section{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:60px;scroll-margin-top:24px}
+.info-page .contact-form-section{border-left:0;background:transparent;padding:28px 0}
 .contact-form-section>div>p{color:var(--muted)}
 .contact-form{background:var(--white);border:1px solid var(--border);padding:28px}
 .contact-form fieldset{border:0;padding:0;margin:0;display:grid;gap:18px;min-width:0}
 .contact-form label{display:grid;gap:8px;font-size:13px;font-weight:700}
-.contact-form input,.contact-form select,.contact-form textarea{width:100%;min-width:0;border:1px solid var(--border);background:white;color:var(--ink);padding:12px;font-size:16px;border-radius:0}
+.contact-form input,.contact-form textarea{width:100%;min-width:0;border:1px solid var(--border);background:white;color:var(--ink);padding:12px;font-size:16px;border-radius:0}
 .contact-form textarea{resize:vertical}
 .contact-form small{color:var(--muted);font-size:12px;line-height:1.6}
 .contact-form-success{padding:28px;border:1px solid var(--positive);background:var(--white)}
 .contact-form-success h3{font-size:24px;margin:0}
-@media(max-width:700px){.contact-form-section{grid-template-columns:minmax(0,1fr);gap:20px}.contact-form{padding:20px}}
+@media(max-width:700px){.contact-form-section{grid-template-columns:minmax(0,1fr);gap:20px}.contact-form{padding:14px}}

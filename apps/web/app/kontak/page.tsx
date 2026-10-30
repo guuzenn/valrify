@@ -13,7 +13,7 @@ export default function ContactPage() {
   return <><Header compact backLabel="Kembali ke beranda"/><main className="page shell info-page contact-page">
     <div className="contact-hero">
       <div className="info-hero"><p className="section-label eyebrow">// KONTAK VALRIFY</p>
-        <h1 className="page-title">ADA YANG<br/>MAU <span>DISAMPAIKAN?</span></h1>
+        <h1 className="page-title">HUBUNGI<br/><span>VALRIFY.</span></h1>
         <p className="page-intro">Punya saran, pertanyaan, atau menemukan informasi yang keliru? Kami siap membaca pesanmu.</p>
       </div>
       <aside className="contact-email" aria-label="Email resmi Valrify">
