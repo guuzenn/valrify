@@ -8,8 +8,6 @@ import { Disclaimer, Footer, Header } from "../components/SiteChrome";
 import {
   getSearchViewState,
   parseSearchQuery,
-  SEARCH_QUERY_MAX_LENGTH,
-  SEARCH_QUERY_MIN_LENGTH,
 } from "./search-state";
 
 export const dynamic = "force-dynamic";
@@ -23,13 +21,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const visibleQuery = search.query;
 
   return <><Header compact/><main className="page shell search-page">
-    <p className="section-label eyebrow">// CEK SEBELUM TRANSAKSI</p><h1 className="page-title">CEK NOMOR ATAU AKUN.</h1>
-    <SearchForm key={visibleQuery} className="page-search">
-      <label htmlFor="search-q">Nomor atau nama akun</label>
-      <input id="search-q" name="q" defaultValue={visibleQuery} placeholder="Ketik data yang ingin dicek" minLength={SEARCH_QUERY_MIN_LENGTH} maxLength={SEARCH_QUERY_MAX_LENGTH} aria-describedby="search-help" aria-invalid={state === "invalid"}/>
-      <button type="submit">Cek sekarang <span aria-hidden="true"><ArrowIcon/></span></button>
-      <p id="search-help" className="search-help">Nomor rekening, e-wallet, dan telepon dicari secara tepat. Nama atau username dapat dicari dari dua karakter.</p>
-    </SearchForm>
+    <h1 className="sr-only">Hasil pencarian profil</h1>
+    <SearchForm key={visibleQuery} defaultValue={visibleQuery} invalid={state === "invalid"}/>
 
     {state === "invalid" && <section className="search-state search-state-invalid" aria-live="polite">
       <span className="search-state-code">INPUT TIDAK VALID</span>
@@ -48,12 +41,24 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       <Link href="/cara-aman" className="tactical-button">Baca panduan transaksi <ArrowIcon/></Link>
     </section>}
     {state === "found" && <section className="results" aria-live="polite">
-      <div className="search-found-heading"><h2>{results.length} profil cocok</h2><p>Hasil untuk “{visibleQuery}”</p></div>
-      <p className="search-found-note">Cocokkan nomor dan akun sebelum menyimpulkan. Nama yang sama belum tentu orang yang sama.</p>
-      {results.map(result => <Link className="result-card" href={`/entity/${result.slug}`} key={`${result.identifierId}-${result.entityId}`}>
-        <div><p className="panel-index">{labelIdentifierType(result.type)}</p><h2>{result.displayName}</h2><p className="matched-id">{result.displayValue}</p></div>
-        <span>{result.reportCount} laporan ditampilkan</span><span className="card-link">Buka profil <ArrowIcon/></span>
-      </Link>)}
+      <div className="search-found-heading"><h2>{results.length} profil ditemukan <span>untuk “{visibleQuery}”</span></h2></div>
+      <p className="search-found-note">{results.some((result, index) => result.identifierId !== null && results.some((other, otherIndex) => otherIndex !== index && other.identifierId === result.identifierId)) ? "Data yang sama ditemukan pada beberapa profil. Buka profil untuk melihat laporan dan hubungannya." : "Cocokkan nomor dan akun. Nama yang sama belum tentu orang yang sama."}</p>
+      {results.map(result => {
+        const related = result.matchedReports ?? [];
+        const mentioned = result.identifierId !== null && related.length > 0;
+        const nameMatch = ["PERSON_NAME", "FACEBOOK_NAME"].includes(result.type);
+        return <article className="result-card" key={`${result.identifierId}-${result.entityId}`}>
+          <div><p className="panel-index">{mentioned ? `${nameMatch ? "Nama" : "Data"} ditemukan dalam laporan` : "Profil ditemukan"}</p><h2>{result.displayName}</h2>
+            <p className="matched-id">{mentioned ? <>{labelIdentifierType(result.type)} <strong>“{result.displayValue}”</strong> disebut dalam laporan terkait profil ini.</> : result.displayValue}</p>
+          </div>
+          <div className="search-match-actions">
+            <span>{mentioned ? related.length : result.reportCount} laporan {mentioned ? "terkait" : "ditampilkan"}</span>
+            {related.length === 1 && <Link className="card-link" href={`/case/${related[0]!.publicId}`}>Lihat laporan terkait <ArrowIcon/></Link>}
+            {related.length > 1 && <details><summary>Lihat {related.length} laporan terkait</summary><ul>{related.map(report => <li key={report.publicId}><Link href={`/case/${report.publicId}`}>{report.title} <ArrowIcon/></Link></li>)}</ul></details>}
+            <Link className={mentioned ? "search-profile-link" : "card-link"} href={`/entity/${result.slug}`}>Buka profil <ArrowIcon/></Link>
+          </div>
+        </article>;
+      })}
     </section>}
     <Disclaimer/>
   </main><Footer/></>;

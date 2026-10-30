@@ -32,11 +32,19 @@ function NavigationEvents({ onChange }: { onChange: (value: boolean) => void }) 
       replace({ ...window.history.state, [scrollKey]: [window.scrollX, window.scrollY] }, "");
     };
     const restore = () => { restoring.current = window.location.href; };
+    const saveFormScroll = (event: Event) => {
+      const form = event.target;
+      if (form instanceof HTMLFormElement && form.method.toLowerCase() === "get" && new URL(form.action).origin === window.location.origin) {
+        replace({ ...window.history.state, [scrollKey]: [window.scrollX, window.scrollY] }, "");
+      }
+    };
     window.addEventListener("popstate", restore, true);
     document.addEventListener("click", saveScroll, true);
+    document.addEventListener("submit", saveFormScroll, true);
     return () => {
       window.removeEventListener("popstate", restore, true);
       document.removeEventListener("click", saveScroll, true);
+      document.removeEventListener("submit", saveFormScroll, true);
       window.history.pushState = push;
       window.history.replaceState = replace;
     };

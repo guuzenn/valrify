@@ -91,7 +91,7 @@ test("admin correction keeps separate profiles linked by one case, audited and p
     // A later report can match the published middleman's phone without renaming that profile.
     const followup = await service.create(reporterId, reportSchema.parse({ entityName: `Alias ${suffix}`, chronology: originalChronology, category: "OTHER", identifiers: [{ type: "PHONE", value: phone }] }), [file]);
     reportIds.push(followup.id);
-    assert.equal(followup.linkedToExistingProfile, true);
+    assert.equal(followup.linkedToExistingProfile, false);
     const reused = (await database.db.query.entities.findFirst({ where: eq(entities.id, parties[1]!.entityId) }))!;
     assert.equal(reused.displayName, middlemanName);
     const otherBank = await service.create(reporterId, reportSchema.parse({ entityName: `Other bank ${suffix}`, chronology: originalChronology, category: "OTHER", identifiers: [{ type: "BANK_ACCOUNT", value: phone, provider: "BCA" }] }), [file]);
@@ -99,7 +99,7 @@ test("admin correction keeps separate profiles linked by one case, audited and p
     assert.equal(otherBank.linkedToExistingProfile, false);
     assert.notEqual((await database.db.query.reports.findFirst({ where: eq(reports.id, otherBank.id) }))!.entityId, reused.id);
     const followupRow = (await database.db.query.reports.findFirst({ where: eq(reports.id, followup.id) }))!;
-    await admin.editReport(followup.id, adminId, { ...input, updatedAt: followupRow.updatedAt.toISOString(), parties: [{ entityId: reused.id, entityName: `Corrected ${suffix}`, role: "REPORTED", identifiers: [{ type: "PHONE", value: phone }] }] });
+    await admin.editReport(followup.id, adminId, { ...input, updatedAt: followupRow.updatedAt.toISOString(), parties: [{ entityId: followupRow.entityId!, entityName: `Corrected ${suffix}`, role: "REPORTED", identifiers: [{ type: "PHONE", value: phone }] }] });
     assert.equal((await database.db.query.entities.findFirst({ where: eq(entities.id, reused.id) }))!.displayName, middlemanName);
     assert.deepEqual(await publicService.search(`Corrected ${suffix}`), []);
     await admin.review(created.id, adminId, reviewSchema.parse({ decision: "WITHDRAW", rationale: "Penarikan fixture untuk memeriksa privasi seluruh pihak." }));

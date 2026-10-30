@@ -15,7 +15,6 @@ import {
   communityComments,
   communityPostLikes,
   communityPosts,
-  entityIdentifiers,
   identifiers,
   reportEvidence,
   reportIdentifiers,
@@ -24,7 +23,7 @@ import {
   users,
 } from "../database/schema";
 import { EvidenceStorage } from "../storage/evidence-storage";
-import { publicEntityCondition, publicIdentifierCondition, reportInvolvesEntity, reportIdentifierForEntity } from "../database/public-entity";
+import { publicEntityCondition, reportInvolvesEntity, reportIdentifierForEntity } from "../database/public-entity";
 import { publicImageTypes } from "../storage/validate-evidence";
 
 const partialSearchTypes = [
@@ -63,7 +62,7 @@ export class PublicService {
               title: reports.title,
               publicSummary: reports.publicSummary,
               publishedAt: reports.publishedAt,
-              entityName: entities.displayName,
+              entityName: sql<string>`coalesce((select p.display_name from report_parties p where p.report_id = ${reports.id} and p.position = 0 limit 1), ${entities.displayName})`,
               entitySlug: entities.slug,
             })
             .from(reports)
@@ -223,12 +222,10 @@ export class PublicService {
         displayName: entities.displayName,
       })
       .from(identifiers)
-      .innerJoin(
-        entityIdentifiers,
-        eq(entityIdentifiers.identifierId, identifiers.id),
-      )
-      .innerJoin(entities, eq(entities.id, entityIdentifiers.entityId))
-      .where(and(inArray(identifiers.normalizedValue, variants), publicEntityCondition, publicIdentifierCondition));
+      .innerJoin(reportIdentifiers, eq(reportIdentifiers.identifierId, identifiers.id))
+      .innerJoin(reports, eq(reports.id, reportIdentifiers.reportId))
+      .innerJoin(entities, reportIdentifierForEntity(entities.id))
+      .where(and(inArray(identifiers.normalizedValue, variants), eq(reports.status, "PUBLISHED")));
 
     const textQuery = query.trim().toLocaleLowerCase("id-ID").replace(/\s+/g, " ");
     const partialPattern = `%${textQuery.replace(/[\\%_]/g, "\\$&")}%`;
@@ -286,7 +283,7 @@ export class PublicService {
 
     return Promise.all(
       uniqueMatches.map(async (row) => {
-        const [reportResult, publishedIdentifierResult] = await Promise.all([
+        const [reportResult, matchedReports] = await Promise.all([
           this.database.db
             .select({ value: count() })
             .from(reports)
@@ -296,10 +293,10 @@ export class PublicService {
                 eq(reports.status, "PUBLISHED"),
               ),
             ),
-          row.identifierId === null || row.directlyPublished
-            ? Promise.resolve([{ value: 1 }])
+          row.identifierId === null
+            ? Promise.resolve([])
             : this.database.db
-                .select({ value: count() })
+                .selectDistinct({ publicId: reports.publicId, title: reports.title })
                 .from(reportIdentifiers)
                 .innerJoin(reports, eq(reports.id, reportIdentifiers.reportId))
                 .where(
@@ -317,10 +314,11 @@ export class PublicService {
             row.type as IdentifierType,
             rawValue,
             provider,
-            (publishedIdentifierResult[0]?.value ?? 0) > 0 ? "PUBLISHED" : null,
+            row.identifierId === null || matchedReports.length > 0 ? "PUBLISHED" : null,
             true,
           ),
           reportCount: reportResult[0]?.value ?? 0,
+          matchedReports,
         };
       }),
     );
@@ -347,7 +345,7 @@ export class PublicService {
         transactionDate: reports.transactionDate,
         publishedAt: reports.publishedAt,
         slug: entities.slug,
-        entityName: entities.displayName,
+        entityName: sql<string>`coalesce((select p.display_name from report_parties p where p.report_id = ${reports.id} and p.position = 0 limit 1), ${entities.displayName})`,
         uploaderDisplayName: users.displayName,
         uploaderRole: users.role,
       })
@@ -404,25 +402,46 @@ export class PublicService {
     });
   }
 
+  async relatedProfiles(entityId: number) {
+    const result = await this.database.db.execute<{ id: number; slug: string; displayName: string; type: IdentifierType; rawValue: string; provider: string | null; reportCount: number }>(sql`
+      select distinct e.id, e.slug, e.display_name as "displayName", i.type, i.raw_value as "rawValue", i.provider,
+        (select count(distinct r.id)::int from reports r where r.status = 'PUBLISHED' and
+          (r.entity_id = e.id or exists(select 1 from report_parties p where p.report_id = r.id and p.entity_id = e.id))) as "reportCount"
+      from report_identifiers own
+      join reports own_report on own_report.id = own.report_id and own_report.status = 'PUBLISHED'
+      join identifiers i on i.id = own.identifier_id
+      join report_identifiers peer on peer.identifier_id = i.id
+      join reports peer_report on peer_report.id = peer.report_id and peer_report.status = 'PUBLISHED'
+      join entities e on e.id = coalesce(peer.entity_id, peer_report.entity_id)
+      where coalesce(own.entity_id, own_report.entity_id) = ${entityId} and e.id <> ${entityId}
+        and i.type in ('PHONE', 'BANK_ACCOUNT', 'EWALLET', 'DISCORD', 'FACEBOOK_URL', 'RIOT_ID')
+      order by e.id, i.type, i.raw_value
+    `);
+    const profiles = new Map<number, { slug: string; displayName: string; reportCount: number; sharedIdentifiers: Array<{ type: string; displayValue: string }> }>();
+    for (const row of result.rows) {
+      const profile = profiles.get(row.id) ?? { slug: row.slug, displayName: row.displayName, reportCount: row.reportCount, sharedIdentifiers: [] };
+      profile.sharedIdentifiers.push({ type: row.type, displayValue: publicIdentifierValue(row.type, row.rawValue, row.provider, "PUBLISHED", true) });
+      profiles.set(row.id, profile);
+    }
+    return [...profiles.values()];
+  }
+
   async entity(slug: string) {
     const [entity] = await this.database.db.select().from(entities).where(and(eq(entities.slug, slug), publicEntityCondition)).limit(1);
     if (!entity) return null;
 
     const [identifierRows, publishedIdentifierRows, reportRows] = await Promise.all([
       this.database.db
-        .select({
+        .selectDistinct({
           id: identifiers.id,
           type: identifiers.type,
           rawValue: identifiers.rawValue,
           provider: identifiers.provider,
         })
-        .from(entityIdentifiers)
-        .innerJoin(
-          identifiers,
-          eq(identifiers.id, entityIdentifiers.identifierId),
-        )
-        .innerJoin(entities, eq(entities.id, entityIdentifiers.entityId))
-        .where(and(eq(entityIdentifiers.entityId, entity.id), publicIdentifierCondition)),
+        .from(reportIdentifiers)
+        .innerJoin(identifiers, eq(identifiers.id, reportIdentifiers.identifierId))
+        .innerJoin(reports, eq(reports.id, reportIdentifiers.reportId))
+        .where(and(reportIdentifierForEntity(entity.id), eq(reports.status, "PUBLISHED"))),
       this.database.db
         .selectDistinct({ identifierId: reportIdentifiers.identifierId })
         .from(reportIdentifiers)
@@ -471,6 +490,7 @@ export class PublicService {
     const accountIdentifiers = publicIdentifiers.filter((identifier) => !aliasTypes.has(identifier.type));
     return {
       ...entity,
+      relatedProfiles: await this.relatedProfiles(entity.id),
       aliases,
       identifiers: accountIdentifiers,
       reports: reportRows.map(({ uploaderDisplayName, uploaderRole, ...report }) => ({
@@ -494,7 +514,7 @@ export class PublicService {
         publishedAt: reports.publishedAt,
         status: reports.status,
         slug: entities.slug,
-        entityName: entities.displayName,
+        entityName: sql<string>`coalesce((select p.display_name from report_parties p where p.report_id = ${reports.id} and p.position = 0 limit 1), ${entities.displayName})`,
         entityId: reports.entityId,
         uploaderDisplayName: users.displayName,
         uploaderRole: users.role,
@@ -557,6 +577,7 @@ export class PublicService {
     });
     return {
       ...publicReport,
+      entityName: parties[0]?.entityName ?? publicReport.entityName,
       parties,
       uploadedBy: publicUploaderAttribution(uploaderDisplayName ?? "", uploaderRole ?? "USER"),
       aliases,

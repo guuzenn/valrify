@@ -208,3 +208,5 @@ Mohon jangan memasukkan data transaksi nyata, data pribadi, token, kredensial, a
 Jika menemukan kerentanan keamanan atau potensi kebocoran data, jangan publikasikan detail eksploitasi melalui issue terbuka. Hubungi pengelola proyek melalui kanal privat yang tersedia pada profil pemilik repositori.
 
 Valrify adalah proyek komunitas independen dan tidak berafiliasi dengan Riot Games. VALORANT dan Riot Games merupakan merek dagang milik pemiliknya masing-masing.
+
+Profil dengan nama berbeda tetap terpisah meskipun memiliki nomor/akun yang sama. Pencocokan profil menggunakan nama yang dinormalisasi dan identifier yang didukung laporan publik. Profil terkait ditampilkan berdasarkan kontak bersama dalam laporan yang masih PUBLISHED; hubungan ini bukan verifikasi bahwa identitasnya sama. Nama setiap laporan mengikuti snapshot pihak saat dilaporkan.

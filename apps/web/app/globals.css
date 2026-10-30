@@ -538,7 +538,7 @@ body:has(.admin-chrome){
 }
 
 .search-form-error{grid-column:1/-1;border-left:3px solid var(--red);background:#51202b;color:#fff;padding:12px 14px;margin:10px 0 0;font-size:13px;line-height:1.5}
-.hero-search input[aria-invalid='true']{border-color:var(--red);box-shadow:inset 4px 0 0 var(--red)}
+.shared-search input[aria-invalid='true']{border-color:var(--red);box-shadow:inset 4px 0 0 var(--red)}
 
 .report-editor{border-top:1px solid var(--border);margin-top:24px;padding-top:20px}.report-editor-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px}.report-editor-heading strong,.report-editor-party header strong{font-size:12px;letter-spacing:.06em}.report-editor-heading p,.report-editor-notice{font-size:12px;line-height:1.6;color:var(--muted)}.report-editor fieldset{border:0;padding:0;margin:0;min-width:0}.report-editor>form label{display:grid;gap:7px;font-size:12px;font-weight:700;margin-bottom:14px}.report-editor>form input,.report-editor>form textarea,.report-editor>form select{min-width:0;width:100%;border:1px solid var(--border);padding:12px;background:var(--white);color:var(--ink);font-size:16px;border-radius:0}.report-editor>form textarea{resize:vertical;line-height:1.5}.report-editor-heading>button,.report-editor>form button:not(.tactical-button):not(.select-trigger){border:1px solid var(--border);padding:11px 13px;background:var(--white);color:var(--ink);font-size:11px;font-weight:800;cursor:pointer;min-height:44px}.report-editor>form button:disabled{opacity:.45;cursor:not-allowed}.report-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.report-editor-party{border:1px solid var(--border);padding:16px;margin:16px 0}.report-editor-party header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.report-editor-party header>div,.report-editor-buttons{display:flex;gap:8px;flex-wrap:wrap}.report-editor-identifier{display:grid;grid-template-columns:minmax(120px,1fr) minmax(160px,2fr) minmax(120px,1fr) auto;align-items:end;gap:10px;margin-bottom:14px}.report-editor-identifier label{margin:0}.report-editor-identifier>button{grid-column:4}.report-editor-review:disabled{opacity:.5}.report-editor-message{border-left:3px solid var(--red);padding:12px;background:var(--white);font-size:13px;line-height:1.5}.case-party{border-top:1px solid var(--border);padding-top:18px;margin-top:18px}.case-party-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:12px}.case-party-heading span{font-size:11px;font-weight:800;color:var(--muted)}.case-party-heading a{font-size:18px;font-weight:800;overflow-wrap:anywhere}.case-party-heading a:hover{text-decoration:underline}@media(max-width:650px){.report-editor-heading,.report-editor-party header{align-items:flex-start;flex-direction:column}.report-editor-grid,.report-editor-identifier{grid-template-columns:minmax(0,1fr)}.report-editor-identifier>button{grid-column:auto;justify-self:start}.report-editor-party{padding:12px}.report-editor-buttons>button{width:100%}.case-party-heading{align-items:flex-start;flex-direction:column}}
 
@@ -616,13 +616,13 @@ body:has(.admin-chrome){
 .home-page .hero::after{display:none}
 .home-page .hero h1{font-size:clamp(44px,6vw,80px);line-height:1.04;text-transform:uppercase}
 .home-page .lede{font-size:18px;line-height:1.6;max-width:560px;margin:20px 0 28px}
-.home-page .search-panel{max-width:800px;padding:24px;clip-path:none;box-shadow:none;scroll-margin-top:24px}
-.home-page .hero-search label{font-size:16px;letter-spacing:0;margin-bottom:12px}
-.home-page .search-row{grid-template-columns:minmax(0,1fr) auto}
-.home-page .search-row input{font-size:16px;padding:16px;min-height:52px}
-.home-page .search-row button{display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;font-size:15px;letter-spacing:0;clip-path:none;padding:14px 24px}
-.home-page .landing-search-help,.home-page .landing-search-note{font-size:14px;line-height:1.6;letter-spacing:0;color:#c5cdc9;margin:12px 0 0}
-.home-page .landing-search-note{padding-top:12px;border-top:1px solid #40505c}
+.shared-search .search-panel{max-width:800px;padding:24px;clip-path:none;box-shadow:none;scroll-margin-top:24px}
+.shared-search label{font-size:16px;letter-spacing:0;margin-bottom:12px}
+.shared-search .search-row{grid-template-columns:minmax(0,1fr) auto}
+.shared-search .search-row input{font-size:16px;padding:16px;min-height:52px}
+.shared-search .search-row button{display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;font-size:15px;letter-spacing:0;clip-path:none;padding:14px 24px}
+.shared-search .landing-search-help,.shared-search .landing-search-note{font-size:14px;line-height:1.6;letter-spacing:0;color:#c5cdc9;margin:12px 0 0}
+.shared-search .landing-search-note{padding-top:12px;border-top:1px solid #40505c}
 .home-page .landing-reports-band{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .home-page .landing-reports{padding-top:40px;padding-bottom:40px}
 .home-page .landing-reports h2{font-size:38px;line-height:1.15;margin-bottom:24px;text-transform:uppercase;border-left:5px solid var(--red);padding-left:16px}
@@ -645,8 +645,8 @@ body:has(.admin-chrome){
  .home-page .hero{padding:32px 0}
  .home-page .hero h1{font-size:clamp(36px,10vw,44px);line-height:1.08}
  .home-page .lede{font-size:16px;margin:16px 0 24px}
- .home-page .search-panel{padding:20px}
- .home-page .search-row{grid-template-columns:1fr}
+ .shared-search .search-panel{padding:20px}
+ .shared-search .search-row{grid-template-columns:1fr}
  .report-grid{grid-template-columns:1fr;gap:12px}
  .home-page .landing-reports{padding-top:32px;padding-bottom:32px}
  .home-page .landing-reports h2{font-size:30px}

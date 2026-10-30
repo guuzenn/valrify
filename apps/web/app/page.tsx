@@ -16,17 +16,7 @@ export default async function Home() {
         <h1>Cek sebelum<br/><span>transaksi.</span></h1>
         <p className="lede">Cari riwayat laporan penjual atau pembeli akun Valorant.</p>
       </div>
-      <div className="search-panel" id="cek">
-        <SearchForm className="hero-search">
-          <label htmlFor="q">Nomor atau nama akun</label>
-          <div className="search-row">
-            <input id="q" name="q" required autoComplete="off" placeholder="Ketik data yang ingin dicek" aria-describedby="home-search-help"/>
-            <button type="submit">Cek sekarang <ArrowIcon/></button>
-          </div>
-          <p id="home-search-help" className="landing-search-help">Bisa nomor rekening, WhatsApp, atau username.</p>
-        </SearchForm>
-        <p className="landing-search-note">Belum ada laporan bukan berarti aman.</p>
-      </div>
+      <SearchForm/>
     </section>
     <div className="landing-reports-band"><section className="landing-reports shell" aria-labelledby="recent-cases-title">
       <h2 id="recent-cases-title">Laporan terbaru</h2>
