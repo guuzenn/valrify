@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NavigationHistory } from "./components/NavigationHistory";
 import "./globals.css";
 import "./ui-consistency.css";
 
@@ -8,5 +9,5 @@ export async function generateMetadata():Promise<Metadata>{
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="id"><body>{children}</body></html>;
+  return <html lang="id"><body><NavigationHistory>{children}</NavigationHistory></body></html>;
 }

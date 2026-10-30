@@ -333,6 +333,17 @@ export class PublicService {
   }
 
   async recentReports() {
+    return this.listPublishedReports(3);
+  }
+
+  async reportDirectory(page: number) {
+    const pageSize = 12;
+    // shortcut: offsets can shift when reports are published; use cursors if this disrupts browsing.
+    const items = await this.listPublishedReports(pageSize + 1, (page - 1) * pageSize);
+    return { items: items.slice(0, pageSize), page, hasNext: page < 99_999 && items.length > pageSize };
+  }
+
+  private async listPublishedReports(limit: number, offset = 0) {
     const rows = await this.database.db
       .select({
         id: reports.id,
@@ -348,10 +359,11 @@ export class PublicService {
       })
       .from(reports)
       .innerJoin(entities, eq(entities.id, reports.entityId))
-      .innerJoin(users, eq(users.id, reports.reporterId))
+      .leftJoin(users, eq(users.id, reports.reporterId))
       .where(eq(reports.status, "PUBLISHED"))
-      .orderBy(desc(reports.publishedAt))
-      .limit(6);
+      .orderBy(desc(reports.publishedAt), desc(reports.id))
+      .limit(limit)
+      .offset(offset);
 
     const identifierRows = rows.length
       ? await this.database.db
@@ -393,7 +405,7 @@ export class PublicService {
               ),
             }
           : null,
-        uploadedBy: publicUploaderAttribution(uploaderDisplayName, uploaderRole as Role),
+        uploadedBy: publicUploaderAttribution(uploaderDisplayName ?? "", uploaderRole ?? "USER"),
       };
     });
   }
@@ -434,7 +446,7 @@ export class PublicService {
           uploaderRole: users.role,
         })
         .from(reports)
-        .innerJoin(users, eq(users.id, reports.reporterId))
+        .leftJoin(users, eq(users.id, reports.reporterId))
         .where(
           and(reportInvolvesEntity(entity.id), eq(reports.status, "PUBLISHED")),
         )
@@ -469,7 +481,7 @@ export class PublicService {
       identifiers: accountIdentifiers,
       reports: reportRows.map(({ uploaderDisplayName, uploaderRole, ...report }) => ({
         ...report,
-        uploadedBy: publicUploaderAttribution(uploaderDisplayName, uploaderRole as Role),
+        uploadedBy: publicUploaderAttribution(uploaderDisplayName ?? "", uploaderRole ?? "USER"),
       })),
       reportCount: reportRows.length,
     };
@@ -495,7 +507,7 @@ export class PublicService {
       })
       .from(reports)
       .leftJoin(entities, eq(entities.id, reports.entityId))
-      .innerJoin(users, eq(users.id, reports.reporterId))
+      .leftJoin(users, eq(users.id, reports.reporterId))
       .where(
         and(eq(reports.publicId, publicId), eq(reports.status, "PUBLISHED")),
       )
@@ -552,7 +564,7 @@ export class PublicService {
     return {
       ...publicReport,
       parties,
-      uploadedBy: publicUploaderAttribution(uploaderDisplayName, uploaderRole as Role),
+      uploadedBy: publicUploaderAttribution(uploaderDisplayName ?? "", uploaderRole ?? "USER"),
       aliases,
       identifiers: publicIdentifiers.filter((identifier) => !aliasTypes.has(identifier.type)),
       evidence,

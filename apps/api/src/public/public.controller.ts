@@ -11,6 +11,8 @@ import { Throttle } from "@nestjs/throttler";
 import type { Response } from "express";
 import { RATE_LIMITS } from "../rate-limit.config";
 import { PublicService } from "./public.service";
+import { publicReportsQuerySchema } from "@valrify/validation";
+import { parseSchema } from "../validation/parse-schema";
 
 @Controller()
 export class PublicController {
@@ -65,6 +67,12 @@ export class PublicController {
   @Get("reports/recent")
   recentReports() {
     return this.service.recentReports();
+  }
+
+  @Get("reports")
+  @Throttle({ default: RATE_LIMITS.search })
+  reports(@Query() query: unknown) {
+    return this.service.reportDirectory(parseSchema(publicReportsQuerySchema, query).page);
   }
 
   @Get("reports/public/:publicId/evidence/:evidenceId")

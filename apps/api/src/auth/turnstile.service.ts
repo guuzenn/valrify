@@ -6,7 +6,7 @@ const verificationSchema = z.object({ success: z.boolean(), hostname: z.string()
 
 @Injectable()
 export class TurnstileService {
-  async verify(token: unknown, action: "register" | "forgot-password" | "resend-verification") {
+  async verify(token: unknown, action: "register" | "forgot-password" | "resend-verification" | "submit-report") {
     const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
     if (!secret) throw new ServiceUnavailableException("Verifikasi keamanan belum tersedia. Coba lagi nanti.");
     if (typeof token !== "string" || !token.trim() || token.length > 2048) throw new BadRequestException("Selesaikan verifikasi keamanan terlebih dahulu.");

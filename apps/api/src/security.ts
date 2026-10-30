@@ -16,8 +16,8 @@ export function securityMiddleware(origins: string[]) {
     response.setHeader("X-Frame-Options", "DENY");
     response.setHeader("Referrer-Policy", "no-referrer");
     response.setHeader("Content-Security-Policy", "frame-ancestors 'none'; object-src 'none'; base-uri 'self'");
-    const hasAuthCookie = Boolean(request.cookies?.valrify_session || request.cookies?.valrify_admin_challenge);
-    if (hasAuthCookie || request.headers.authorization || /^\/api\/(auth|account|admin|notifications)(\/|$)/.test(request.path)) response.setHeader("Cache-Control", "private, no-store");
+    const hasAuthCookie = Boolean(request.cookies?.valrify_session || request.cookies?.valrify_admin_challenge || request.cookies?.valrify_guest);
+    if (hasAuthCookie || request.headers.authorization || /^\/api\/(auth|account|admin|notifications|reports\/guest)(\/|$)/.test(request.path)) response.setHeader("Cache-Control", "private, no-store");
     if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
       let origin = request.headers.origin;
       if (!origin && request.headers.referer) { try { origin = new URL(request.headers.referer).origin; } catch { /* invalid referer is rejected below */ } }

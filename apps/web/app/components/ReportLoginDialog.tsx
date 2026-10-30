@@ -18,8 +18,8 @@ export function ReportLoginDialog({ onClose, onSignedIn }: { onClose: () => void
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Sesi belum bisa diperiksa."); }
     finally { setBusy(false); }
   }
-  return <TaskDialog open onClose={onClose} dismissOnBackdrop={false} title="Masuk sebelum mengirim">
-    <p>Isian dan file bukti tetap ada selama tab form ini terbuka. Setelah masuk, periksa kembali lalu tekan Kirim laporan.</p>
+  return <TaskDialog open onClose={onClose} dismissOnBackdrop={false} title="Masuk (opsional)">
+    <p>Masuk agar laporan tersimpan di riwayat akun. Kamu juga bisa menutup dialog ini dan melapor tanpa akun. Isian dan file bukti tetap ada selama tab form terbuka.</p>
     <form className="report-login-form" onSubmit={async event => {
       event.preventDefault(); if (busy) return;
       setBusy(true); setError("");

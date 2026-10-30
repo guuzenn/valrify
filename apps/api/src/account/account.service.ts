@@ -99,7 +99,8 @@ export class AccountService {
   async updateProfile(userId: string, input: PublicProfileInput) {
     const current = await this.database.db.query.users.findFirst({ where: eq(users.id, userId) });
     if (!current) throw new NotFoundException("Akun tidak ditemukan.");
-    const usernameChanged = current.username !== input.username;
+    const username = input.username ?? current.username;
+    const usernameChanged = current.username !== username;
     if (usernameChanged) {
       const cooldownEndsAt = usernameCooldownEndsAt(current.usernameChangedAt);
       if (cooldownEndsAt) {
@@ -107,17 +108,17 @@ export class AccountService {
         throw new BadRequestException(`Username baru dapat diganti lagi pada ${availableDate}.`);
       }
       const existing = await this.database.db.query.users.findFirst({
-        where: and(eq(users.username, input.username), ne(users.id, userId)),
+        where: and(eq(users.username, username!), ne(users.id, userId)),
       });
       if (existing) throw new BadRequestException("Username sudah digunakan.");
     }
-    let updated: { username: string | null; bio: string; usernameChangedAt: Date | null } | undefined;
+    let updated: { displayName: string; username: string | null; bio: string; usernameChangedAt: Date | null } | undefined;
     try {
       [updated] = await this.database.db
         .update(users)
-        .set({ username: input.username, bio: input.bio, ...(usernameChanged ? { usernameChangedAt: new Date() } : {}) })
+        .set({ displayName: input.displayName ?? current.displayName, username, bio: input.bio, ...(usernameChanged ? { usernameChangedAt: new Date() } : {}) })
         .where(eq(users.id, userId))
-        .returning({ username: users.username, bio: users.bio, usernameChangedAt: users.usernameChangedAt });
+        .returning({ displayName: users.displayName, username: users.username, bio: users.bio, usernameChangedAt: users.usernameChangedAt });
     } catch (error) {
       const databaseError = error as { code?: string; cause?: { code?: string } };
       if (databaseError.code === "23505" || databaseError.cause?.code === "23505") {
@@ -126,6 +127,6 @@ export class AccountService {
       throw error;
     }
     if (!updated) throw new NotFoundException("Akun tidak ditemukan.");
-    return { username: updated.username ?? input.username, bio: updated.bio, usernameCanChangeAt: usernameCooldownEndsAt(updated.usernameChangedAt) };
+    return { displayName: updated.displayName, username: updated.username, bio: updated.bio, usernameCanChangeAt: usernameCooldownEndsAt(updated.usernameChangedAt) };
   }
 }

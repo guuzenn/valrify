@@ -1,22 +1,11 @@
 ﻿import { ArrowIcon } from "./components/ArrowIcon";
 import { SearchForm } from "./components/SearchForm";
 import Link from "next/link";
-import { formatIndonesianDate } from "@valrify/domain";
 import { Footer, Header } from "./components/SiteChrome";
-import { getRecentCases, type RecentCase } from "../lib/api";
+import { getRecentCases } from "../lib/api";
+import { ReportCard } from "./components/ReportCard";
 
 export const dynamic = "force-dynamic";
-
-function ReportCard({ report }: { report: RecentCase }) {
-  return <article className="landing-report-card">
-    <div className="landing-report-meta"><span>Laporan komunitas</span><span>{report.publicId}</span></div>
-    <time dateTime={report.transactionDate ?? undefined}>{report.transactionDate ? `Kejadian ${formatIndonesianDate(report.transactionDate)}` : "Tanggal tidak dicantumkan"}</time>
-    <h3>{report.entityName}</h3>
-    <p>{report.title}</p>
-
-    <Link href={`/case/${report.publicId}`}>Baca laporan <span className="landing-report-arrow"><ArrowIcon/></span></Link>
-  </article>;
-}
 
 export default async function Home() {
   const recentCases = await getRecentCases();
@@ -41,13 +30,10 @@ export default async function Home() {
     </section>
     <div className="landing-reports-band"><section className="landing-reports shell" aria-labelledby="recent-cases-title">
       <h2 id="recent-cases-title">Laporan terbaru</h2>
-      {recentCases.length === 0 ? <p className="landing-empty">Belum ada laporan yang ditampilkan.</p> : <div className="landing-report-grid">
+      {recentCases.length === 0 ? <p className="landing-empty">Belum ada laporan yang ditampilkan.</p> : <div className="report-grid">
         {recentCases.slice(0, 3).map(report => <ReportCard key={report.publicId} report={report}/>)}
       </div>}
-      {recentCases.length > 3 && <details className="landing-more">
-        <summary>Tampilkan laporan lainnya</summary>
-        <div className="landing-report-grid">{recentCases.slice(3).map(report => <ReportCard key={report.publicId} report={report}/>)}</div>
-      </details>}
+      <Link className="all-reports-link" href="/laporan">Lihat semua laporan <ArrowIcon direction="right"/></Link>
     </section></div>
     <div className="landing-help-band"><section className="landing-help shell" aria-label="Bantuan transaksi">
       <div><h2>Sebelum transfer, cek langkah amannya.</h2><Link href="/cara-aman">Baca panduan keamanan <ArrowIcon/></Link></div>

@@ -127,6 +127,13 @@
       "when": 1793180316898,
       "tag": "0017_gifted_carmella_unuscione",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793332352755,
+      "tag": "0018_demonic_harrier",
+      "breakpoints": true
     }
   ]
 }

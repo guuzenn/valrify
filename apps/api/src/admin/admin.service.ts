@@ -116,10 +116,10 @@ export class AdminService {
         updatedAt: reports.updatedAt,
         entityId: reports.entityId,
         entityName: entities.displayName,
-        reporterName: users.displayName,
+        reporterName: sql<string>`coalesce(${users.displayName}, 'Tamu')`,guestContactEmail: reports.guestContactEmail,
       })
       .from(reports)
-      .innerJoin(users, eq(users.id, reports.reporterId))
+      .leftJoin(users, eq(users.id, reports.reporterId))
       .leftJoin(entities, eq(entities.id, reports.entityId))
       .where(and(
         reporterId ? eq(reports.reporterId, reporterId) : undefined,
@@ -321,7 +321,8 @@ export class AdminService {
     if (input.updatedAt && new Date(input.updatedAt).getTime() !== report.updatedAt.getTime()) throw new ConflictException("Laporan sudah diubah. Muat ulang sebelum memeriksa kembali.");
     const actor = await this.database.db.query.users.findFirst({ where: eq(users.id, actorId), columns: { role: true } });
     if (!actor || !canReviewReport(actor.role, report.reporterId === actorId)) throw new ForbiddenException("Akses pemeriksaan ditolak. Rekber terverifikasi hanya boleh memeriksa kirimannya sendiri; moderator tidak boleh memeriksa laporan yang dikirim sendiri.");
-    if (input.decision === "WITHDRAW" ? report.status !== "PUBLISHED" : !["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(report.status)) {
+    if (input.decision === "NEEDS_INFO" && actor.role === "VERIFIED_MIDDLEMAN") throw new ForbiddenException("Hanya admin atau moderator yang dapat meminta informasi tambahan.");
+    if (input.decision === "WITHDRAW" ? report.status !== "PUBLISHED" : !["SUBMITTED", "UNDER_REVIEW", "NEEDS_INFO", "VERIFIED"].includes(report.status)) {
       throw new BadRequestException("Status laporan tidak dapat diubah.");
     }
 
@@ -358,6 +359,10 @@ export class AdminService {
         await tx.update(reportEvidence).set({ isPublicApproved: false }).where(eq(reportEvidence.reportId, reportId));
         await tx.insert(reportStatusHistory).values({ reportId, fromStatus: "PUBLISHED", toStatus: "WITHDRAWN", actorId, note: input.rationale });
         await tx.insert(moderationActions).values({ reportId, actorId, action: "REPORT_WITHDRAWN", rationale: input.rationale });
+      } else if (input.decision === "NEEDS_INFO") {
+        await tx.update(reports).set({ status: "NEEDS_INFO", updatedAt: new Date() }).where(eq(reports.id, reportId));
+        await tx.insert(reportStatusHistory).values({ reportId, fromStatus: report.status, toStatus: "NEEDS_INFO", actorId, note: input.rationale });
+        await tx.insert(moderationActions).values({ reportId, actorId, action: "REPORT_NEEDS_INFO", rationale: input.rationale });
       } else if (input.decision === "PUBLISH") {
         for (const next of [
           "UNDER_REVIEW",

@@ -5,6 +5,8 @@ const newPasswordSchema = z.string().min(10, "Password minimal 10 karakter.").ma
 
 const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);
 
+export const publicReportsQuerySchema = z.object({ page: z.string().regex(/^[1-9]\d{0,4}$/, "Nomor halaman tidak valid.").default("1").transform(Number) });
+
 export const adminUserQuerySchema = z.object({ q: z.string().trim().max(100).default(""), role: z.enum(roles).optional(), page: z.coerce.number().int().min(1).max(100000).default(1) });
 export const adminRoleSchema = z.object({ role: z.enum(roles), expectedRole: z.enum(roles), rationale: z.string().trim().min(10, "Alasan perubahan minimal 10 karakter.").max(1000) });
 const directoryUrl = z.string().trim().max(500).url("Isi link HTTPS yang valid.").refine(value => { try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password; } catch { return false; } }, "Gunakan link HTTPS tanpa username/password.");
@@ -49,7 +51,8 @@ export const resetPasswordSchema = tokenSchema.extend({
 });
 
 export const publicProfileSchema = z.object({
-  username: usernameSchema,
+  displayName: z.string().trim().min(2, "Nama minimal 2 karakter.").max(80, "Nama maksimal 80 karakter.").optional(),
+  username: usernameSchema.optional(),
   bio: z.string().trim().max(160, "Bio maksimal 160 karakter."),
 });
 
@@ -181,7 +184,7 @@ export type ReportEditInput = z.infer<typeof reportEditSchema>;
 
 export const reviewSchema = z.object({
   updatedAt: z.iso.datetime().optional(),
-  decision: z.enum(["PUBLISH", "REJECT", "WITHDRAW"]),
+  decision: z.enum(["PUBLISH", "REJECT", "WITHDRAW", "NEEDS_INFO"]),
   summary: z.string().trim().max(2000, "Ringkasan publik maksimal 2.000 karakter.").default(""),
   rationale: z.string().trim().min(10, "Catatan keputusan minimal 10 karakter.").max(2000, "Catatan keputusan maksimal 2.000 karakter."),
   publicEvidenceIds: z.array(z.number().int().positive()).max(5).default([]),

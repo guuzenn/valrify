@@ -3,6 +3,7 @@
 import { DropdownChevron, Select } from "./Select";
 import { ReportJsonImport } from "./ReportJsonImport";
 import { ReportLoginDialog } from "./ReportLoginDialog";
+import { Turnstile } from "./Turnstile";
 
 import { ArrowIcon } from "./ArrowIcon";
 import Link from "next/link";
@@ -134,7 +135,14 @@ export function SubmitReportForm() {
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
-  const [state, setState] = useState<{ loading: boolean; error?: string; publicId?: string }>({ loading: false });
+  const [state, setState] = useState<{ loading: boolean; error?: string; publicId?: string; trackingToken?: string }>({ loading: false });
+  const [guestEnabled, setGuestEnabled] = useState<boolean | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [captchaReset, setCaptchaReset] = useState(0);
+  const [trackingLink, setTrackingLink] = useState("");
+  const [copied, setCopied] = useState(false);
+  const submissionKey = useRef<string | null>(null);
+  const submitting = useRef(false);
   const [nextIdentifierId, setNextIdentifierId] = useState(2);
   const [identifierRows, setIdentifierRows] = useState<IdentifierRow[]>([
     { id: 1, type: "BANK_ACCOUNT", value: "", provider: "", relatedName: "", secondaryValue: "" },
@@ -159,6 +167,13 @@ export function SubmitReportForm() {
     return () => { window.removeEventListener(authSessionChangedEvent, refresh); window.removeEventListener("focus", onFocus); };
   }, []);
 
+  useEffect(() => {
+    if (user !== null) return;
+    void browserApi<{ enabled: boolean }>("/reports/guest/session").then(value => setGuestEnabled(value.enabled)).catch(() => {
+      setState({ loading: false, error: "Laporan tanpa akun belum siap. Periksa koneksi lalu muat ulang halaman." });
+    });
+  }, [user]);
+
   function updateIdentifier(id: number, patch: Partial<IdentifierRow>) {
     setIdentifierRows((rows) => rows.map((row) => row.id === id ? { ...row, ...patch } : row));
   }
@@ -171,7 +186,10 @@ export function SubmitReportForm() {
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     const form = event.currentTarget;
+    let sentAsGuest = false;
     setState({ loading: true });
     try {
       const formData = new FormData(form);
@@ -200,31 +218,41 @@ export function SubmitReportForm() {
       }
       const session = await browserApi<{ user: User | null }>("/auth/me").catch(() => null);
       setUser(session?.user ?? null);
-      if (!session?.user) { setState({ loading: false }); setLoginOpen(true); return; }
-      const response = await fetch(`${browserApiUrl}/reports`, {
+      sentAsGuest = !session?.user;
+      if (sentAsGuest) {
+        if (!guestEnabled) throw new Error("Laporan tanpa akun sedang dibatasi. Masuk untuk melapor.");
+        if (!turnstileToken) throw new Error("Selesaikan verifikasi keamanan sebelum mengirim.");
+        submissionKey.current ??= crypto.randomUUID();
+      }
+      const response = await fetch(`${browserApiUrl}/reports${sentAsGuest ? "/guest" : ""}`, {
         method: "POST",
         body: formData,
         credentials: "include",
+        ...(sentAsGuest ? { headers: { "x-report-key": submissionKey.current!, "x-turnstile-token": turnstileToken } } : {}),
       });
-      const result = await response.json() as { message?: string | string[]; publicId?: string };
-      if (response.status === 401) { setUser(null); setState({ loading: false }); setLoginOpen(true); return; }
+      const result = await response.json() as { message?: string | string[]; publicId?: string; trackingToken?: string };
+      if (response.status === 401) { setUser(null); throw new Error("Sesi masuk berakhir. Kamu bisa kirim tanpa akun setelah verifikasi keamanan, atau masuk lagi."); }
       if (!response.ok) {
         throw new Error(Array.isArray(result.message) ? result.message.join(", ") : result.message ?? "Laporan gagal dikirim.");
       }
-      setState({ loading: false, publicId: result.publicId });
+      if (result.trackingToken) setTrackingLink(`${window.location.origin}/report-status#${result.trackingToken}`);
+      setState({ loading: false, publicId: result.publicId, trackingToken: result.trackingToken });
     } catch (error) {
       setState({ loading: false, error: error instanceof Error ? error.message : "Laporan gagal dikirim." });
       form.scrollIntoView({ behavior: "smooth", block: "start" });
+    } finally {
+      submitting.current = false;
+      if (sentAsGuest) { setTurnstileToken(""); setCaptchaReset(value => value + 1); }
     }
   }
 
   if (state.publicId) {
     const canPublish = user?.role === "ADMIN" || user?.role === "VERIFIED_MIDDLEMAN";
-    return <div className="success-state"><p className="section-label eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>{canPublish ? "Laporan tersimpan dan belum tampil untuk umum. Lengkapi ringkasan dan pilih bukti publik untuk menerbitkannya." : "Admin akan mengecek laporanmu. Laporan belum tampil untuk umum."}</p><Link className="tactical-button" href={canPublish ? "/account/reports" : "/account"}>{canPublish ? "KELOLA & TAMPILKAN LAPORAN" : "LIHAT RIWAYAT LAPORAN"}</Link></div>;
+    return <div className="success-state"><p className="section-label eyebrow">// SCAM REPORT TERKIRIM</p><h2>{state.publicId}</h2><p>{canPublish && !state.trackingToken ? "Laporan tersimpan dan belum tampil untuk umum. Lengkapi ringkasan dan pilih bukti publik untuk menerbitkannya." : "Admin akan mengecek laporanmu. Laporan belum tampil untuk umum."}</p>{state.trackingToken ? <div className="guest-receipt"><p>Simpan tautan ini untuk melihat status dan permintaan tambahan dari admin. Jangan bagikan: siapa pun yang memegang tautan bisa melihat status dan menghubungkan laporan ke akunnya.</p><label>Tautan pelacakan privat<input readOnly value={trackingLink} onFocus={event => event.currentTarget.select()}/></label><button className="button-secondary" type="button" onClick={() => { void navigator.clipboard.writeText(trackingLink).then(() => setCopied(true)).catch(() => setCopied(false)); }}>{copied ? "Tautan disalin" : "Salin tautan"}</button><Link className="tactical-button" href={`/report-status#${state.trackingToken}`}>Lihat status laporan <ArrowIcon/></Link><p>Akun opsional. Kamu bisa menyimpan laporan ke riwayat akun dari halaman status.</p></div> : <Link className="tactical-button" href={canPublish ? "/account/reports" : "/account"}>{canPublish ? "KELOLA & TAMPILKAN LAPORAN" : "LIHAT RIWAYAT LAPORAN"}</Link>}</div>;
   }
 
   return <>
-    {user ? <div className="actor-bar">Melapor sebagai <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div> : <p className="report-login-note">Kamu boleh isi form sekarang. Masuk diperlukan sebelum mengirim laporan.</p>}
+    {user ? <div className="actor-bar">Melapor sebagai <strong>{user.displayName}</strong><span>{user.role === "VERIFIED_MIDDLEMAN" ? "REKBER TERVERIFIKASI" : user.role === "USER" ? "PENGGUNA" : user.role}</span></div> : <div className="report-login-note"><p>Kamu bisa melapor tanpa akun. Simpan tautan pelacakan setelah laporan terkirim.</p><button className="auth-text-link" type="button" onClick={() => setLoginOpen(true)}>Masuk untuk menyimpan di riwayat akun (opsional)</button>{guestEnabled === false && <p role="alert">Laporan tanpa akun sedang dibatasi. Masuk untuk melapor.</p>}</div>}
     {user && loginMessage && <p className="report-login-note" role="status">{loginMessage}</p>}
     <form ref={formRef} className="report-form" onSubmit={submit} noValidate>
       {state.error && <p className="form-error form-error-banner" role="alert">{state.error}</p>}
@@ -283,7 +311,8 @@ export function SubmitReportForm() {
         <p className="field-note">Isi minimal salah satu: link posting atau unggah file. Maks. 5 file, 5 MB per file. File bersifat privat sampai gambar dipilih untuk publikasi oleh admin atau rekber terverifikasi yang mengirim laporan.</p>
         </div>
       </fieldset>
-      <button className="tactical-button" disabled={state.loading}>{state.loading ? "MENGIRIM..." : <>Kirim laporan <ArrowIcon/></>}</button>
+      {!user && <div className="guest-report-contact"><label>Email kontak (opsional)<input type="email" name="contactEmail" maxLength={254} autoComplete="email"/><small className="field-note">Hanya terlihat admin jika perlu menghubungimu. Email ini belum diverifikasi dan tidak membuat akun. Tautan pelacakan ditampilkan setelah kirim, bukan dikirim lewat email.</small></label><p className="field-note">Maksimal dua laporan tanpa akun dalam 24 jam per sesi. Laporan tidak langsung tampil.</p><Turnstile action="submit-report" resetKey={captchaReset} onToken={setTurnstileToken}/></div>}
+      <button className="tactical-button" disabled={state.loading || user === undefined || (!user && (!guestEnabled || !turnstileToken))}>{state.loading ? "MENGIRIM..." : <>Kirim laporan <ArrowIcon/></>}</button>
     </form>
     {loginOpen && <ReportLoginDialog onClose={() => setLoginOpen(false)} onSignedIn={account => { setUser(account); setLoginOpen(false); setLoginMessage("Sudah masuk. Isian dan bukti tetap ada. Periksa kembali, lalu kirim laporan."); }}/>}
   </>;

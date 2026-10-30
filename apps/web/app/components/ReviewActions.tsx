@@ -15,7 +15,7 @@ const noteTemplates = [
 
 type EvidenceOption = { id: number; fileName: string; mimeType: string; isPublicApproved: boolean };
 
-type Decision = "PUBLISH" | "REJECT" | "WITHDRAW";
+type Decision = "PUBLISH" | "REJECT" | "WITHDRAW" | "NEEDS_INFO";
 
 export function ReviewActions({ reportId, updatedAt, evidence, evidenceUrl, published = false, onDone, endpointBase = "/admin", ownerMode = false }: { reportId: number; updatedAt: string; evidence: EvidenceOption[]; evidenceUrl: string | null; published?: boolean; onDone: () => void; endpointBase?: string; ownerMode?: boolean }) {
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
@@ -69,7 +69,7 @@ export function ReviewActions({ reportId, updatedAt, evidence, evidenceUrl, publ
         method: "POST",
         body: JSON.stringify(data),
       });
-      setMessage({ text: decision === "PUBLISH" ? "Laporan sudah ditampilkan." : decision === "WITHDRAW" ? "Laporan ditarik dari publik." : "Laporan ditolak.", error: false });
+      setMessage({ text: decision === "PUBLISH" ? "Laporan sudah ditampilkan." : decision === "WITHDRAW" ? "Laporan ditarik dari publik." : decision === "NEEDS_INFO" ? "Permintaan tambahan tersimpan dan dapat dilihat pengirim." : "Laporan ditolak.", error: false });
       onDone();
     } catch (error) {
       setMessage({ text: error instanceof Error ? error.message : "Tindakan gagal. Silakan coba lagi.", error: true });
@@ -85,7 +85,7 @@ export function ReviewActions({ reportId, updatedAt, evidence, evidenceUrl, publ
     <div className="note-templates"><span>ISI CATATAN CEPAT</span><div>{noteTemplates.map(([label, value]) => <button key={label} type="button" onClick={() => setRationale(value)}>{label}</button>)}</div></div></>}
     <label>{published ? "Alasan penarikan laporan" : ownerMode ? "Catatan publikasi" : "Catatan keputusan admin"} (wajib, minimal 10 karakter)<textarea name="rationale" rows={3} required minLength={10} maxLength={2000} value={rationale} onChange={(event) => setRationale(event.target.value)}/></label>
     {message && <div ref={messageRef} tabIndex={-1} className={message.error ? "review-feedback error" : "review-feedback"} role={message.error ? "alert" : "status"}>{message.error && <strong>BELUM BISA DILANJUTKAN</strong>}<p>{message.text}</p></div>}
-    {pendingDecision && <div className={`admin-decision-confirm ${pendingDecision !== "PUBLISH" ? "reject" : "publish"}`}><div><strong>{pendingDecision === "PUBLISH" ? "TAMPILKAN LAPORAN INI?" : pendingDecision === "WITHDRAW" ? "TARIK LAPORAN DARI PUBLIK?" : "TOLAK LAPORAN INI?"}</strong><p>{pendingDecision === "PUBLISH" ? "Ringkasan dan bukti yang dipilih akan bisa dilihat pengguna." : pendingDecision === "WITHDRAW" ? "Laporan dan bukti publik tidak dapat dibuka lagi. Data tetap tersimpan untuk audit; tindakan ini belum dapat dibatalkan lewat panel." : "Laporan keluar dari antrean dan alasannya tetap tersimpan dalam riwayat keputusan admin."}</p></div><div><button type="button" disabled={working} onClick={() => setPendingDecision(null)}>BATAL</button><button type="button" disabled={working} onClick={() => act(pendingDecision)}>{working ? "MEMPROSES..." : "YA, LANJUTKAN"}</button></div></div>}
-    {published ? <button onClick={() => prepare("WITHDRAW")} disabled={working} className="button-secondary" type="button">TARIK LAPORAN</button> : <div>{!ownerMode && <button onClick={() => prepare("REJECT")} disabled={working} className="button-secondary" type="button">TOLAK</button>}<button onClick={() => prepare("PUBLISH")} disabled={working} className="tactical-button" type="button">TAMPILKAN LAPORAN</button></div>}
+    {pendingDecision && <div className={`admin-decision-confirm ${pendingDecision !== "PUBLISH" ? "reject" : "publish"}`}><div><strong>{pendingDecision === "PUBLISH" ? "TAMPILKAN LAPORAN INI?" : pendingDecision === "WITHDRAW" ? "TARIK LAPORAN DARI PUBLIK?" : pendingDecision === "NEEDS_INFO" ? "MINTA INFORMASI TAMBAHAN?" : "TOLAK LAPORAN INI?"}</strong><p>{pendingDecision === "PUBLISH" ? "Ringkasan dan bukti yang dipilih akan bisa dilihat pengguna." : pendingDecision === "WITHDRAW" ? "Laporan dan bukti publik tidak dapat dibuka lagi. Data tetap tersimpan untuk audit; tindakan ini belum dapat dibatalkan lewat panel." : pendingDecision === "NEEDS_INFO" ? "Catatan ini dapat dilihat pengirim melalui akun atau tautan pelacakan privat. Tuliskan dengan jelas informasi yang diperlukan. Tidak ada email yang dikirim otomatis." : "Laporan keluar dari antrean dan alasannya tetap tersimpan dalam riwayat keputusan admin."}</p></div><div><button type="button" disabled={working} onClick={() => setPendingDecision(null)}>BATAL</button><button type="button" disabled={working} onClick={() => act(pendingDecision)}>{working ? "MEMPROSES..." : "YA, LANJUTKAN"}</button></div></div>}
+    {published ? <button onClick={() => prepare("WITHDRAW")} disabled={working} className="button-secondary" type="button">TARIK LAPORAN</button> : <div>{!ownerMode && <button onClick={() => prepare("NEEDS_INFO")} disabled={working} className="button-secondary" type="button">MINTA TAMBAHAN</button>}{!ownerMode && <button onClick={() => prepare("REJECT")} disabled={working} className="button-secondary" type="button">TOLAK</button>}<button onClick={() => prepare("PUBLISH")} disabled={working} className="tactical-button" type="button">TAMPILKAN LAPORAN</button></div>}
   </form>;
 }

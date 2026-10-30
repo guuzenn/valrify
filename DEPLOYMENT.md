@@ -4,6 +4,8 @@ Target: Ubuntu 24.04 x64, Node 24, user `deploy`, Nginx dan dua layanan systemd 
 
 ## Alur otomatis
 
+Laporan tamu memerlukan migration `0018_demonic_harrier.sql` (kolom hash sesi/kiriman/pelacakan, kontak privat, pengirim/aktor awal nullable). Deploy normal menerapkannya sebelum aktivasi. Pastikan key Turnstile web/API tetap tersedia dan hostname production benar; action baru adalah `submit-report`. `GUEST_REPORTS_ENABLED=false` pada environment API menghentikan kiriman tamu sementara tanpa mematikan laporan akun atau pelacakan. Setelah ada laporan tamu, hindari rollback API ke versi sebelum fitur: antrean/public reader lama hanya menerima pengirim berakun. Gunakan perbaikan ke depan. Tidak ada seed/reset atau email otomatis dalam aktivasi fitur.
+
 Dashboard admin dan direktori rekber memerlukan migration `0017_gifted_carmella_unuscione`. Migration hanya menambah tabel `middleman_directory` beserta indeksnya; data pengguna, role, laporan, dan MFA tetap dipertahankan. Deploy normal menerapkannya sebelum API baru diaktifkan. Jangan menjalankan reset atau seed untuk fitur ini. Setelah deploy, periksa `/admin`, pencarian pengguna, dan `/rekber`; direktori awal kosong sampai admin menambahkan profil. Smoke test web memeriksa heading serta ajakan rekber, sehingga tidak bergantung pada isi direktori atau API yang hidup saat build.
 
 Push `main` → build shared packages → lint/unit/integration test dengan PostgreSQL CI → build web/API → paket standalone → kirim lewat SSH → verifikasi checksum → backup DB → migrasi → ganti symlink `current` → restart → health check.

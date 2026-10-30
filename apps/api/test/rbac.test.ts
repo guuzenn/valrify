@@ -129,6 +129,10 @@ test("reports accept a public evidence post link", () => {
 });
 
 test("public profile username is normalized and constrained", () => {
+  assert.deepEqual(publicProfileSchema.parse({ displayName: "  Nama Baru  ", bio: "" }), { displayName: "Nama Baru", bio: "" });
+  for (const displayName of ["", " ", "A", "A".repeat(81), 123]) {
+    assert.equal(publicProfileSchema.safeParse({ displayName, bio: "" }).success, false);
+  }
   const valid = publicProfileSchema.safeParse({
     username: "  Reyv_01  ",
     bio: "Anggota komunitas.",

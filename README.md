@@ -23,6 +23,7 @@ Prinsip utama Valrify:
 * Pencarian profil berdasarkan nama, Riot ID, username, nomor telepon, rekening, dan identitas terkait lainnya
 * Laporan transaksi dengan unggahan bukti dan alur pemeriksaan admin
 * Halaman profil yang merangkum laporan serta nomor dan akun terkait
+* Landing dengan tiga laporan terbaru dan daftar `/laporan` dengan 12 laporan per halaman, urutan terbaru, serta navigasi Sebelumnya/Berikutnya
 * Akun pengguna dengan verifikasi email, riwayat kiriman, dan notifikasi
 * Community feed untuk berbagi pengalaman dan tips transaksi
 * Moderasi konten, kontrol akses berbasis peran, dan pencatatan keputusan admin
@@ -117,6 +118,16 @@ Pada deployment yang masih memblokir admin di Nginx, pertahankan blokir hingga A
 Gunakan akun pengguna untuk mencoba alur antrean moderasi. ADMIN boleh menerbitkan laporan sendiri dari panel; VERIFIED_MIDDLEMAN hanya dapat mengelola kirimannya sendiri melalui Akun Saya ? Kelola Laporan Saya. Contoh kata kunci pencarian tersedia melalui data seed, seperti `ArkaNusa Demo`, `arkanusa.demo`, dan `ArkaDemo#VALRIFY`.
 
 ## Perintah pengembangan
+
+### Laporan tanpa akun
+
+`/submit` menerima laporan tamu. Turnstile action `submit-report` diverifikasi server sebelum multipart diproses. Sesi tamu memakai cookie HttpOnly bertanda tangan dengan masa berlaku 30 hari; database menyimpan hash sesi. Batas awal dua laporan dalam 24 jam per sesi dan jeda satu menit, dengan penguncian transaksi PostgreSQL untuk kiriman bersamaan. Batas IP unggahan tetap lima percobaan per jam per endpoint; counter IP masih per proses. Batas file tetap lima file, 5 MB per file, dengan validasi signature. Kunci kiriman mencegah duplikasi saat request yang sama diulang; payload berbeda pada kunci yang sudah dipakai ditolak.
+
+Tanda terima menampilkan tautan `/report-status#TOKEN`. Fragment tidak dikirim ke server sebagai URL; status diminta lewat POST dan respons no-store. Token tidak disimpan mentah di database. Tautan hanya membuka nomor/status/tanggal/catatan untuk pengirim, bukan kronologi atau bukti mentah. Email kontak opsional hanya untuk admin, belum diverifikasi dan tidak memicu email otomatis. Admin dapat memilih **MINTA TAMBAHAN**; pengirim melihat catatan melalui tautan atau akun dan dapat mengirim tambahan melalui support. Pemegang token dapat menghubungkan laporan ke akun dengan email terverifikasi; token lama langsung dicabut. Akun tidak ditautkan berdasarkan email kontak.
+
+Migration `0018_demonic_harrier.sql` diperlukan sebelum menjalankan API baru. Migration mempertahankan data lama dan mengizinkan pengirim/aktor awal laporan tamu bernilai null. Set `GUEST_REPORTS_ENABLED=false` pada API untuk menghentikan kiriman tamu sementara; endpoint akun dan pelacakan tetap tersedia. Pergantian `AUTH_SECRET` membatalkan cookie tamu lama dan perhitungan token retry, jadi simpan key dengan prosedur backup privat. Tautan pelacakan yang telah diterbitkan tetap dapat diperiksa melalui hash tersimpan.
+
+Laporan tamu selalu masuk antrean privat. CAPTCHA, cookie, dan batas IP tidak menjamin bebas spam manusia/proxy; pantau antrean dan biaya penyimpanan. Jangan rollback ke API sebelum fitur ini setelah laporan tamu tersimpan: reader lama memakai inner join akun dan akan menyembunyikan laporan tamu dari antrean/proyeksi publik. Jangan reset/seed database untuk mengaktifkan fitur.
 
 | Perintah | Fungsi |
 | --- | --- |
