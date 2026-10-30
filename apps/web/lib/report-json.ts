@@ -13,6 +13,7 @@ export const identifierJsonExamples = [
 
 export const reportJsonTemplate = JSON.stringify({
   category: "PAYMENT_FRAUD",
+  otherCategory: "",
   entityName: "Nama akun contoh",
   chronology: "Contoh: transaksi telah disepakati, tetapi barang tidak dikirim setelah pembayaran. Ganti dengan cerita kejadian sebenarnya.",
   transactionDate: "",

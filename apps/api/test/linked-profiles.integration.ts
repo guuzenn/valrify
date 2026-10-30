@@ -30,7 +30,7 @@ test("shared contacts link distinct named profiles and legacy splitting preserve
     const storage = {} as EvidenceStorage;
     const submit = new ReportsService(database, storage), admin = new AdminService(database, storage), publicService = new PublicService(database, storage);
     await db.insert(users).values({ id: "admin", email: "admin@example.test", displayName: "Admin", role: "ADMIN" });
-    const input = (entityName: string) => reportSchema.parse({ entityName, category: "OTHER", chronology: "Kronologi fixture transaksi untuk memeriksa pemisahan profil.", evidenceUrl: "https://example.test/proof", identifiers: [{ type: "PHONE", value: "085735814492" }] });
+    const input = (entityName: string) => reportSchema.parse({ entityName, category: "OTHER", otherCategory: "Masalah transaksi fixture", chronology: "Kronologi fixture transaksi untuk memeriksa pemisahan profil.", evidenceUrl: "https://example.test/proof", identifiers: [{ type: "PHONE", value: "085735814492" }] });
     const publish = (id: number) => admin.review(id, "admin", reviewSchema.parse({ decision: "PUBLISH", summary: "Ringkasan laporan fixture yang cukup panjang untuk ditampilkan.", rationale: "Bukti fixture sudah diperiksa oleh admin." }));
     const aInput = input("Nanda Wiji Rohmat");
     aInput.identifiers.push({ type: "FACEBOOK_NAME", value: "Arifaan" });
@@ -39,9 +39,11 @@ test("shared contacts link distinct named profiles and legacy splitting preserve
     assert.equal(aliasMatch.displayName, "Nanda Wiji Rohmat");
     assert.equal(aliasMatch.displayValue, "Arifaan");
     assert.deepEqual(aliasMatch.matchedReports.map(report => report.publicId), [a.publicId]);
+    assert.deepEqual((await publicService.reportDirectory(1, "arifaan")).items.map(report => report.publicId), [a.publicId]);
     const b = await submit.create("admin", input("Qin Chen"), []);
     const hidden = await submit.create("admin", input("Nama Privat"), []);
     const aCase = (await publicService.publicCase(a.publicId))!;
+    assert.equal(aCase.title, "Masalah transaksi fixture");
     assert.deepEqual((await publicService.entity(aCase.slug!))!.relatedProfiles, []);
     await publish(b.id);
     let bCase = (await publicService.publicCase(b.publicId))!;

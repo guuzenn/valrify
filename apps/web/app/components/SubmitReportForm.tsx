@@ -131,6 +131,8 @@ function mainFieldLabel(type: string) {
 }
 
 export function SubmitReportForm() {
+  const [category, setCategory] = useState("PAYMENT_FRAUD");
+  const [otherCategory, setOtherCategory] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -193,6 +195,7 @@ export function SubmitReportForm() {
     setState({ loading: true });
     try {
       const formData = new FormData(form);
+      if (category === "OTHER" && (otherCategory.trim().length < 5 || otherCategory.trim().length > 100)) { form.querySelector<HTMLInputElement>('[name="otherCategory"]')?.focus(); throw new Error("Jelaskan masalah lainnya dalam 5–100 karakter."); }
       const entityName = String(formData.get("entityName") ?? "").trim();
       const chronology = String(formData.get("chronology") ?? "").trim();
       if (entityName.length < 2) throw new Error("Isi nama orang atau akun yang dilaporkan.");
@@ -257,8 +260,10 @@ export function SubmitReportForm() {
     <form ref={formRef} className="report-form" onSubmit={submit} noValidate>
       {state.error && <p className="form-error form-error-banner" role="alert">{state.error}</p>}
       <ReportJsonImport disabled={state.loading} onImport={data => {
+        setCategory(data.category);
+        setOtherCategory(data.otherCategory);
         const form = formRef.current!;
-        for (const name of ["category", "entityName", "chronology", "transactionDate", "evidenceUrl"] as const) {
+        for (const name of ["entityName", "chronology", "transactionDate", "evidenceUrl"] as const) {
           const field = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | RadioNodeList;
           field.value = data[name];
         }
@@ -269,7 +274,8 @@ export function SubmitReportForm() {
       <fieldset>
         <legend><span>01</span> Apa yang terjadi?</legend>
         <div className="report-section-body">
-        <div className="report-category-grid">{reportCategories.map(([value, label, description], index) => <label key={value} className="report-category-option"><input type="radio" name="category" value={value} defaultChecked={index === 0}/><span><strong>{label}</strong><small>{description}</small></span></label>)}</div>
+        <div className="report-category-grid">{reportCategories.map(([value, label, description]) => <label key={value} className="report-category-option"><input type="radio" name="category" value={value} checked={category === value} onChange={() => setCategory(value)}/><span><strong>{label}</strong><small>{description}</small></span></label>)}</div>
+        {category === "OTHER" && <label>Masalah apa yang terjadi?<input name="otherCategory" value={otherCategory} onChange={event => setOtherCategory(event.target.value)} required minLength={5} maxLength={100} placeholder="Contoh: Jaminan penggantian tidak dipenuhi" aria-describedby="other-category-help"/><small className="field-note" id="other-category-help">Tulis singkat. Cerita lengkapnya di bagian kronologi. Keterangan ini menjadi judul laporan setelah ditampilkan.</small></label>}
         </div>
       </fieldset>
       <fieldset>

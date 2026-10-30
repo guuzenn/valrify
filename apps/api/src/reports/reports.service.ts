@@ -84,7 +84,7 @@ export class ReportsService {
           guestContactEmail: guest?.contactEmail,
           guestFingerprint: fingerprint,
           entityId: entity.id,
-          title: titleReportCategory(input.category),
+          title: input.category === "OTHER" ? input.otherCategory! : titleReportCategory(input.category),
           chronology: input.chronology,
           evidenceUrl: input.evidenceUrl,
           transactionDate: input.transactionDate ? new Date(input.transactionDate) : null,

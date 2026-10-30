@@ -32,7 +32,7 @@ test("public report pagination is bounded, deterministic and excludes all non-pu
     }))).returning({ id: reports.id, publicId: reports.publicId });
     for (const status of ["SUBMITTED", "UNDER_REVIEW", "NEEDS_INFO", "VERIFIED", "REJECTED", "WITHDRAWN"] as const) await database.db.insert(reports).values({ publicId: `PRIVATE-${status}`, entityId: entity!.id, title: "Private report", chronology: "Private", transactionType: "HACKBACK", status, publishedAt: new Date() });
     const pages = await Promise.all([service.reportDirectory(1), service.reportDirectory(2), service.reportDirectory(3)]);
-    assert.deepEqual(pages.map(page => page.items.length), [12, 12, 1]);
+    assert.deepEqual(pages.map(page => page.items.length), [10, 10, 5]);
     assert.deepEqual(pages.map(page => page.hasNext), [true, true, false]);
     const all = pages.flatMap(page => page.items);
     assert.deepEqual(all.map(row => row.publicId), [...rows].sort((a, b) => b.id - a.id).map(row => row.publicId), "Equal publication times use ID as a stable tie-breaker");
@@ -41,9 +41,17 @@ test("public report pagination is bounded, deterministic and excludes all non-pu
     assert.ok(!/Sensitive|sensitive@example|private-hash|PRIVATE-/.test(JSON.stringify(all)));
     assert.deepEqual((await service.recentReports()).map(row => row.publicId), all.slice(0, 3).map(row => row.publicId));
     assert.deepEqual(await service.reportDirectory(4), { items: [], page: 4, hasNext: false });
+    const filtered = await service.reportDirectory(1, "laporan 1");
+    assert.equal(filtered.items.length, 10); assert.equal(filtered.hasNext, true);
+    assert.equal((await service.reportDirectory(2, "laporan 1")).items.length, 1);
+    assert.equal((await service.reportDirectory(1, "LIST fixture")).items.length, 10);
+    assert.equal((await service.reportDirectory(1, "%")).items.length, 0);
+    assert.equal((await service.reportDirectory(1, "_")).items.length, 0);
+    assert.equal((await service.reportDirectory(1, "Sensitive private chronology")).items.length, 0);
+    assert.equal((await service.reportDirectory(1, "Private report")).items.length, 0);
     await database.db.update(reports).set({ status: "WITHDRAWN" }).where(eq(reports.publicId, "LIST-0"));
-    assert.equal((await service.reportDirectory(2)).hasNext, false, "Exactly 12 results do not advertise another page");
-    assert.equal((await service.reportDirectory(3)).items.length, 0);
+    assert.equal((await service.reportDirectory(3)).hasNext, false);
+    assert.equal((await service.reportDirectory(3)).items.length, 4);
     await database.db.update(reports).set({ status: "WITHDRAWN" }).where(eq(reports.entityId, entity!.id));
     assert.deepEqual(await service.recentReports(), []);
     assert.deepEqual(await service.reportDirectory(1), { items: [], page: 1, hasNext: false });

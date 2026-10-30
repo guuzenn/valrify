@@ -313,7 +313,7 @@ export class AdminService {
         for (const identifier of item.identifierRows) await tx.insert(reportIdentifiers).values({ reportId, identifierId: identifier.id, entityId: item.entity.id }).onConflictDoNothing();
       }
       const updatedAt = new Date(Math.max(Date.now(), report.updatedAt.getTime() + 1));
-      await tx.update(reports).set({ ...(input.publicSummary !== undefined ? { publicSummary: input.publicSummary } : {}), entityId: resolved[0]!.entity.id, chronology: input.chronology, title: titleReportCategory(input.category), transactionType: input.category, transactionDate: input.transactionDate ? new Date(input.transactionDate) : null, evidenceUrl: input.evidenceUrl || null, updatedAt }).where(eq(reports.id, reportId));
+      await tx.update(reports).set({ ...(input.publicSummary !== undefined ? { publicSummary: input.publicSummary } : {}), entityId: resolved[0]!.entity.id, chronology: input.chronology, title: input.category === "OTHER" ? input.otherCategory! : titleReportCategory(input.category), transactionType: input.category, transactionDate: input.transactionDate ? new Date(input.transactionDate) : null, evidenceUrl: input.evidenceUrl || null, updatedAt }).where(eq(reports.id, reportId));
       await tx.insert(moderationActions).values({ reportId, actorId, action: "REPORT_EDITED", rationale: input.rationale, details: { before: { report, parties: previousParties, identifiers: previousIdentifiers }, after: input } });
       return { ok: true, updatedAt };
     });

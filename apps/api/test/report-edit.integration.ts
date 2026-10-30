@@ -26,9 +26,11 @@ test("admin correction keeps separate profiles linked by one case, audited and p
   try {
     await database.db.insert(users).values([{ id: reporterId, email: `${reporterId}@valrify.local`, displayName: "Fixture reporter", emailVerifiedAt: new Date() }, { id: adminId, email: `${adminId}@valrify.local`, displayName: "Fixture admin", role: "ADMIN", emailVerifiedAt: new Date() }]);
     const originalChronology = "Laporan awal mengenai akun pengarah sebelum identitas rekber tambahan diperiksa.";
-    const created = await service.create(reporterId, reportSchema.parse({ entityName: referrerName, chronology: originalChronology, category: "OTHER", identifiers: [{ type: "FACEBOOK_NAME", value: referrerName }] }), [file]);
+    const created = await service.create(reporterId, reportSchema.parse({ entityName: referrerName, chronology: originalChronology, category: "OTHER", otherCategory: "Masalah transaksi fixture", identifiers: [{ type: "FACEBOOK_NAME", value: referrerName }] }), [file]);
     reportIds.push(created.id);
     const original = (await database.db.query.reports.findFirst({ where: eq(reports.id, created.id) }))!;
+    assert.equal(original.title, "Masalah transaksi fixture");
+    assert.equal((await admin.queue()).find(row => row.id === created.id)!.title, original.title);
     const input = reportEditSchema.parse({ updatedAt: original.updatedAt.toISOString(), chronology: "Pengarah menyarankan akun rekber lain yang kemudian meminta deposit tambahan dalam transaksi.", category: "FAKE_MIDDLEMAN", transactionDate: "2026-10-28", evidenceUrl: "", rationale: "Menambahkan pihak rekber terpisah sesuai screenshot bukti.", parties: [{ entityId: original.entityId, entityName: referrerName, role: "REFERRER", identifiers: [{ type: "FACEBOOK_NAME", value: referrerName }] }, { entityName: middlemanName, role: "MIDDLEMAN", identifiers: [{ type: "FACEBOOK_NAME", value: middlemanName }, { type: "PHONE", value: phone }, { type: "BANK_ACCOUNT", value: phone, provider: "BCA" }] }] });
     await assert.rejects(admin.editReport(created.id, reporterId, input), /sendiri/);
     await admin.editReport(created.id, adminId, input);
@@ -89,12 +91,12 @@ test("admin correction keeps separate profiles linked by one case, audited and p
     assert.equal(publicCase!.parties[1]!.identifiers.some(id => id.displayValue === phone), true);
     assert.equal(JSON.stringify(publicCase).includes(originalChronology), false);
     // A later report can match the published middleman's phone without renaming that profile.
-    const followup = await service.create(reporterId, reportSchema.parse({ entityName: `Alias ${suffix}`, chronology: originalChronology, category: "OTHER", identifiers: [{ type: "PHONE", value: phone }] }), [file]);
+    const followup = await service.create(reporterId, reportSchema.parse({ entityName: `Alias ${suffix}`, chronology: originalChronology, category: "OTHER", otherCategory: "Masalah transaksi fixture", identifiers: [{ type: "PHONE", value: phone }] }), [file]);
     reportIds.push(followup.id);
     assert.equal(followup.linkedToExistingProfile, false);
     const reused = (await database.db.query.entities.findFirst({ where: eq(entities.id, parties[1]!.entityId) }))!;
     assert.equal(reused.displayName, middlemanName);
-    const otherBank = await service.create(reporterId, reportSchema.parse({ entityName: `Other bank ${suffix}`, chronology: originalChronology, category: "OTHER", identifiers: [{ type: "BANK_ACCOUNT", value: phone, provider: "BCA" }] }), [file]);
+    const otherBank = await service.create(reporterId, reportSchema.parse({ entityName: `Other bank ${suffix}`, chronology: originalChronology, category: "OTHER", otherCategory: "Masalah transaksi fixture", identifiers: [{ type: "BANK_ACCOUNT", value: phone, provider: "BCA" }] }), [file]);
     reportIds.push(otherBank.id);
     assert.equal(otherBank.linkedToExistingProfile, false);
     assert.notEqual((await database.db.query.reports.findFirst({ where: eq(reports.id, otherBank.id) }))!.entityId, reused.id);
@@ -107,7 +109,7 @@ test("admin correction keeps separate profiles linked by one case, audited and p
     assert.deepEqual(await publicService.search(referrerName), []);
     assert.equal(await publicService.publicCase(created.publicId), null);
     assert.equal(await publicService.publicEvidence(created.publicId, evidence!.id), null);
-    const dual = await service.create(reporterId, reportSchema.parse({ entityName: `Two banks ${suffix}`, chronology: originalChronology, category: "OTHER", identifiers: [{ type: "BANK_ACCOUNT", value: `${phone}9`, provider: "BCA" }, { type: "BANK_ACCOUNT", value: `${phone}9`, provider: "SeaBank" }] }), [file]);
+    const dual = await service.create(reporterId, reportSchema.parse({ entityName: `Two banks ${suffix}`, chronology: originalChronology, category: "OTHER", otherCategory: "Masalah transaksi fixture", identifiers: [{ type: "BANK_ACCOUNT", value: `${phone}9`, provider: "BCA" }, { type: "BANK_ACCOUNT", value: `${phone}9`, provider: "SeaBank" }] }), [file]);
     reportIds.push(dual.id);
     const dualIdentifiers = await database.db.select({ type: identifiers.type }).from(reportIdentifiers).innerJoin(identifiers, eq(identifiers.id, reportIdentifiers.identifierId)).where(eq(reportIdentifiers.reportId, dual.id));
     assert.equal(dualIdentifiers.filter(id => id.type === "BANK_ACCOUNT").length, 2);

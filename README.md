@@ -23,7 +23,7 @@ Prinsip utama Valrify:
 * Pencarian profil berdasarkan nama, Riot ID, username, nomor telepon, rekening, dan identitas terkait lainnya
 * Laporan transaksi dengan unggahan bukti dan alur pemeriksaan admin
 * Halaman profil yang merangkum laporan serta nomor dan akun terkait
-* Landing dengan tiga laporan terbaru dan daftar `/laporan` dengan 12 laporan per halaman, urutan terbaru, serta navigasi Sebelumnya/Berikutnya
+* Landing dengan tiga laporan terbaru dan daftar `/laporan` dengan 10 laporan per halaman, pencarian nama/judul, urutan terbaru, serta navigasi Sebelumnya/Berikutnya
 * Akun pengguna dengan verifikasi email dan riwayat laporan
 * Moderasi konten, kontrol akses berbasis peran, dan pencatatan keputusan admin
 * Penyimpanan bukti secara lokal untuk development atau melalui bucket private Cloudflare R2

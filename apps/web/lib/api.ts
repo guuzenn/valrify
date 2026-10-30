@@ -15,7 +15,7 @@ export const searchPublic=(query:string)=>api<SearchResult[]>(`/search?q=${encod
 export const getEntity=(slug:string)=>api<EntityResult>(`/entities/${encodeURIComponent(slug)}`);
 export const getPublicCase=(publicId:string)=>api<CaseResult>(`/reports/public/${encodeURIComponent(publicId)}`);
 export const getRecentCases=()=>api<RecentCase[]>("/reports/recent").then((value)=>value??[]);
-export const getReportDirectory=(page:number)=>api<{items:RecentCase[];page:number;hasNext:boolean}>(`/reports?page=${page}`);
+export const getReportDirectory=(page:number,q="")=>api<{items:RecentCase[];page:number;hasNext:boolean}>(`/reports?${new URLSearchParams({page:String(page),q})}`);
 export type DirectoryMiddleman = { id: number; displayName: string; description: string; profileUrl: string; contactUrl: string; feeInfo: string; isSponsored: boolean };
 export const getMiddlemen=()=>api<DirectoryMiddleman[]>("/middlemen");
 export const getPublicMember=(username:string)=>api<PublicMember>(`/users/${encodeURIComponent(username)}`);

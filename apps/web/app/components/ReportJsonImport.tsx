@@ -38,7 +38,7 @@ export function ReportJsonImport({ onImport, disabled }: {
       <details>
         <summary>PREVIEW TEMPLATE & PETUNJUK</summary>
         <label>Template JSON<textarea aria-label="Template JSON" readOnly value={reportJsonTemplate} rows={12} spellCheck={false}/></label>
-        <p className="field-note">category: PAYMENT_FRAUD, FAKE_MIDDLEMAN, HACKBACK, ACCOUNT_MISMATCH, OTHER. Tanggal: YYYY-MM-DD atau kosong. Link bukti boleh kosong jika kamu mengunggah file.</p>
+        <p className="field-note">category: PAYMENT_FRAUD, FAKE_MIDDLEMAN, HACKBACK, ACCOUNT_MISMATCH, OTHER. Untuk category OTHER, isi otherCategory dengan masalah singkat (5–100 karakter). Tanggal: YYYY-MM-DD atau kosong. Link bukti boleh kosong jika kamu mengunggah file.</p>
         <p className="field-note">type: BANK_ACCOUNT, EWALLET, PHONE, RIOT_ID, DISCORD, FACEBOOK_NAME, PERSON_NAME, OTHER. provider wajib untuk rekening/e-wallet. relatedName untuk nama pemilik rekening/e-wallet; secondaryValue untuk nickname Riot atau link Facebook. Maksimal 8 data termasuk nama/link tambahan. JSON tidak memuat file bukti.</p>
       </details>
       <div className="report-json-actions">

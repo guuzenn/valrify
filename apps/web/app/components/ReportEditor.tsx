@@ -8,11 +8,11 @@ import { reportEditSchema, type ReportEditInput } from "@valrify/validation";
 import { browserApi } from "../../lib/browser-api";
 import { IndonesianBanks, IndonesianEwallets, SearchableProvider } from "./SubmitReportForm";
 
-export type EditableReport = { id: number; status?: string; publicSummary?: string; updatedAt: string; chronology: string; transactionType: string; transactionDate: string | null; evidenceUrl: string | null; parties: ReportEditInput["parties"] };
+export type EditableReport = { id: number; title: string; status?: string; publicSummary?: string; updatedAt: string; chronology: string; transactionType: string; transactionDate: string | null; evidenceUrl: string | null; parties: ReportEditInput["parties"] };
 type Draft = Omit<ReportEditInput, "updatedAt" | "rationale">;
 
 export function ReportEditor({ report, onSaved, children, endpointBase = "/admin" }: { report: EditableReport; onSaved: () => Promise<void>; children: ReactNode; endpointBase?: string }) {
-  const initial: Draft = { ...(report.status === "PUBLISHED" ? { publicSummary: report.publicSummary ?? "" } : {}), chronology: report.chronology, category: reportCategories.includes(report.transactionType as Draft["category"]) ? report.transactionType as Draft["category"] : "OTHER", transactionDate: report.transactionDate?.slice(0, 10) ?? "", evidenceUrl: report.evidenceUrl ?? "", parties: report.parties };
+  const initial: Draft = { otherCategory: report.transactionType === "OTHER" ? report.title : "", ...(report.status === "PUBLISHED" ? { publicSummary: report.publicSummary ?? "" } : {}), chronology: report.chronology, category: reportCategories.includes(report.transactionType as Draft["category"]) ? report.transactionType as Draft["category"] : "OTHER", transactionDate: report.transactionDate?.slice(0, 10) ?? "", evidenceUrl: report.evidenceUrl ?? "", parties: report.parties };
   const [draft, setDraft] = useState(initial);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -43,6 +43,7 @@ export function ReportEditor({ report, onSaved, children, endpointBase = "/admin
       <fieldset disabled={saving}>
         {report.status === "PUBLISHED" && <label>Ringkasan publik<textarea required minLength={30} maxLength={2000} rows={4} value={draft.publicSummary ?? ""} onChange={event => setDraft({ ...draft, publicSummary: event.target.value })}/></label>}
         <div className="report-editor-grid"><label>Kategori<Select label="Kategori" value={draft.category} onValueChange={value => setDraft({ ...draft, category: value as Draft["category"] })}>{reportCategories.map(category => <option key={category} value={category}>{labelReportCategory(category)}</option>)}</Select></label><label>Tanggal kejadian<input type="date" value={draft.transactionDate} onChange={event => setDraft({ ...draft, transactionDate: event.target.value })}/></label></div>
+        {draft.category === "OTHER" && <label>Masalah apa yang terjadi?<input required minLength={5} maxLength={100} value={draft.otherCategory ?? ""} onChange={event => setDraft({ ...draft, otherCategory: event.target.value })}/><small className="field-note">Menjadi judul laporan publik. Tulis singkat tanpa data privat.</small></label>}
         <label>Kronologi lengkap (privat)<textarea rows={8} value={draft.chronology} maxLength={5000} onChange={event => setDraft({ ...draft, chronology: event.target.value })}/></label>
         <label>Link posting bukti<input type="url" value={draft.evidenceUrl} maxLength={500} placeholder="https://..." onChange={event => setDraft({ ...draft, evidenceUrl: event.target.value })}/></label>
         <p className="report-editor-notice">Pisahkan akun pengarah dan rekber yang berbeda. Untuk penyamaran, isi akun peniru yang berinteraksi sesuai bukti. Hanya masukkan pihak yang dilaporkan; data korban tetap di luar profil publik. Pihak pertama menjadi profil utama laporan.</p>

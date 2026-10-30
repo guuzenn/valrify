@@ -328,14 +328,15 @@ export class PublicService {
     return this.listPublishedReports(3);
   }
 
-  async reportDirectory(page: number) {
-    const pageSize = 12;
+  async reportDirectory(page: number, query = "") {
+    const pageSize = 10;
     // shortcut: offsets can shift when reports are published; use cursors if this disrupts browsing.
-    const items = await this.listPublishedReports(pageSize + 1, (page - 1) * pageSize);
+    const items = await this.listPublishedReports(pageSize + 1, (page - 1) * pageSize, query);
     return { items: items.slice(0, pageSize), page, hasNext: page < 99_999 && items.length > pageSize };
   }
 
-  private async listPublishedReports(limit: number, offset = 0) {
+  private async listPublishedReports(limit: number, offset = 0, query = "") {
+    const pattern = `%${query.trim().replace(/[\\%_]/g, "\\$&")}%`;
     const rows = await this.database.db
       .select({
         id: reports.id,
@@ -352,7 +353,12 @@ export class PublicService {
       .from(reports)
       .innerJoin(entities, eq(entities.id, reports.entityId))
       .leftJoin(users, eq(users.id, reports.reporterId))
-      .where(eq(reports.status, "PUBLISHED"))
+      .where(and(eq(reports.status, "PUBLISHED"), query.trim() ? sql`(
+        ${reports.title} ilike ${pattern} or ${entities.displayName} ilike ${pattern}
+        or exists (select 1 from report_parties p where p.report_id = ${reports.id} and p.display_name ilike ${pattern})
+        or exists (select 1 from report_identifiers ri join identifiers i on i.id = ri.identifier_id
+          where ri.report_id = ${reports.id} and i.type in ('PERSON_NAME', 'FACEBOOK_NAME', 'RIOT_NICKNAME', 'BANK_ACCOUNT_NAME', 'EWALLET_ACCOUNT_NAME') and i.raw_value ilike ${pattern})
+      )` : undefined))
       .orderBy(desc(reports.publishedAt), desc(reports.id))
       .limit(limit)
       .offset(offset);

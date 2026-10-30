@@ -15,4 +15,6 @@ test("public report pages default to one and reject malformed or unbounded input
   }
   assert.deepEqual(pages, [1, 2]);
   assert.equal(publicReportsQuerySchema.parse({ page: "99999" }).page, 99999);
+  assert.equal(publicReportsQuerySchema.parse({ q: "  Arifaan  " }).q, "Arifaan");
+  for (const q of [["a", "b"], {}, "x".repeat(101)]) assert.equal(publicReportsQuerySchema.safeParse({ q }).success, false);
 });

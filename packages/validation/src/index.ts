@@ -5,7 +5,7 @@ const newPasswordSchema = z.string().min(10, "Password minimal 10 karakter.").ma
 
 const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);
 
-export const publicReportsQuerySchema = z.object({ page: z.string().regex(/^[1-9]\d{0,4}$/, "Nomor halaman tidak valid.").default("1").transform(Number) });
+export const publicReportsQuerySchema = z.object({ page: z.string().regex(/^[1-9]\d{0,4}$/, "Nomor halaman tidak valid.").default("1").transform(Number), q: z.string().trim().max(100).default("") });
 
 export const adminUserQuerySchema = z.object({ q: z.string().trim().max(100).default(""), role: z.enum(roles).optional(), page: z.coerce.number().int().min(1).max(100000).default(1) });
 export const adminRoleSchema = z.object({ role: z.enum(roles), expectedRole: z.enum(roles), rationale: z.string().trim().min(10, "Alasan perubahan minimal 10 karakter.").max(1000) });
@@ -103,7 +103,9 @@ export const reportSchema = z.object({
   provider: z.string().trim().max(40).optional(),
   transactionDate: z.string().optional(),
   category: z.enum(reportCategories),
+  otherCategory: z.string().trim().max(100, "Masalah maksimal 100 karakter.").optional(),
 }).superRefine((value, context) => {
+  if (value.category === "OTHER" && (!value.otherCategory || value.otherCategory.length < 5)) context.addIssue({ code: "custom", path: ["otherCategory"], message: "Jelaskan masalah lainnya dalam 5–100 karakter." });
   if (!value.identifiers && (!value.identifierType || !value.identifierValue)) {
     context.addIssue({
       code: "custom",
@@ -124,6 +126,7 @@ export const reportQueueSchema = z.enum(["PENDING", "PUBLISHED"]).default("PENDI
 
 export const reportFormImportSchema = z.strictObject({
   category: z.enum(["PAYMENT_FRAUD", "FAKE_MIDDLEMAN", "HACKBACK", "ACCOUNT_MISMATCH", "OTHER"]),
+  otherCategory: z.string().trim().max(100).default(""),
   entityName: z.string().trim().min(2).max(80),
   chronology: z.string().trim().min(30).max(5000),
   transactionDate: z.union([z.iso.date(), z.literal("")]).default(""),
@@ -136,6 +139,7 @@ export const reportFormImportSchema = z.strictObject({
     secondaryValue: z.string().trim().max(160).default(""),
   })).min(1).max(8),
 }).superRefine((data, ctx) => {
+  if (data.category === "OTHER" && data.otherCategory.length < 5) ctx.addIssue({ code: "custom", path: ["otherCategory"], message: "Jelaskan masalah lainnya dalam 5–100 karakter." });
   let count = data.identifiers.length;
   data.identifiers.forEach((row, index) => {
     const issue = (field: string, message: string) => ctx.addIssue({ code: "custom", path: ["identifiers", index, field], message });
@@ -155,6 +159,7 @@ export const reportEditSchema = z.object({
   updatedAt: z.iso.datetime(),
   chronology: z.string().trim().min(30, "Kronologi minimal 30 karakter.").max(5000, "Kronologi maksimal 5.000 karakter."),
   category: z.enum(reportCategories),
+  otherCategory: z.string().trim().max(100, "Masalah maksimal 100 karakter.").optional(),
   transactionDate: z.union([z.iso.date(), z.literal("")]),
   evidenceUrl: z.union([z.url().max(500).refine(value => /^https?:\/\//.test(value), "Link bukti harus menggunakan http atau https."), z.literal("")]),
   rationale: z.string().trim().min(10, "Alasan koreksi minimal 10 karakter.").max(2000),
@@ -165,6 +170,7 @@ export const reportEditSchema = z.object({
     identifiers: z.array(reportIdentifierSchema).min(1).max(8),
   })).min(1).max(4),
 }).superRefine((value, context) => {
+  if (value.category === "OTHER" && (!value.otherCategory || value.otherCategory.length < 5)) context.addIssue({ code: "custom", path: ["otherCategory"], message: "Jelaskan masalah lainnya dalam 5–100 karakter." });
   if (value.parties.reduce((sum, party) => sum + party.identifiers.length, 0) > 8) {
     context.addIssue({ code: "custom", path: ["parties"], message: "Maksimal delapan nomor atau akun untuk seluruh pihak." });
   }

@@ -48,7 +48,8 @@ export class PublicController {
   @Get("reports")
   @Throttle({ default: RATE_LIMITS.search })
   reports(@Query() query: unknown) {
-    return this.service.reportDirectory(parseSchema(publicReportsQuerySchema, query).page);
+    const { page, q } = parseSchema(publicReportsQuerySchema, query);
+    return this.service.reportDirectory(page, q);
   }
 
   @Get("reports/public/:publicId/evidence/:evidenceId")
