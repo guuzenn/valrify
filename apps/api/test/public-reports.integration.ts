@@ -49,7 +49,7 @@ test("public report pagination is bounded, deterministic and excludes all non-pu
     assert.deepEqual(await service.reportDirectory(1), { items: [], page: 1, hasNext: false });
   } finally {
     await database?.onModuleDestroy();
-    if (created) await control.query(`drop database "${name}" with (force)`);
+    if (created) await control.query(`drop database "${name}"`);
     await control.end();
   }
 });

@@ -81,7 +81,7 @@ test("guest submissions serialize quotas, deduplicate retries, remain private an
     await service.checkGuestQuota(next());
   } finally {
     await database?.onModuleDestroy();
-    if (created) await control.query(`drop database "${name}" with (force)`);
+    if (created) await control.query(`drop database "${name}"`);
     await control.end();
   }
 });
