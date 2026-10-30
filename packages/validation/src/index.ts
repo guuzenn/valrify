@@ -5,7 +5,7 @@ const newPasswordSchema = z.string().min(10, "Password minimal 10 karakter.").ma
 
 const reservedUsernames = new Set(["admin", "administrator", "moderator", "support", "valrify"]);
 
-export const publicReportsQuerySchema = z.object({ page: z.string().regex(/^[1-9]\d{0,4}$/, "Nomor halaman tidak valid.").default("1").transform(Number), q: z.string().trim().max(100).default("") });
+export const publicReportsQuerySchema = z.object({ page: z.string().regex(/^[1-9]\d{0,4}$/, "Nomor halaman tidak valid.").default("1").transform(Number), q: z.string().trim().max(100).default(""), sort: z.enum(["published", "incident"]).default("published") });
 
 export const adminUserQuerySchema = z.object({ q: z.string().trim().max(100).default(""), role: z.enum(roles).optional(), page: z.coerce.number().int().min(1).max(100000).default(1) });
 export const adminRoleSchema = z.object({ role: z.enum(roles), expectedRole: z.enum(roles), rationale: z.string().trim().min(10, "Alasan perubahan minimal 10 karakter.").max(1000) });

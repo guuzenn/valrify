@@ -49,6 +49,11 @@ test("public report pagination is bounded, deterministic and excludes all non-pu
     assert.equal((await service.reportDirectory(1, "_")).items.length, 0);
     assert.equal((await service.reportDirectory(1, "Sensitive private chronology")).items.length, 0);
     assert.equal((await service.reportDirectory(1, "Private report")).items.length, 0);
+    for (const publicId of ["LIST-0", "LIST-1"]) await database.db.update(reports).set({ transactionDate: new Date("2026-01-01T00:00:00Z") }).where(eq(reports.publicId, publicId));
+    assert.equal((await service.reportDirectory(1)).items[0]!.publicId, "LIST-24", "Publication remains default");
+    const byIncident = await service.reportDirectory(1, "", "incident");
+    assert.deepEqual(byIncident.items.slice(0, 3).map(row => row.publicId), ["LIST-1", "LIST-0", "LIST-24"], "Dated reports first, stable ties, undated last");
+    assert.equal((await service.reportDirectory(1, "Laporan 1", "incident")).items[0]!.publicId, "LIST-1");
     await database.db.update(reports).set({ status: "WITHDRAWN" }).where(eq(reports.publicId, "LIST-0"));
     assert.equal((await service.reportDirectory(3)).hasNext, false);
     assert.equal((await service.reportDirectory(3)).items.length, 4);

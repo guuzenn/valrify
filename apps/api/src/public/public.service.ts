@@ -328,14 +328,14 @@ export class PublicService {
     return this.listPublishedReports(3);
   }
 
-  async reportDirectory(page: number, query = "") {
+  async reportDirectory(page: number, query = "", sort: "published" | "incident" = "published") {
     const pageSize = 10;
     // shortcut: offsets can shift when reports are published; use cursors if this disrupts browsing.
-    const items = await this.listPublishedReports(pageSize + 1, (page - 1) * pageSize, query);
+    const items = await this.listPublishedReports(pageSize + 1, (page - 1) * pageSize, query, sort);
     return { items: items.slice(0, pageSize), page, hasNext: page < 99_999 && items.length > pageSize };
   }
 
-  private async listPublishedReports(limit: number, offset = 0, query = "") {
+  private async listPublishedReports(limit: number, offset = 0, query = "", sort: "published" | "incident" = "published") {
     const pattern = `%${query.trim().replace(/[\\%_]/g, "\\$&")}%`;
     const rows = await this.database.db
       .select({
@@ -359,7 +359,7 @@ export class PublicService {
         or exists (select 1 from report_identifiers ri join identifiers i on i.id = ri.identifier_id
           where ri.report_id = ${reports.id} and i.type in ('PERSON_NAME', 'FACEBOOK_NAME', 'RIOT_NICKNAME', 'BANK_ACCOUNT_NAME', 'EWALLET_ACCOUNT_NAME') and i.raw_value ilike ${pattern})
       )` : undefined))
-      .orderBy(desc(reports.publishedAt), desc(reports.id))
+      .orderBy(...(sort === "incident" ? [sql`${reports.transactionDate} desc nulls last`] : []), desc(reports.publishedAt), desc(reports.id))
       .limit(limit)
       .offset(offset);
 
