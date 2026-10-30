@@ -9,7 +9,7 @@ type TurnstileApi = {
 };
 declare global { interface Window { turnstile?: TurnstileApi } }
 
-export function Turnstile({ action, resetKey, onToken }: { action: "register" | "forgot-password" | "resend-verification" | "submit-report"; resetKey: number; onToken: (token: string) => void }) {
+export function Turnstile({ action, resetKey, onToken }: { action: "register" | "forgot-password" | "resend-verification" | "submit-report" | "contact"; resetKey: number; onToken: (token: string) => void }) {
   const container = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");

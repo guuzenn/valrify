@@ -58,6 +58,25 @@ export class EmailService {
   async send(input: TransactionalEmail) {
     if (!this.isConfigured()) return false;
     const content = buildAuthEmail(input, this.publicAppUrl);
+    return this.deliver({
+      to: [{ email: input.to, name: input.displayName }],
+      ...content,
+      tags: [input.kind],
+    });
+  }
+
+  async sendContact(input: { name: string; email: string; topic: string; message: string }) {
+    if (!this.isConfigured()) return false;
+    return this.deliver({
+      to: [{ email: "support@valrify.app", name: "Admin Valrify" }],
+      replyTo: { email: input.email, name: input.name },
+      subject: `Pesan kontak Valrify: ${input.topic}`,
+      textContent: `Nama: ${input.name}\nEmail balasan: ${input.email}\nTopik: ${input.topic}\n\n${input.message}`,
+      tags: ["contact"],
+    });
+  }
+
+  private async deliver(content: Record<string, unknown>) {
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
@@ -67,11 +86,7 @@ export class EmailService {
       },
       body: JSON.stringify({
         sender: { name: this.fromName, email: this.fromEmail },
-        to: [{ email: input.to, name: input.displayName }],
-        subject: content.subject,
-        htmlContent: content.htmlContent,
-        textContent: content.textContent,
-        tags: [input.kind],
+        ...content,
       }),
       signal: AbortSignal.timeout(15_000),
     });
