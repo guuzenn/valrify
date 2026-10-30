@@ -151,6 +151,7 @@ export const reportFormImportSchema = z.strictObject({
 });
 
 export const reportEditSchema = z.object({
+  publicSummary: z.string().trim().min(30, "Ringkasan publik minimal 30 karakter.").max(2000).optional(),
   updatedAt: z.iso.datetime(),
   chronology: z.string().trim().min(30, "Kronologi minimal 30 karakter.").max(5000, "Kronologi maksimal 5.000 karakter."),
   category: z.enum(reportCategories),

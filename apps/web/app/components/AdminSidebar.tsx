@@ -9,7 +9,6 @@ const links = [
   { href: "/admin", label: "Beranda", index: "01" },
   { href: "/admin/users", label: "Pengguna & Role", index: "02", adminOnly: true },
   { href: "/admin/reports", label: "Laporan", index: "03" },
-  { href: "/admin/community", label: "Community", index: "04" },
   { href: "/admin/directory", label: "Direktori Rekber", index: "05", adminOnly: true },
   { href: "/admin/activity", label: "Riwayat Aktivitas", index: "06", adminOnly: true },
   { href: "/admin/security", label: "Keamanan", index: "07" },

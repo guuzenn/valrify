@@ -55,7 +55,7 @@ export class PublicService {
     });
     if (!member?.username) return null;
     const isTrustedRole = ["ADMIN", "MODERATOR", "VERIFIED_MIDDLEMAN"].includes(member.role);
-    const [reportRows, postRows] = await Promise.all([
+    const reportRows = await (
       isTrustedRole
         ? this.database.db
             .select({
@@ -70,13 +70,7 @@ export class PublicService {
             .innerJoin(entities, eq(entities.id, reports.entityId))
             .where(and(eq(reports.reporterId, member.id), eq(reports.status, "PUBLISHED")))
             .orderBy(desc(reports.publishedAt))
-        : Promise.resolve([]),
-      this.database.db
-        .select({ id: communityPosts.id, body: communityPosts.body, createdAt: communityPosts.createdAt, updatedAt: communityPosts.updatedAt })
-        .from(communityPosts)
-        .where(and(eq(communityPosts.authorId, member.id), eq(communityPosts.status, "PUBLISHED")))
-        .orderBy(desc(communityPosts.createdAt)),
-    ]);
+        : Promise.resolve([]));
     const roleLabel = member.role === "ADMIN" ? "Admin" : member.role === "MODERATOR" ? "Moderator" : member.role === "VERIFIED_MIDDLEMAN" ? "Verified Middleman" : "Anggota Komunitas";
     return {
       displayName: member.displayName,
@@ -86,11 +80,11 @@ export class PublicService {
       roleLabel,
       joinedAt: member.createdAt,
       stats: {
-        posts: postRows.length,
+        posts: 0,
         reports: reportRows.length,
       },
       reports: reportRows,
-      posts: postRows,
+      posts: [],
     };
   }
 

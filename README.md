@@ -24,15 +24,14 @@ Prinsip utama Valrify:
 * Laporan transaksi dengan unggahan bukti dan alur pemeriksaan admin
 * Halaman profil yang merangkum laporan serta nomor dan akun terkait
 * Landing dengan tiga laporan terbaru dan daftar `/laporan` dengan 12 laporan per halaman, urutan terbaru, serta navigasi Sebelumnya/Berikutnya
-* Akun pengguna dengan verifikasi email, riwayat kiriman, dan notifikasi
-* Community feed untuk berbagi pengalaman dan tips transaksi
+* Akun pengguna dengan verifikasi email dan riwayat laporan
 * Moderasi konten, kontrol akses berbasis peran, dan pencatatan keputusan admin
 * Penyimpanan bukti secara lokal untuk development atau melalui bucket private Cloudflare R2
 * Rate limiting untuk endpoint autentikasi, pencarian, unggahan, dan pengiriman laporan
 
 ## Status proyek
 
-Valrify sedang berada dalam tahap beta aktif. Alur utama pencarian, laporan, pemeriksaan admin, profil, autentikasi, dan direktori rekber sudah tersedia. Fitur testi dihentikan; data lama disimpan sebagai arsip dan tidak ditampilkan. Masukan, pengujian, serta kontribusi dari komunitas sangat diterima.
+Valrify sedang berada dalam tahap beta aktif. Alur utama pencarian, laporan, pemeriksaan admin, profil, autentikasi, dan direktori rekber sudah tersedia. Community (feed, post, komentar, like, pencarian sosial, dan notifikasi sosial) dihentikan; route web/API publik dinonaktifkan tanpa menghapus data lama. Profil publik tetap tersedia melalui `/u/:username` dan API `/users/:username`. Fitur testi dihentikan; data lama disimpan sebagai arsip dan tidak ditampilkan. Masukan, pengujian, serta kontribusi dari komunitas sangat diterima.
 
 Data yang dibuat melalui proses seed sepenuhnya fiktif dan hanya digunakan untuk demonstrasi.
 
@@ -154,10 +153,9 @@ Login admin/MFA sekarang membuka `/admin` dengan sidebar dan ringkasan operasion
 
 | Halaman | Fungsi | Akses |
 | --- | --- | --- |
-| `/admin` | Ringkasan laporan, pengguna, Community, dan direktori | ADMIN, MODERATOR |
+| `/admin` | Ringkasan laporan, pengguna dan direktori | ADMIN, MODERATOR |
 | `/admin/users` | Pencarian, filter role, detail kontribusi, perubahan role | ADMIN |
 | `/admin/reports` | Antrean pemeriksaan dan laporan publik | ADMIN, MODERATOR |
-| `/admin/community` | Moderasi post dan komentar | ADMIN, MODERATOR |
 | `/admin/directory` | Draft, publikasi, urutan, kontak, dan label sponsor rekber | ADMIN |
 | `/admin/activity` | Audit perubahan role, direktori, dan keputusan moderasi | ADMIN |
 | `/admin/security` | Informasi MFA dan pengelolaan sesi akun sendiri | ADMIN, MODERATOR |

@@ -3,7 +3,6 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Query,
   Res,
 } from "@nestjs/common";
@@ -34,34 +33,11 @@ export class PublicController {
     return result;
   }
 
-  @Get("community/users/:username")
+  @Get("users/:username")
   async communityUser(@Param("username") username: string) {
     const result = await this.service.communityUser(username);
-    if (!result) throw new NotFoundException("Profil komunitas tidak ditemukan.");
+    if (!result) throw new NotFoundException("Profil tidak ditemukan.");
     return result;
-  }
-
-  @Get("community/search")
-  @Throttle({ default: RATE_LIMITS.search })
-  communitySearch(@Query("q") query = "") {
-    return this.service.communitySearch(query);
-  }
-
-  @Get("community/posts")
-  communityPosts(@Query("sort") sort = "latest") {
-    return this.service.communityPosts(sort === "popular" ? "popular" : "latest");
-  }
-
-  @Get("community/posts/:id")
-  async communityPost(@Param("id", ParseIntPipe) id: number) {
-    const result = await this.service.communityPost(id);
-    if (!result) throw new NotFoundException("Post Community tidak ditemukan.");
-    return result;
-  }
-
-  @Get("community/posts/:id/comments")
-  communityComments(@Param("id", ParseIntPipe) id: number) {
-    return this.service.communityComments(id);
   }
 
   @Get("reports/recent")

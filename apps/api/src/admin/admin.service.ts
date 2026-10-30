@@ -108,6 +108,7 @@ export class AdminService {
         publicId: reports.publicId,
         title: reports.title,
         chronology: reports.chronology,
+        publicSummary: reports.publicSummary,
         transactionType: reports.transactionType,
         transactionDate: reports.transactionDate,
         evidenceUrl: reports.evidenceUrl,
@@ -287,8 +288,13 @@ export class AdminService {
       if (!report) throw new NotFoundException("Laporan tidak ditemukan.");
       const actor = await tx.query.users.findFirst({ where: eq(users.id, actorId), columns: { role: true } });
       if (!actor || !canReviewReport(actor.role, report.reporterId === actorId)) throw new ForbiddenException("Akses koreksi ditolak. Rekber terverifikasi hanya boleh mengoreksi kirimannya sendiri; moderator hanya boleh mengoreksi kiriman pengguna lain.");
-      if (!["SUBMITTED", "UNDER_REVIEW", "NEEDS_INFO", "VERIFIED"].includes(report.status)) throw new BadRequestException("Hanya laporan yang belum dipublikasikan dapat diedit.");
+      if (report.status === "PUBLISHED" && actor.role !== "ADMIN" && actor.role !== "MODERATOR") throw new ForbiddenException("Koreksi laporan publik hanya dapat dilakukan admin atau moderator.");
+      if (!["SUBMITTED", "UNDER_REVIEW", "NEEDS_INFO", "VERIFIED", "PUBLISHED"].includes(report.status)) throw new BadRequestException("Status laporan ini tidak dapat diedit.");
       if (report.updatedAt.getTime() !== new Date(input.updatedAt).getTime()) throw new ConflictException("Laporan sudah berubah. Muat ulang sebelum menyimpan.");
+      if (report.status === "PUBLISHED" && !input.evidenceUrl) {
+        const approved = await tx.select({ id: reportEvidence.id }).from(reportEvidence).where(and(eq(reportEvidence.reportId, reportId), eq(reportEvidence.isPublicApproved, true))).limit(1);
+        if (!approved.length) throw new BadRequestException("Laporan publik harus tetap memiliki gambar bukti publik atau link posting bukti.");
+      }
       const previousParties = await tx.select().from(reportParties).where(eq(reportParties.reportId, reportId));
       const previousIdentifiers = await tx.select().from(reportIdentifiers).where(eq(reportIdentifiers.reportId, reportId));
       const allowedEntityIds = new Set([report.entityId, ...previousParties.map(party => party.entityId)]);
@@ -307,7 +313,7 @@ export class AdminService {
         for (const identifier of item.identifierRows) await tx.insert(reportIdentifiers).values({ reportId, identifierId: identifier.id, entityId: item.entity.id }).onConflictDoNothing();
       }
       const updatedAt = new Date(Math.max(Date.now(), report.updatedAt.getTime() + 1));
-      await tx.update(reports).set({ entityId: resolved[0]!.entity.id, chronology: input.chronology, title: titleReportCategory(input.category), transactionType: input.category, transactionDate: input.transactionDate ? new Date(input.transactionDate) : null, evidenceUrl: input.evidenceUrl || null, updatedAt }).where(eq(reports.id, reportId));
+      await tx.update(reports).set({ ...(input.publicSummary !== undefined ? { publicSummary: input.publicSummary } : {}), entityId: resolved[0]!.entity.id, chronology: input.chronology, title: titleReportCategory(input.category), transactionType: input.category, transactionDate: input.transactionDate ? new Date(input.transactionDate) : null, evidenceUrl: input.evidenceUrl || null, updatedAt }).where(eq(reports.id, reportId));
       await tx.insert(moderationActions).values({ reportId, actorId, action: "REPORT_EDITED", rationale: input.rationale, details: { before: { report, parties: previousParties, identifiers: previousIdentifiers }, after: input } });
       return { ok: true, updatedAt };
     });
